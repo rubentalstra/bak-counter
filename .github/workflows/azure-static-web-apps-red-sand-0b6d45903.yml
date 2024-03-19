@@ -32,7 +32,7 @@ jobs:
           action: "upload"
           app_location: "/" # App source code path
           api_location: "none" # Since it's an Express app, this might be set to "none"
-          output_location: "public"
+          output_location: ""
           ###### No output_location needed for Express.js apps ######
 
   close_pull_request_job:
