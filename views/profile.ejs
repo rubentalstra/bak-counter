@@ -20,6 +20,10 @@
         .rep-bar {
             height: 20px;
         }
+
+        .event-log li {
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 
@@ -29,10 +33,11 @@
         <div class="container mt-5">
             <div class="profile-header">
                 <div class="row align-items-center">
-                    <div class="col-md-2">
-                        <img src="<%= user.profilePicture %>" alt="Profile Picture" class="img-fluid rounded-circle">
-                    </div>
-                    <div class="col-md-10">
+                    <div class="col-md-6 col-lg-8">
+                        <img src="<%= user.profilePicture ? user.profilePicture : '/uploads/blank_image.png' %>"
+                            alt="Profile Picture" class="img-fluid rounded-circle"
+                            style="width: 100px; height: 100px; margin-right: 20px; float: left;">
+
                         <h2>
                             <%= user.name %>'s Profile
                         </h2>
@@ -40,59 +45,118 @@
                             <%= user.profileDescription %>
                         </p>
                     </div>
+                    <div class="col-md-6 col-lg-4 text-md-end">
+                        <p class="mb-0"><strong>Level:</strong>
+                            <%= level %>
+                        </p>
+                        <p><strong>Reputation:</strong>
+                            <%= reputation %>
+                        </p>
+                    </div>
                 </div>
             </div>
+
+            <!-- Progress Section with Levels & Reputation -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h4>Progress & Achievements</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p>XP: <%= user.xp %> / <%= nextXPLevel ? nextXPLevel : 'Max Level' %>
+                            </p>
+                            <div class="progress mb-2">
+                                <div class="progress-bar achievement-bar" role="progressbar"
+                                    style="width: <%= xpPercentage %>%" aria-valuenow="<%= user.xp %>" aria-valuemin="0"
+                                    aria-valuemax="<%= nextXPLevel ? nextXPLevel : 100 %>"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <p>REP: <%= user.rep %> / <%= nextRepTier ? nextRepTier : 'Max Tier' %>
+                            </p>
+                            <div class="progress">
+                                <div class="progress-bar rep-bar bg-success" role="progressbar"
+                                    style="width: <%= repPercentage %>%" aria-valuenow="<%= user.rep %>"
+                                    aria-valuemin="0" aria-valuemax="<%= nextRepTier ? nextRepTier : 100 %>"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Section -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h4>Statistics</h4>
+                    <p>Bakken in x aantal uur: <%= user.recordCounter %>
+                    </p>
+                    <!-- Add more stats as needed -->
+                </div>
+            </div>
+
+            <!-- Event Log Section -->
             <div class="card">
                 <div class="card-body">
-                    <!-- XP and REP Section -->
-                    <div class="mb-3">
-                        <h4>Progress</h4>
-                        <label for="xpProgressBar">XP: <%= user.xp %> / <%= nextXPLevel ? nextXPLevel : 'Max Level' %>
-                        </label>
-                        <div class="progress mb-2">
-                            <div class="progress-bar achievement-bar" role="progressbar"
-                                style="width: <%= xpPercentage %>%" aria-valuenow="<%= user.xp %>" aria-valuemin="0"
-                                aria-valuemax="<%= nextXPLevel ? nextXPLevel : 100 %>"></div>
-                        </div>
-                        <label for="repProgressBar">REP: <%= user.rep %> / <%= nextRepTier ? nextRepTier : 'Max Tier' %>
-                        </label>
-                        <div class="progress">
-                            <div class="progress-bar rep-bar bg-success" role="progressbar"
-                                style="width: <%= repPercentage %>%" aria-valuenow="<%= user.rep %>" aria-valuemin="0"
-                                aria-valuemax="<%= nextRepTier ? nextRepTier : 100 %>"></div>
-                        </div>
+                    <h4>Event Log</h4>
+                    <!-- Search input -->
+                    <input type="text" id="searchInput" class="form-control mb-3" onkeyup="searchTable()"
+                        placeholder="Search for events...">
+                    <div class="table-responsive">
+                        <table class="table" id="eventLogTable">
+                            <thead>
+                                <tr>
+                                    <th>Description</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% user.eventLogs.forEach(event=> { %>
+                                    <tr>
+                                        <td>
+                                            <%= event.description %>
+                                        </td>
+                                        <td>
+                                            <%= new Date(event.createdAt).toLocaleString() %>
+                                        </td>
+                                    </tr>
+                                    <% }); %>
+                            </tbody>
+                        </table>
                     </div>
-                    <!-- Level and Reputation Section -->
-                    <div class="mb-3">
-                        <h4>Levels & Reputation</h4>
-                        <p>Level: <%= level %>
-                        </p>
-                        <p>Reputation: <%= reputation %>
-                        </p>
-                    </div>
-                    <!-- Record Counter Section -->
-                    <div class="mb-3">
-                        <h4>Record Counter</h4>
-                        <p>Bakken in x aantal uur: <%= user.recordCounter %>
-                        </p>
-                    </div>
-                    <!-- Event Log Section -->
-                    <div class="mb-3">
-                        <h4>Event Log</h4>
-                        <ul>
-                            <% user.eventLogs.forEach(event=> { %>
-                                <li>
-                                    <%= event.description %> - <%= event.timestamp %>
-                                </li>
-                                <% }); %>
-                        </ul>
-                    </div>
+                    <!-- Implement pagination or a mechanism to load more logs as per your backend capability -->
                 </div>
             </div>
+
+
+
+
         </div>
 
         <!-- Bootstrap JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
+        <script>
+            function searchTable() {
+                var input, filter, table, tr, td, i, txtValue;
+                input = document.getElementById("searchInput");
+                filter = input.value.toUpperCase();
+                table = document.getElementById("eventLogTable");
+                tr = table.getElementsByTagName("tr");
+
+                // Loop through all table rows, and hide those who don't match the search query
+                for (i = 0; i < tr.length; i++) {
+                    td = tr[i].getElementsByTagName("td")[0]; // Column index, 0 for the first column
+                    if (td) {
+                        txtValue = td.textContent || td.innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            tr[i].style.display = "";
+                        } else {
+                            tr[i].style.display = "none";
+                        }
+                    }
+                }
+            }
+        </script>
+
 </body>
 
 </html>

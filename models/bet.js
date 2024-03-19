@@ -36,6 +36,11 @@ module.exports = (sequelize) => {
             },
             comment: 'The ID of the user designated as the judge to decide the outcome'
         },
+        betTitle: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            comment: 'A title name for a Bet'
+        },
         betDescription: {
             type: DataTypes.TEXT,
             allowNull: false,

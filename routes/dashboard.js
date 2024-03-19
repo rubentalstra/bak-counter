@@ -169,7 +169,6 @@ router.post('/bak-request/:requestId/:status', async (req, res) => {
             await logEvent({
                 userId: req.user.id,
                 description: `Approved BAK request for ${targetUser.name}`,
-                ipAddress: req.ip
             });
         } else if (status === 'declined') {
             // If request is declined, increment BAK count of the sender
@@ -180,7 +179,6 @@ router.post('/bak-request/:requestId/:status', async (req, res) => {
             await logEvent({
                 userId: req.user.id,
                 description: `Declined BAK request from ${senderUser.name}`,
-                ipAddress: req.ip
             });
         }
 
