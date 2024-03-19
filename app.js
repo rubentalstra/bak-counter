@@ -25,6 +25,7 @@ app.use(passport.session());
 app.use(require('./routes/auth'));
 app.use(require('./routes/index'));
 app.use(require('./routes/dashboard'));
+app.use('/bets', require('./routes/bets'));
 app.use(require('./routes/admin'));
 
 app.set('view engine', 'ejs');

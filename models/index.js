@@ -8,7 +8,7 @@ const User = require('./user')(sequelize);
 const BakRequest = require('./bakRequest')(sequelize); // Ensure the model file name matches
 const BakHasTakenRequest = require('./bakHasTakenRequest')(sequelize); // New model import
 const EventLog = require('./eventLog')(sequelize); // Import the EventLog model
-
+const Bet = require('./bet')(sequelize); // Import the new Bet model
 
 // Setup associations for User and BakRequest
 User.hasMany(BakRequest, {
@@ -42,11 +42,36 @@ BakHasTakenRequest.belongsTo(User, {
     foreignKey: 'targetId'
 });
 
-
 // Setup associations for User and EventLog
 User.hasMany(EventLog, {
     foreignKey: 'userId',
     as: 'eventLogs'
+});
+
+// Setup associations for User and Bet
+User.hasMany(Bet, {
+    as: 'InitiatedBets',
+    foreignKey: 'initiatorUserId'
+});
+User.hasMany(Bet, {
+    as: 'OpponentBets',
+    foreignKey: 'opponentUserId'
+});
+User.hasMany(Bet, {
+    as: 'JudgedBets',
+    foreignKey: 'judgeUserId'
+});
+Bet.belongsTo(User, {
+    as: 'Initiator',
+    foreignKey: 'initiatorUserId'
+});
+Bet.belongsTo(User, {
+    as: 'Opponent',
+    foreignKey: 'opponentUserId'
+});
+Bet.belongsTo(User, {
+    as: 'Judge',
+    foreignKey: 'judgeUserId'
 });
 
 // Synchronize the models with the database
@@ -59,5 +84,6 @@ module.exports = {
     User,
     BakRequest,
     BakHasTakenRequest,
-    EventLog
+    EventLog,
+    Bet
 };
