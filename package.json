@@ -4,7 +4,7 @@
   "description": "counter for keeping track of the 'BAK'",
   "main": "index.js",
   "scripts": {
-    "start": "node app.js.js",
+    "start": "node app.js",
     "build": "echo \"No build step required for Express.js app\""
   },
   "keywords": [],
