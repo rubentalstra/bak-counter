@@ -1,0 +1,8 @@
+{
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/73992d6b-80e6-4b47-a420-a1491a7a1bf8/resourceGroups/bak-counter/providers/Microsoft.Web/sites/bak-counter",
+    "appService.deploySubpath": "."
+}
