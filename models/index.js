@@ -42,6 +42,13 @@ BakHasTakenRequest.belongsTo(User, {
     foreignKey: 'targetId'
 });
 
+
+// Setup associations for User and EventLog
+User.hasMany(EventLog, {
+    foreignKey: 'userId',
+    as: 'eventLogs'
+});
+
 // Synchronize the models with the database
 sequelize.sync({ force: false }).then(() => {
     console.log('Database & tables created!');

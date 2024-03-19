@@ -19,6 +19,26 @@ module.exports = (sequelize) => {
         bak: {
             type: DataTypes.INTEGER,
             defaultValue: 0
+        },
+        xp: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0
+        },
+        rep: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0
+        },
+        profilePicture: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        profileGIF: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        profileDescription: {
+            type: DataTypes.TEXT,
+            allowNull: true
         }
     });
 };

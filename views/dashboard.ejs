@@ -29,7 +29,9 @@
                         <% users.forEach(function(user) { %>
                             <tr>
                                 <td>
-                                    <%= user.name %>
+                                    <a href="/profile/<%= user.id %>">
+                                        <%= user.name %>
+                                    </a>
                                 </td>
                                 <td>
                                     <%= user.bak %>
