@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const { User } = require('../models');
+const { adminEmails } = require('./isAdmin');
 
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
@@ -19,17 +20,16 @@ passport.use(new GoogleStrategy({
                 throw new Error("Invalid email domain");
             }
 
+
             // Implement findOrCreateUser function based on your user model and database
             let user = await findOrCreateUser({
                 googleId: profile.id,
                 email: email,
-                name: profile.displayName
+                name: profile.displayName,
                 // You might want to add more fields here
             });
 
             // Optionally, check if the user is an admin and set isAdmin flag accordingly
-            const adminEmails = ['admin1@sv-realtime.nl', 'admin2@sv-realtime.nl']; // Add your admin emails here
-            user.isAdmin = adminEmails.includes(email);
 
             return cb(null, user);
         } catch (error) {

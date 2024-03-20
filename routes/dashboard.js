@@ -11,6 +11,7 @@ const { Op } = require('sequelize');
 const { logEvent } = require('../utils/eventLogger');
 const { isAuthenticated } = require('../utils/isAuthenticated');
 const { isAuthorized } = require('../utils/isAuthorized');
+const { adminEmails } = require('../config/isAdmin');
 const router = express.Router();
 
 
@@ -31,6 +32,36 @@ const upload = multer({ storage: storage });
 
 
 
+
+// Configure multer for file storage
+const storageProve = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'public/uploads/prove/'); // Save files to public/uploads/prove directory
+    },
+    filename: function (req, file, cb) {
+        let randomHex = crypto.randomBytes(8).toString('hex');
+        let extension = path.extname(file.originalname);
+        cb(null, randomHex + extension); // Generate unique filename
+    }
+});
+
+// Only allow image or video files
+const fileFilter = function (req, file, cb) {
+    if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
+        cb(null, true);
+    } else {
+        cb(new Error('Only image or video files are allowed!'), false);
+    }
+};
+
+// Initialize multer with the storage configuration
+const uploadProve = multer({
+    storage: storageProve,
+    fileFilter: fileFilter,
+    limits: {
+        fileSize: 10 * 1024 * 1024 // Limit file size to 10MB
+    }
+});
 
 
 router.get('/dashboard', isAuthenticated, async (req, res) => {
@@ -300,6 +331,190 @@ router.get('/eventLogs', isAuthenticated, async (req, res) => {
         res.status(500).send('Error fetching event logs');
     }
 });
+
+
+router.get('/validationRequests', isAuthenticated, async (req, res) => {
+
+    req.user.isAdmin = adminEmails.includes(req.user.email);
+
+    try {
+        const openRequests = await BakHasTakenRequest.findAll({
+            where: { status: 'pending' },
+            include: [
+                { model: User, as: 'Requester', attributes: ['id', 'name'] },
+                { model: User, as: 'Target', attributes: ['id', 'name'] },
+                { model: User, as: 'FirstApprover', attributes: ['id', 'name'] },
+                { model: User, as: 'SecondApprover', attributes: ['id', 'name'] }
+            ]
+        });
+
+        const declinedRequests = await BakHasTakenRequest.findAll({
+            where: { status: 'declined' },
+            include: [
+                { model: User, as: 'Requester', attributes: ['id', 'name'] },
+                { model: User, as: 'Target', attributes: ['id', 'name'] },
+                { model: User, as: 'DeclinedBy', attributes: ['id', 'name'] },
+            ]
+        });
+
+        res.render('validationRequests', { user: req.user, openRequests, declinedRequests });
+    } catch (error) {
+        console.error('Error fetching open BAK validation requests:', error);
+        res.status(500).send('Error fetching data');
+    }
+});
+
+
+
+
+
+router.get('/validateBak/approve/:id', isAuthenticated, async (req, res) => {
+    const requestId = req.params.id;
+    const userId = req.user.id;
+    const userIsAdmin = adminEmails.includes(req.user.email);
+
+    try {
+        const request = await BakHasTakenRequest.findByPk(requestId, {
+            include: [
+                { model: User, as: 'Requester', attributes: ['id', 'name', 'email'] },
+                { model: User, as: 'Target', attributes: ['id', 'name', 'email'] }
+            ]
+        });
+
+        // Temporarily augment users with isAdmin property
+        const augmentUserWithAdminFlag = (user) => ({
+            ...user.toJSON(),
+            isAdmin: adminEmails.includes(user.email)
+        });
+
+        const firstApprover = request.firstApproverId ? await User.findByPk(request.firstApproverId) : null;
+        const firstApproverIsAdmin = firstApprover ? augmentUserWithAdminFlag(firstApprover).isAdmin : false;
+
+        if (!request.firstApproverId) {
+            // This is the first approval
+            await request.update({ firstApproverId: userId });
+        } else if (!request.secondApproverId && request.firstApproverId !== userId) {
+            // This is the second approval, and it's not the same user
+            if (userIsAdmin || firstApproverIsAdmin) {
+                // Ensure at least one admin has approved
+                await request.update({ secondApproverId: userId, status: 'approved' });
+
+
+
+                if (request.evidenceUrl) {
+                    // Delete the file from the filesystem
+                    await unlinkAsync(`public/uploads/prove/${request.evidenceUrl}`);
+                }
+
+                await request.update({ evidenceUrl: null }, { where: { id: requestId } });
+
+            } else {
+                // Cannot approve because there needs to be at least one admin approver
+                return res.status(403).send('An admin must approve this request.');
+            }
+        }
+
+        // Redirect or respond based on your application's needs
+        res.redirect('/validationRequests');
+    } catch (error) {
+        console.error('Error approving BAK validation request:', error);
+        res.status(500).send('Error processing request');
+    }
+});
+
+
+
+router.get('/validateBak/decline/:id', isAuthenticated, async (req, res) => {
+    req.user.isAdmin = adminEmails.includes(req.user.email);
+
+    try {
+        const requestId = req.params.id;
+
+        // Ensure only admins can decline requests
+        if (!req.user.isAdmin) {
+            return res.status(403).send('Only admins can decline requests.');
+        }
+
+        // Find the request by its ID
+        const request = await BakHasTakenRequest.findByPk(requestId);
+
+        // Ensure the request exists
+        if (!request) {
+            return res.status(404).send('Request not found.');
+        }
+
+        // Delete the file from the filesystem
+        if (request.evidenceUrl) {
+            await unlinkAsync(`public/uploads/prove/${request.evidenceUrl}`);
+        }
+
+        // Update the status of the request to 'declined'
+        await request.update({ status: 'declined', evidenceUrl: '', declinedId: req.user.id });
+
+        // Add a BAK to the requester of the request
+        await User.increment({ bak: 1 }, { where: { id: request.requesterId } });
+
+
+        // Log the declined request
+        const senderUser = await User.findByPk(request.requesterId);
+        await logEvent({
+            userId: senderUser.id,
+            description: `${req.user.name} Declined BAK request from ${senderUser.name}`,
+        });
+
+        // Redirect or respond based on your application's needs
+        res.redirect('/validationRequests');
+    } catch (error) {
+        console.error('Error declining BAK validation request:', error);
+        res.status(500).send('Error processing request');
+    }
+});
+
+
+
+
+
+// Route to show the page for creating a new BAK validation request
+router.get('/validationRequests/create', isAuthenticated, async (req, res) => {
+    try {
+        // Fetch all users from the database to populate the select dropdown
+        const users = await User.findAll({
+            attributes: ['id', 'name']
+        });
+
+        // Render the create request page with the users data
+        res.render('createBakValidationRequest', { user: req.user, users });
+    } catch (error) {
+        console.error('Error fetching users for BAK validation request:', error);
+        res.status(500).send('Error fetching data');
+    }
+});
+
+// Route to create a new BAK validation request
+router.post('/validationRequests/create', isAuthenticated, uploadProve.single('evidence'), async (req, res) => {
+    try {
+        // Extract data from the request body
+        const { requesterId, targetUserId } = req.body;
+
+        // Get the file path of the uploaded evidence
+        const evidenceFilePath = req.file.path.replace('public/uploads/prove/', '');
+
+        // Create the BAK validation request
+        await BakHasTakenRequest.create({
+            requesterId,
+            targetId: targetUserId,
+            evidenceUrl: evidenceFilePath // Store the file path as evidence URL
+        });
+
+        // Redirect to a success page or back to the homepage
+        res.redirect('/validationRequests');
+    } catch (error) {
+        console.error('Error creating BAK validation request:', error);
+        res.status(500).send('Error processing request');
+    }
+});
+
+
 
 
 

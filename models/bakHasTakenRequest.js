@@ -29,6 +29,34 @@ module.exports = (sequelize) => {
             type: DataTypes.ENUM('pending', 'approved', 'declined'),
             defaultValue: 'pending',
             comment: 'The current status of the BAK request'
+        },
+        // New fields to track approvers
+        firstApproverId: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            references: {
+                model: 'Users',
+                key: 'id',
+            },
+            comment: 'The ID of the first user who approved the request'
+        },
+        secondApproverId: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            references: {
+                model: 'Users',
+                key: 'id',
+            },
+            comment: 'The ID of the second user who approved the request'
+        },
+        declinedId: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            references: {
+                model: 'Users',
+                key: 'id',
+            },
+            comment: 'The ID of the user who declined the request'
         }
     }, {
         tableName: 'BakHasTakenRequest',

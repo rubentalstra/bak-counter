@@ -24,7 +24,7 @@ BakRequest.belongsTo(User, {
     foreignKey: 'targetId'
 });
 
-// Setup associations for User and BakHasTakenRequest
+// BakHasTakenRequest model associations
 User.hasMany(BakHasTakenRequest, {
     as: 'SentProposals',
     foreignKey: 'requesterId'
@@ -32,6 +32,18 @@ User.hasMany(BakHasTakenRequest, {
 User.hasMany(BakHasTakenRequest, {
     as: 'ReceivedProposals',
     foreignKey: 'targetId'
+});
+User.hasMany(BakHasTakenRequest, {
+    as: 'ApproverFirst',
+    foreignKey: 'firstApproverId'
+});
+User.hasMany(BakHasTakenRequest, {
+    as: 'ApproverSecond',
+    foreignKey: 'secondApproverId'
+});
+User.hasMany(BakHasTakenRequest, {
+    as: 'DeclinedProposals',
+    foreignKey: 'declinedId'
 });
 BakHasTakenRequest.belongsTo(User, {
     as: 'Requester',
@@ -41,6 +53,19 @@ BakHasTakenRequest.belongsTo(User, {
     as: 'Target',
     foreignKey: 'targetId'
 });
+BakHasTakenRequest.belongsTo(User, {
+    as: 'FirstApprover',
+    foreignKey: 'firstApproverId'
+});
+BakHasTakenRequest.belongsTo(User, {
+    as: 'SecondApprover',
+    foreignKey: 'secondApproverId'
+});
+BakHasTakenRequest.belongsTo(User, {
+    as: 'DeclinedBy',
+    foreignKey: 'declinedId'
+});
+
 
 // Setup associations for User and EventLog
 User.hasMany(EventLog, {
