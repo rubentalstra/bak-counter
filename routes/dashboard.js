@@ -40,6 +40,7 @@ router.get('/dashboard', isAuthenticated, async (req, res) => {
             attributes: ['id',
                 'name',
                 'bak',
+                'profilePicture',
                 [sequelize.literal(`(SELECT COUNT(*) FROM BakRequest WHERE BakRequest.targetId = User.id AND BakRequest.status = 'pending')`), 'pendingBakRequestCount'],
                 [sequelize.literal(`(SELECT COUNT(*) FROM BakHasTakenRequest WHERE BakHasTakenRequest.targetId = User.id AND BakHasTakenRequest.status = 'pending')`), 'pendingBakHasTakenRequestCount']
             ]

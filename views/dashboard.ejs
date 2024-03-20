@@ -48,6 +48,9 @@
                             <% users.sort((a, b)=> b.bak - a.bak).forEach(user => { %>
                                 <tr>
                                     <td>
+                                        <img src="<%= user.profilePicture ? '/uploads/' + user.profilePicture : '/uploads/blank_image.png' %>"
+                                            alt="Profile Picture" class="rounded-circle me-2"
+                                            style="width: 30px; height: 30px; object-fit: cover;">
                                         <%= user.name %>
                                     </td>
                                     <td>
