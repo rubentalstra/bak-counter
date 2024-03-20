@@ -14,11 +14,11 @@ router.get('/create', isAuthenticated, async (req, res) => {
 
     //  Fetch all users to select as opponent and judge
     const users = await User.findAll({
-        // where: {
-        //     id: {
-        //         [Op.not]: req.user.id // Exclude current user's ID
-        //     }
-        // }
+        where: {
+            id: {
+                [Op.not]: req.user.id // Exclude current user's ID
+            }
+        }
     });
 
     // const users = await User.findAll();
