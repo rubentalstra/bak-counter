@@ -251,12 +251,13 @@ router.post('/submit-bak', isAuthenticated, async (req, res) => {
 
 
 router.get('/validate-bak', isAuthenticated, async (req, res) => {
+    const requesterId = req.user.id;
+
     try {
         const bakRequests = await BakRequest.findAll({
-            where: { targetId: req.user.id, status: 'pending' },
+            where: { targetId: requesterId, status: 'pending' },
             include: [{ model: User, as: 'Requester', attributes: ['name'] }]
         });
-
 
         console.log(bakRequests)
         res.render('validate-bak', { user: req.user, bakRequests });
