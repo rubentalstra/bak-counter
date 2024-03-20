@@ -18,10 +18,17 @@
             margin-bottom: 20px;
         }
 
-        /* .editable:hover {
-            background-color: rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-        } */
+        .editable {
+            word-wrap: break-word;
+            /* Ensures long words do not cause overflow */
+            overflow-wrap: break-word;
+            /* Alternative to word-wrap for better support */
+            max-height: 400px;
+            /* Example max height */
+            overflow-y: auto;
+            /* Adds a vertical scrollbar if content exceeds max height */
+        }
+
 
         .editable:hover {
             background-color: rgba(0, 0, 0, 0.05);
@@ -78,7 +85,7 @@
                                 alt="Profile Picture" class="img-fluid rounded-circle"
                                 style="width: 100px; height: 100px;">
                             <% if (profile.id===user.id) { %>
-                                <div class="overlay-btn position-absolute top-0 start-50 translate-middle-x hidden"
+                                <div class="overlay-btn position-absolute top-0 start-50 translate-middle-x"
                                     style="bottom: 10px;">
                                     <button class="btn btn-light" data-bs-toggle="modal"
                                         data-bs-target="#imageOptionsModal"><i class="bi bi-pencil-square"></i></button>
@@ -87,29 +94,43 @@
                         </div>
                     </div>
 
-
                     <div class="col-md-7">
                         <h2>
                             <%= profile.name %>'s Profile
                         </h2>
-
                         <!-- Profile Description Display and Edit -->
-                        <div id="descriptionText" class="editable">
-                            <p>
-                                <%= profile.profileDescription %>
-                            </p>
+
+                        <div class="row">
+                            <div class="col">
+                                <div id="descriptionText" class="editable">
+                                    <% const descriptionLines=profile.profileDescription.split('\n'); %>
+                                        <% descriptionLines.forEach((line)=> { %>
+                                            <% if (line) { %>
+                                                <p>
+                                                    <%= line %>
+                                                </p>
+                                                <% } else { %>
+                                                    <br>
+                                                    <% } %>
+                                                        <% }); %>
+                                </div>
+                            </div>
                             <% if (profile.id===user.id) { %>
-                                <div class="icon-container" onclick="editDescription()">
-                                    <i class="bi bi-pencil" style="cursor: pointer;"></i>
+                                <div class="col-md-3 text-end">
+                                    <div class="icon-container" onclick="editDescription()">
+                                        <i class="bi bi-pencil" style="cursor: pointer;"></i>
+                                    </div>
                                 </div>
                                 <% } %>
                         </div>
 
+
+
                         <!-- Hidden Form for Editing Description -->
                         <% if (profile.id===user.id) { %>
                             <form id="descriptionForm" action="/profile/updateDescription" method="post" class="hidden">
-                                <textarea id="descriptionEdit" name="profileDescription"
-                                    class="form-control"><%= profile.profileDescription %></textarea>
+                                <textarea id="descriptionEdit" name="profileDescription" class="form-control"
+                                    rows="4"><%= profile.profileDescription %></textarea>
                                 <div class="mt-2">
                                     <button type="submit" class="btn btn-success">Save Changes</button>
                                     <button type="button" id="cancelEditBtn" class="btn btn-secondary"
@@ -261,7 +282,6 @@
 
         <script>
 
-            let originalDescription = '<%= profile.profileDescription %> ';
 
             function editDescription() {
                 document.getElementById('descriptionText').classList.add('hidden');
@@ -271,8 +291,6 @@
             function cancelEdit() {
                 document.getElementById('descriptionText').classList.remove('hidden');
                 document.getElementById('descriptionForm').classList.add('hidden');
-                // Revert the textarea content to the original description
-                document.getElementById('descriptionEdit').value = originalDescription;
             }
 
 
