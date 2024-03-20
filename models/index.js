@@ -47,6 +47,11 @@ User.hasMany(EventLog, {
     foreignKey: 'userId',
     as: 'eventLogs'
 });
+EventLog.belongsTo(User, {
+    foreignKey: 'userId',
+    as: 'User'
+});
+
 
 // Setup associations for User and Bet
 User.hasMany(Bet, {

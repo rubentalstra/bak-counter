@@ -6,7 +6,7 @@ const fs = require('fs');
 const util = require('util');
 const unlinkAsync = util.promisify(fs.unlink);
 
-const { sequelize, BakRequest, User, BakHasTakenRequest } = require('../models');
+const { sequelize, BakRequest, User, BakHasTakenRequest, EventLog } = require('../models');
 const { Op } = require('sequelize');
 const { logEvent } = require('../utils/eventLogger');
 const { isAuthenticated } = require('../utils/isAuthenticated');
@@ -222,7 +222,7 @@ router.get('/validate-bak', isAuthenticated, async (req, res) => {
     }
 });
 
-router.post('/bak-request/:requestId/:status', async (req, res) => {
+router.post('/bak-request/:requestId/:status', isAuthenticated, async (req, res) => {
     const { requestId, status } = req.params;
     try {
         const request = await BakRequest.findByPk(requestId);
@@ -268,6 +268,39 @@ router.post('/bak-request/:requestId/:status', async (req, res) => {
         res.status(500).send('Error updating BAK request');
     }
 });
+
+
+
+router.get('/eventLogs', isAuthenticated, async (req, res) => {
+    const page = parseInt(req.query.page, 10) || 1; // Default to first page
+    const limit = parseInt(req.query.limit, 10) || 10; // Default to 10 logs per page
+    const offset = (page - 1) * limit;
+
+    try {
+        const { count, rows } = await EventLog.findAndCountAll({
+            include: [{
+                model: User,
+                as: 'User',
+                attributes: ['id', 'name']
+            }],
+            order: [['createdAt', 'DESC']],
+            limit,
+            offset
+        });
+        const totalPages = Math.ceil(count / limit);
+
+        res.render('eventLogs', {
+            user: req.user,
+            eventLogs: rows,
+            currentPage: page,
+            totalPages: totalPages
+        });
+    } catch (error) {
+        console.error('Error fetching event logs:', error);
+        res.status(500).send('Error fetching event logs');
+    }
+});
+
 
 
 
