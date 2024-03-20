@@ -103,7 +103,8 @@
                         <div class="row">
                             <div class="col">
                                 <div id="descriptionText" class="editable">
-                                    <% const descriptionLines=profile.profileDescription.split('\n'); %>
+                                    <% const descriptionLines=profile.profileDescription ?
+                                        profile.profileDescription.split('\n') : []; %>
                                         <% descriptionLines.forEach((line)=> { %>
                                             <span>
                                                 <%= line %><br>

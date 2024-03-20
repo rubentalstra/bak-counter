@@ -89,7 +89,11 @@ router.get('/dashboard', isAuthenticated, async (req, res) => {
 router.get('/profile/:userId', isAuthenticated, async (req, res) => {
     try {
         const userId = req.params.userId;
-        const profile = await User.findByPk(userId, { include: 'eventLogs' });
+
+        const profile = await User.findByPk(userId, {
+            include: [{ model: EventLog, as: 'eventLogs', }],
+            order: [[{ model: EventLog, as: 'eventLogs' }, 'createdAt', 'DESC']]
+        });
 
         const xpLevels = [0, 10, 25, 50, 100, 200]; // XP milestones
         const repTiers = [0, 10, 25, 50, 100]; // REP milestones
@@ -256,10 +260,19 @@ router.get('/validate-bak', isAuthenticated, async (req, res) => {
 router.post('/bak-request/:requestId/:status', isAuthenticated, async (req, res) => {
     const { requestId, status } = req.params;
     try {
-        const request = await BakRequest.findByPk(requestId);
+        const request = await BakRequest.findByPk(requestId, {
+            include: [
+                { model: User, as: 'Requester', attributes: ['id', 'name'] },
+                { model: User, as: 'Target', attributes: ['id', 'name'] }
+            ]
+        });
+
         if (!request) {
             return res.status(404).send('Request not found');
         }
+
+        const requesterName = request.Requester.name;
+        const targetName = request.Target.name;
 
         // Check if the user is authorized to update the request
         if (request.targetId !== req.user.id) {
@@ -272,26 +285,41 @@ router.post('/bak-request/:requestId/:status', isAuthenticated, async (req, res)
 
         // Update BAK counts based on request status
         if (status === 'approved') {
-            // If request is approved, increment BAK count of the target
+            // Als het verzoek is goedgekeurd, verhoog de BAK-telling van de doelgebruiker
             const targetUser = await User.findByPk(request.targetId);
             targetUser.bak++;
             await targetUser.save();
-            // Log event for BAK request approval
+
+            // Log event voor goedkeuring naar de zender
             await logEvent({
-                userId: req.user.id,
-                description: `Approved BAK request for ${targetUser.name}`,
+                userId: request.requesterId,
+                description: `Heeft een BAK verstuurd naar ${targetName} met reden: ${request.reasonBak} en is goedgekeurd.`,
             });
+            // Log event voor goedkeuring naar de ontvanger
+            await logEvent({
+                userId: request.targetId,
+                description: `Heeft een BAK ontvangen van ${requesterName} met reden: ${request.reasonBak} en is goedgekeurd.`,
+            });
+
         } else if (status === 'declined') {
-            // If request is declined, increment BAK count of the sender
+            // Als het verzoek is afgewezen, verhoog de BAK-telling van de aanvrager
             const senderUser = await User.findByPk(request.requesterId);
             senderUser.bak++;
             await senderUser.save();
-            // Log event for BAK request decline
+
+            // Log event voor afwijzing naar de zender
             await logEvent({
-                userId: req.user.id,
-                description: `Declined BAK request from ${senderUser.name}`,
+                userId: request.requesterId,
+                description: `Heeft een BAK verstuurd naar ${targetName} met reden: ${request.reasonBak} en is afgewezen.`,
+            });
+
+            // Log event voor afwijzing naar de ontvanger
+            await logEvent({
+                userId: request.targetId,
+                description: `Heeft een BAK ontvangen van ${requesterName} met reden: ${request.reasonBak} en is afgewezen.`,
             });
         }
+
 
         res.send('BAK request updated');
     } catch (error) {
