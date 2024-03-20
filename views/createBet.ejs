@@ -16,10 +16,6 @@
             <h2>Create a New Bet</h2>
             <form action="/bets/create" method="POST">
 
-                <!-- Hidden field for the initiatorUserId -->
-                <input type="hidden" id="initiatorUserId" name="initiatorUserId" value="<%= user.id %>"
-                    class="form-control">
-
                 <div class="mb-3">
                     <label for="opponentUserId" class="form-label">Opponent:</label>
                     <select id="opponentUserId" name="opponentUserId" class="form-select">

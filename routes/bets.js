@@ -28,18 +28,34 @@ router.get('/create', isAuthenticated, async (req, res) => {
 
 // Route to post a new bet
 router.post('/create', isAuthenticated, async (req, res) => {
-    const { initiatorUserId, opponentUserId, judgeUserId, betTitle, betDescription, stake } = req.body;
-    await Bet.create({
-        initiatorUserId,
-        opponentUserId,
-        judgeUserId,
-        betTitle,
-        betDescription,
-        stake,
-        status: 'pending'
-    });
-    res.redirect('/bets');
+    const { opponentUserId, judgeUserId, betTitle, betDescription, stake } = req.body;
+
+    const loggedInUserId = req.user.id;
+
+    // Valideer dat de judgeUserId verschilt van initiatorUserId en opponentUserId
+    if (judgeUserId === opponentUserId) {
+        // Stuur een foutbericht terug als de judge dezelfde is als de initiator of de tegenstander
+        return res.status(400).send("De judge moet een neutrale derde partij zijn en kan niet dezelfde zijn als de tegenstander van de weddenschap.");
+    }
+
+    try {
+        await Bet.create({
+            initiatorUserId: loggedInUserId,
+            opponentUserId,
+            judgeUserId,
+            betTitle,
+            betDescription,
+            stake,
+            status: 'pending'
+        });
+        res.redirect('/bets');
+    } catch (error) {
+        // Vang eventuele fouten op die optreden tijdens het aanmaken van de weddenschap en stuur een foutbericht terug
+        console.error("Fout bij het aanmaken van de weddenschap:", error);
+        res.status(500).send("Er is een fout opgetreden bij het verwerken van uw verzoek.");
+    }
 });
+
 
 // Route to view all bets
 router.get('/', isAuthenticated, async (req, res) => {
