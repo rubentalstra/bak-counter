@@ -6,6 +6,7 @@ require('./config/passport-setup');
 const app = express();
 
 const attachPendingRequestCount = require('./middleware/pendingRequests');
+const attachPendingBetsCount = require('./middleware/pendingBets');
 const setAdminStatus = require('./middleware/setAdminStatus');
 
 // Parse application/x-www-form-urlencoded
@@ -26,6 +27,7 @@ app.use(passport.session());
 
 // Apply it globally
 app.use(attachPendingRequestCount);
+app.use(attachPendingBetsCount);
 app.use(setAdminStatus);
 
 // Set up routes

@@ -1,5 +1,5 @@
 // utils/utils.js
-const { BakRequest } = require('../models'); // Adjust the path according to your project structure
+const { Bet, BakRequest } = require('../models');
 
 async function getPendingRequestCount(userId) {
     const count = await BakRequest.count({
@@ -11,6 +11,18 @@ async function getPendingRequestCount(userId) {
     return count;
 }
 
+async function getPendingBetCount(judgeUserId) {
+    const count = await Bet.count({
+        where: {
+            judgeUserId: judgeUserId,
+            status: 'pending'
+        }
+    });
+    return count;
+}
+
+
 module.exports = {
-    getPendingRequestCount
+    getPendingRequestCount,
+    getPendingBetCount
 };
