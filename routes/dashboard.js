@@ -18,7 +18,7 @@ const router = express.Router();
 // Configure multer for file storage
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'public/uploads/'); // Ensure this directory exists
+        cb(null, 'public/uploads/profile/'); // Ensure this directory exists
     },
     filename: function (req, file, cb) {
         let randomHex = crypto.randomBytes(8).toString('hex');
@@ -100,14 +100,14 @@ router.post('/profile/updatePicture', isAuthenticated, isAuthorized, upload.sing
     }
 
     const userId = req.user.id;
-    const filePath = req.file.path.replace('public/uploads/', '');
+    const filePath = req.file.path.replace('public/uploads/profile/', '');
 
     try {
         const user = await User.findByPk(userId);
         if (user.profilePicture) {
             // Attempt to delete the old picture, if it exists
             try {
-                await unlinkAsync(`public/uploads/${user.profilePicture}`);
+                await unlinkAsync(`public/uploads/profile/${user.profilePicture}`);
             } catch (err) {
                 console.log("Failed to delete old profile picture:", err.message);
             }
@@ -129,7 +129,7 @@ router.post('/profile/deletePicture', isAuthenticated, isAuthorized, async (req,
         const user = await User.findByPk(userId);
         if (user.profilePicture) {
             // Delete the file from the filesystem
-            await unlinkAsync(`public/uploads/${user.profilePicture}`);
+            await unlinkAsync(`public/uploads/profile/${user.profilePicture}`);
         }
 
         await User.update({ profilePicture: null }, { where: { id: userId } });
