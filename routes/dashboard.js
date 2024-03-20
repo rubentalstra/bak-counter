@@ -423,7 +423,6 @@ router.get('/validateBak/approve/:id', isAuthenticated, async (req, res) => {
 });
 
 
-
 router.get('/validateBak/decline/:id', isAuthenticated, async (req, res) => {
     req.user.isAdmin = adminEmails.includes(req.user.email);
 
