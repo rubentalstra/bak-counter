@@ -15,6 +15,10 @@ User.hasMany(BakRequest, {
     as: 'Requests',
     foreignKey: 'requesterId'
 });
+User.hasMany(BakRequest, {
+    as: 'BakRequests',
+    foreignKey: 'targetId'
+});
 BakRequest.belongsTo(User, {
     as: 'Requester',
     foreignKey: 'requesterId'

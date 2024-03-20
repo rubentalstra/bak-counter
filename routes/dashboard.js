@@ -6,7 +6,7 @@ const fs = require('fs');
 const util = require('util');
 const unlinkAsync = util.promisify(fs.unlink);
 
-const { sequelize, BakRequest, User, BakHasTakenRequest, EventLog } = require('../models');
+const { BakRequest, User, BakHasTakenRequest, EventLog } = require('../models');
 const { Op } = require('sequelize');
 const { logEvent } = require('../utils/eventLogger');
 const { isAuthenticated } = require('../utils/isAuthenticated');
@@ -66,16 +66,24 @@ const uploadProve = multer({
 
 router.get('/dashboard', isAuthenticated, async (req, res) => {
     try {
-        // Fetch all users with their confirmed BAK counts
         const users = await User.findAll({
-            attributes: ['id',
-                'name',
-                'bak',
-                'profilePicture',
-                [sequelize.literal(`(SELECT COUNT(*) FROM BakRequest WHERE BakRequest.targetId = User.id AND BakRequest.status = 'pending')`), 'pendingBakRequestCount'],
-                [sequelize.literal(`(SELECT COUNT(*) FROM BakHasTakenRequest WHERE BakHasTakenRequest.targetId = User.id AND BakHasTakenRequest.status = 'pending')`), 'pendingBakHasTakenRequestCount']
+            attributes: ['id', 'name', 'bak', 'profilePicture'],
+            include: [
+                {
+                    model: BakRequest,
+                    as: 'BakRequests',
+                    where: { status: 'pending' },
+                    required: false
+                },
+                {
+                    model: BakHasTakenRequest,
+                    as: 'ReceivedProposals',
+                    where: { status: 'pending' },
+                    required: false
+                }
             ]
         });
+
 
         // Render the dashboard view with the fetched data
         res.render('dashboard', { user: req.user, users });
@@ -199,11 +207,11 @@ router.get('/submit-bak', isAuthenticated, async (req, res) => {
 
         // Fetch all users except the current user
         const users = await User.findAll({
-            // where: {
-            //     id: {
-            //         [Op.not]: req.user.id // Exclude current user's ID
-            //     }
-            // }
+            where: {
+                id: {
+                    [Op.not]: req.user.id // Exclude current user's ID
+                }
+            }
         });
 
         res.render('submit-bak', { user: req.user, users, errorMessage: errorMessage ?? null });
@@ -221,10 +229,10 @@ router.post('/submit-bak', isAuthenticated, async (req, res) => {
         const requesterId = req.user.id; // Assuming you have user ID stored in session
 
         // Check if requesterId and targetId are the same
-        // if (requesterId === parseInt(targetId)) { // Assuming IDs are integers
-        //     const errorMessage = 'You cannot send a BAK request to yourself.';
-        //     return res.redirect(`/submit-bak?errorMessage=${encodeURIComponent(errorMessage)}`);
-        // }
+        if (requesterId === parseInt(targetId)) { // Assuming IDs are integers
+            const errorMessage = 'You cannot send a BAK request to yourself.';
+            return res.redirect(`/submit-bak?errorMessage=${encodeURIComponent(errorMessage)}`);
+        }
 
         // Continue with BAK request creation
         await BakRequest.create({
@@ -248,6 +256,9 @@ router.get('/validate-bak', isAuthenticated, async (req, res) => {
             where: { targetId: req.user.id, status: 'pending' },
             include: [{ model: User, as: 'Requester', attributes: ['name'] }]
         });
+
+
+        console.log(bakRequests)
         res.render('validate-bak', { user: req.user, bakRequests });
     } catch (error) {
         console.error(error);
@@ -360,9 +371,6 @@ router.get('/eventLogs', isAuthenticated, async (req, res) => {
 
 
 router.get('/validationRequests', isAuthenticated, async (req, res) => {
-
-    req.user.isAdmin = adminEmails.includes(req.user.email);
-
     try {
         const openRequests = await BakHasTakenRequest.findAll({
             where: { status: 'pending' },
@@ -371,19 +379,23 @@ router.get('/validationRequests', isAuthenticated, async (req, res) => {
                 { model: User, as: 'Target', attributes: ['id', 'name'] },
                 { model: User, as: 'FirstApprover', attributes: ['id', 'name'] },
                 { model: User, as: 'SecondApprover', attributes: ['id', 'name'] }
-            ]
+            ],
+            order: [['createdAt', 'DESC']],
         });
 
-        const declinedRequests = await BakHasTakenRequest.findAll({
-            where: { status: 'declined' },
+        const closedRequests = await BakHasTakenRequest.findAll({
+            where: { status: ['declined', 'approved'] },
             include: [
                 { model: User, as: 'Requester', attributes: ['id', 'name'] },
                 { model: User, as: 'Target', attributes: ['id', 'name'] },
-                { model: User, as: 'DeclinedBy', attributes: ['id', 'name'] },
-            ]
+                { model: User, as: 'FirstApprover', attributes: ['id', 'name'] },
+                { model: User, as: 'SecondApprover', attributes: ['id', 'name'] },
+                { model: User, as: 'DeclinedBy', attributes: ['id', 'name'] }
+            ],
+            order: [['createdAt', 'DESC']],
         });
 
-        res.render('validationRequests', { user: req.user, openRequests, declinedRequests });
+        res.render('validationRequests', { user: req.user, openRequests, closedRequests });
     } catch (error) {
         console.error('Error fetching open BAK validation requests:', error);
         res.status(500).send('Error fetching data');
@@ -432,7 +444,7 @@ router.get('/validateBak/approve/:id', isAuthenticated, async (req, res) => {
                     await unlinkAsync(`public/uploads/prove/${request.evidenceUrl}`);
                 }
 
-                await request.update({ evidenceUrl: null }, { where: { id: requestId } });
+                await request.update({ evidenceUrl: '' }, { where: { id: requestId } });
 
             } else {
                 // Cannot approve because there needs to be at least one admin approver
@@ -450,8 +462,6 @@ router.get('/validateBak/approve/:id', isAuthenticated, async (req, res) => {
 
 
 router.get('/validateBak/decline/:id', isAuthenticated, async (req, res) => {
-    req.user.isAdmin = adminEmails.includes(req.user.email);
-
     try {
         const requestId = req.params.id;
 
@@ -484,7 +494,7 @@ router.get('/validateBak/decline/:id', isAuthenticated, async (req, res) => {
         const senderUser = await User.findByPk(request.requesterId);
         await logEvent({
             userId: senderUser.id,
-            description: `${req.user.name} Declined BAK request from ${senderUser.name}`,
+            description: `${req.user.name} heeft het BAK-verzoek van ${senderUser.name} afgewezen.`,
         });
 
         // Redirect or respond based on your application's needs
@@ -504,7 +514,8 @@ router.get('/validationRequests/create', isAuthenticated, async (req, res) => {
     try {
         // Fetch all users from the database to populate the select dropdown
         const users = await User.findAll({
-            attributes: ['id', 'name']
+            attributes: ['id', 'name'],
+            where: { id: { [Op.not]: req.user.id } }
         });
 
         // Render the create request page with the users data
@@ -519,7 +530,14 @@ router.get('/validationRequests/create', isAuthenticated, async (req, res) => {
 router.post('/validationRequests/create', isAuthenticated, uploadProve.single('evidence'), async (req, res) => {
     try {
         // Extract data from the request body
-        const { requesterId, targetUserId } = req.body;
+        const { targetUserId } = req.body;
+        const requesterId = req.user.id;
+
+        // Ensure that the requester and target are different users
+        if (requesterId === targetUserId) {
+            return res.status(400).send('Aanvrager en Ontvanger kunnen niet dezelfde gebruiker zijn');
+        }
+
 
         // Get the file path of the uploaded evidence
         const evidenceFilePath = req.file.path.replace('public/uploads/prove/', '');

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
 
 <head>
     <meta charset="UTF-8">
@@ -24,73 +24,95 @@
 
     <%- include('partials/_navbar') %>
 
-        <div class="container mt-5">
-            <div class="header-content">
-                <h1>Dashboard</h1>
-                <div class="search-input">
-                    <input type="text" class="form-control" id="searchUsers" placeholder="Search users...">
-                </div>
+    <div class="container mt-5">
+        <div class="header-content">
+            <h1>Dashboard</h1>
+            <div class="search-input">
+                <input type="text" class="form-control" id="searchUsers" placeholder="Gebruikers zoeken...">
             </div>
-
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <table class="table table-striped" id="usersTable">
-                        <thead>
-                            <tr>
-                                <th scope="col">Name</th>
-                                <th scope="col">Confirmed BAKs</th>
-                                <th scope="col">Pending BAK Ontvangen</th>
-                                <th scope="col">Pending BAK Getrokken</th>
-                                <th scope="col"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% users.sort((a, b)=> b.bak - a.bak).forEach(user => { %>
-                                <tr>
-                                    <td>
-                                        <img src="<%= user.profilePicture ? '/uploads/profile/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
-                                            alt="Profile Picture" class="rounded-circle me-2"
-                                            style="width: 30px; height: 30px; object-fit: cover;">
-                                        <%= user.name %>
-                                    </td>
-                                    <td>
-                                        <%= user.bak %>
-                                    </td>
-                                    <td>
-                                        <%= user.pendingBakRequestCount ?? 0 %>
-                                    </td>
-                                    <td>
-                                        <%= user.pendingBakHasTakenRequestCount ?? 0 %>
-                                    </td>
-                                    <td>
-                                        <a href="/profile/<%= user.id %>" class="btn btn-primary btn-sm">View
-                                            Profile</a>
-                                    </td>
-                                </tr>
-                                <% }) %>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Additional Features Could Include: -->
-            <!-- 1. Quick Stats: Display quick stats or insights about user engagements, BAKs, or other relevant metrics. -->
-            <!-- 2. Recent Activity: Show a feed of recent activities across your platform for quick updates. -->
-            <!-- 3. User Engagement Graphs: Include graphs or charts for visual representation of user engagement or BAK distribution. -->
         </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script>
-            document.getElementById('searchUsers').addEventListener('keyup', function () {
-                var searchValue = this.value.toLowerCase();
-                var rows = document.querySelectorAll('#usersTable tbody tr');
+        <div class="card shadow-sm mb-3">
+            <div class="card-body">
+                <table class="table table-striped" id="usersTable">
+                    <thead>
+                        <tr>
+                            <th scope="col">Naam</th>
+                            <th scope="col">Bevestigde BAKKEN</th>
+                            <th scope="col">In behandeling BAK Ontvangen</th>
+                            <th scope="col">In behandeling BAK Getrokken</th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
 
-                rows.forEach(row => {
-                    const isVisible = row.querySelector('td').textContent.toLowerCase().includes(searchValue);
-                    row.style.display = isVisible ? '' : 'none';
+                    <tbody>
+                        <% users.sort((a, b)=> b.bak - a.bak).forEach(user => { %>
+                        <tr>
+                            <td>
+                                <img src="<%= user.profilePicture ? '/uploads/profile/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
+                                    alt="Profielfoto" class="rounded-circle me-2"
+                                    style="width: 30px; height: 30px; object-fit: cover;">
+                                <%= user.name %>
+                            </td>
+                            <td>
+                                <%= user.bak %>
+                            </td>
+                            <td>
+                                <%= user.BakRequests.length %>
+                            </td>
+                            <td>
+                                <%= user.ReceivedProposals.length %>
+                            </td>
+                            <td>
+                                <a href="/profile/<%= user.id %>" class="btn btn-primary btn-sm">Profiel
+                                    bekijken</a>
+                            </td>
+                        </tr>
+                        <% }) %>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Functie om totaal aantal BAKs uit te geven -->
+        <% function getTotalBaksUitgegeven(users) { let totalBaks=0; users.forEach(user=> {
+                totalBaks += user.bak;
                 });
+                return totalBaks;
+                }
+
+                %>
+        <!-- Snelstatistieken Sectie -->
+        <div class="card mb-3">
+            <div class="card-header">
+                Snelstatistieken
+            </div>
+            <div class="card-body">
+                <p>Totaal aantal gebruikers: <%= users.length %>
+                </p>
+                <p>Totaal aantal uitgegeven BAKs: <%= getTotalBaksUitgegeven(users) %>
+                </p>
+                <!-- Voeg hier meer snelstatistieken toe indien nodig -->
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('searchUsers').addEventListener('keyup', function () {
+            var searchValue = this.value.toLowerCase();
+            var rows = document.querySelectorAll('#usersTable tbody tr');
+
+            rows.forEach(row => {
+                const isVisible = row.querySelector('td').textContent.toLowerCase().includes(searchValue);
+                row.style.display = isVisible ? '' : 'none';
             });
-        </script>
+        });
+
+    </script>
+
 </body>
 
 </html>

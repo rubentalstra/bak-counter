@@ -11,53 +11,52 @@
 <body>
     <%- include('partials/_navbar') %>
 
-        <div class="container mt-5">
-            <h2>Ontvangen BAK Verzoeken</h2>
-            <% if (bakRequests.length> 0) { %>
-                <div class="list-group">
-                    <% bakRequests.forEach(function(request) { %>
-                        <div
-                            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                            <div>
-                                <h5 class="mb-1">
-                                    <%= request.reasonBak %>
-                                </h5>
-                                <small>Van: <%= request.Requester.name %></small>
-                            </div>
-                            <div>
-                                <button class="btn btn-success btn-sm"
-                                    onclick="handleResponse('<%= request.id %>', 'approved')">Accepteren</button>
-                                <button class="btn btn-danger btn-sm"
-                                    onclick="handleResponse('<%= request.id %>', 'declined')">Weigeren</button>
-                            </div>
-                        </div>
-                        <% }); %>
+    <div class="container mt-5">
+        <h2>Ontvangen BAK Verzoeken</h2>
+        <% if (bakRequests.length> 0) { %>
+        <div class="list-group">
+            <% bakRequests.forEach(function(request) { %>
+            <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-1">
+                        <%= request.reasonBak %>
+                    </h5>
+                    <small>Van: <%= request.Requester.name %></small>
                 </div>
-                <% } else { %>
-                    <p>Geen Ontvangen BAK verzoeken.</p>
-                    <% } %>
+                <div>
+                    <button class="btn btn-success btn-sm"
+                        onclick="handleResponse('<%= request.id %>', 'approved')">Accepteren</button>
+                    <button class="btn btn-danger btn-sm"
+                        onclick="handleResponse('<%= request.id %>', 'declined')">Weigeren</button>
+                </div>
+            </div>
+            <% }); %>
         </div>
+        <% } else { %>
+        <p>Geen Ontvangen BAK verzoeken.</p>
+        <% } %>
+    </div>
 
-        <script>
-            function handleResponse(requestId, status) {
-                fetch('/bak-request/' + requestId + '/' + status, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        // Voeg CSRF-token toe indien nodig
-                    },
-                    body: JSON.stringify({ status: status })
-                }).then(response => {
-                    if (response.ok) {
-                        window.location.reload();
-                    } else {
-                        alert('Het updaten van het BAK-verzoek is mislukt.');
-                    }
-                });
-            }
-        </script>
+    <script>
+        function handleResponse(requestId, status) {
+            fetch('/bak-request/' + requestId + '/' + status, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // Voeg CSRF-token toe indien nodig
+                },
+                body: JSON.stringify({ status: status })
+            }).then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert('Het updaten van het BAK-verzoek is mislukt.');
+                }
+            });
+        }
+    </script>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

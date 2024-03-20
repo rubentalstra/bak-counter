@@ -12,84 +12,83 @@
 
     <%- include('partials/_navbar') %>
 
-        <div class="container mt-5">
-            <h2>Create a New Bet</h2>
-            <form action="/bets/create" method="POST">
+    <div class="container mt-5">
+        <h2>Create a New Bet</h2>
+        <form action="/bets/create" method="POST">
 
-                <div class="mb-3">
-                    <label for="opponentUserId" class="form-label">Opponent:</label>
-                    <select id="opponentUserId" name="opponentUserId" class="form-select">
-                        <option value="" selected disabled>Select Opponent</option>
-                        <% users.forEach(user=> { %>
-                            <option value="<%= user.id %>">
-                                <%= user.name %>
-                            </option>
-                            <% }) %>
-                    </select>
-                </div>
+            <div class="mb-3">
+                <label for="opponentUserId" class="form-label">Opponent:</label>
+                <select id="opponentUserId" name="opponentUserId" class="form-select">
+                    <option value="" selected disabled>Select Opponent</option>
+                    <% users.forEach(user=> { %>
+                    <option value="<%= user.id %>">
+                        <%= user.name %>
+                    </option>
+                    <% }) %>
+                </select>
+            </div>
 
-                <div class="mb-3">
-                    <label for="judgeUserId" class="form-label">Judge:</label>
-                    <select id="judgeUserId" name="judgeUserId" class="form-select">
-                        <option value="" selected disabled>Select Judge</option>
-                        <% users.forEach(user=> { %>
-                            <option value="<%= user.id %>">
-                                <%= user.name %>
-                            </option>
-                            <% }) %>
-                    </select>
-                </div>
+            <div class="mb-3">
+                <label for="judgeUserId" class="form-label">Judge:</label>
+                <select id="judgeUserId" name="judgeUserId" class="form-select">
+                    <option value="" selected disabled>Select Judge</option>
+                    <% users.forEach(user=> { %>
+                    <option value="<%= user.id %>">
+                        <%= user.name %>
+                    </option>
+                    <% }) %>
+                </select>
+            </div>
 
 
-                <div class="mb-3">
-                    <label for="betTitle" class="form-label">Bet Title:</label>
-                    <input type="text" id="betTitle" name="betTitle" class="form-control" required></textarea>
-                </div>
+            <div class="mb-3">
+                <label for="betTitle" class="form-label">Bet Title:</label>
+                <input type="text" id="betTitle" name="betTitle" class="form-control" required></textarea>
+            </div>
 
-                <div class="mb-3">
-                    <label for="betDescription" class="form-label">Bet Description:</label>
-                    <textarea id="betDescription" name="betDescription" class="form-control" rows="3"
-                        required></textarea>
-                </div>
+            <div class="mb-3">
+                <label for="betDescription" class="form-label">Bet Description:</label>
+                <textarea id="betDescription" name="betDescription" class="form-control" rows="3" required></textarea>
+            </div>
 
-                <div class="mb-3">
-                    <label for="stake" class="form-label">Aantal Bakken:</label>
-                    <input type="number" id="stake" name="stake" class="form-control" required>
-                </div>
+            <div class="mb-3">
+                <label for="stake" class="form-label">Aantal Bakken:</label>
+                <input type="number" id="stake" name="stake" class="form-control" required>
+            </div>
 
-                <button type="submit" class="btn btn-primary">Create Bet</button>
-            </form>
-        </div>
+            <button type="submit" class="btn btn-primary">Create Bet</button>
+        </form>
+    </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const opponentSelect = document.getElementById('opponentUserId');
-                const judgeSelect = document.getElementById('judgeUserId');
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const opponentSelect = document.getElementById('opponentUserId');
+            const judgeSelect = document.getElementById('judgeUserId');
 
-                function disableSelectedOption(selectedValue, selectElementToDisable) {
-                    const options = selectElementToDisable.options;
-                    for (let i = 0; i < options.length; i++) {
-                        if (options[i].value === selectedValue) {
-                            options[i].disabled = true;
-                        } else {
-                            options[i].disabled = false;
-                        }
+            function disableSelectedOption(selectedValue, selectElementToDisable) {
+                const options = selectElementToDisable.options;
+                for (let i = 0; i < options.length; i++) {
+                    if (options[i].value === selectedValue) {
+                        options[i].disabled = true;
+                    } else {
+                        options[i].disabled = false;
                     }
                 }
+            }
 
-                opponentSelect.addEventListener('change', function () {
-                    const selectedOpponent = this.value;
-                    disableSelectedOption(selectedOpponent, judgeSelect);
-                });
-
-                judgeSelect.addEventListener('change', function () {
-                    const selectedJudge = this.value;
-                    disableSelectedOption(selectedJudge, opponentSelect);
-                });
+            opponentSelect.addEventListener('change', function () {
+                const selectedOpponent = this.value;
+                disableSelectedOption(selectedOpponent, judgeSelect);
             });
-        </script>
+
+            judgeSelect.addEventListener('change', function () {
+                const selectedJudge = this.value;
+                disableSelectedOption(selectedJudge, opponentSelect);
+            });
+        });
+    </script>
 
 
 
