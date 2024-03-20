@@ -3,15 +3,10 @@ const router = express.Router();
 const { Op } = require('sequelize');
 const { Bet, User } = require('../models'); // Adjust the path as necessary
 const { logEvent } = require('../utils/eventLogger');
+const { isAuthenticated } = require('../utils/isAuthenticated');
 
 
-// Middleware to check if the user is authenticated
-const isAuthenticated = (req, res, next) => {
-    if (req.isAuthenticated()) {
-        return next();
-    }
-    res.redirect('/login');
-};
+
 
 // Route to display form to create a new bet
 router.get('/create', isAuthenticated, async (req, res) => {

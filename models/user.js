@@ -32,10 +32,6 @@ module.exports = (sequelize) => {
             type: DataTypes.STRING,
             allowNull: true
         },
-        profileGIF: {
-            type: DataTypes.STRING,
-            allowNull: true
-        },
         profileDescription: {
             type: DataTypes.TEXT,
             allowNull: true
