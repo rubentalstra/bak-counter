@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Bets</title>
+    <title>Weddenschappen Bekijken</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
 </head>
 
@@ -14,24 +14,25 @@
 
         <div class="container mt-5">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h1>Bets</h1>
-                <a href="/bets/create" class="btn btn-primary">Create Bet</a>
+                <h1>Weddenschappen</h1>
+                <a href="/bets/create" class="btn btn-primary">Weddenschap Aanmaken</a>
             </div>
 
-            <!-- Nav tabs -->
+            <!-- Navigatietabs -->
             <ul class="nav nav-tabs" id="betTabs" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active" id="active-bets-tab" data-bs-toggle="tab"
                         data-bs-target="#active-bets" type="button" role="tab" aria-controls="active-bets"
-                        aria-selected="true">Active Bets</button>
+                        aria-selected="true">Actieve Weddenschappen</button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="closed-bets-tab" data-bs-toggle="tab" data-bs-target="#closed-bets"
-                        type="button" role="tab" aria-controls="closed-bets" aria-selected="false">Closed Bets</button>
+                        type="button" role="tab" aria-controls="closed-bets" aria-selected="false">Gesloten
+                        Weddenschappen</button>
                 </li>
             </ul>
 
-            <!-- Tab content -->
+            <!-- Tabinhoud -->
             <div class="tab-content">
                 <div class="tab-pane fade show active" id="active-bets" role="tabpanel"
                     aria-labelledby="active-bets-tab">
@@ -41,23 +42,23 @@
                                 <h5 class="card-title">
                                     <%= bet.Initiator.name %> vs. <%= bet.Opponent.name %>
                                 </h5>
-                                <h6 class="card-subtitle mb-2 text-muted">Judge: <%= bet.Judge.name %>
+                                <h6 class="card-subtitle mb-2 text-muted">Scheidsrechter: <%= bet.Judge.name %>
                                 </h6>
-                                <p class="card-text">Description: <%= bet.betDescription %>
+                                <p class="card-text">Beschrijving: <%= bet.betDescription %>
                                 </p>
-                                <p class="card-text">Stake: <%= bet.stake %> REP points</p>
+                                <p class="card-text">Inzet: <%= bet.stake %> REP punten</p>
                                 <% if (bet.status==='pending' ) { %>
                                     <form action="/bets/judge/<%= bet.betId %>" method="POST" class="d-inline">
                                         <input type="hidden" name="winnerUserId" value="<%= bet.Initiator.id %>">
-                                        <button type="submit" class="btn btn-success">Declare <%= bet.Initiator.name %>
-                                                as
-                                                Winner</button>
+                                        <button type="submit" class="btn btn-success">Verklaar <%= bet.Initiator.name %>
+                                                als
+                                                Winnaar</button>
                                     </form>
                                     <form action="/bets/judge/<%= bet.betId %>" method="POST" class="d-inline">
                                         <input type="hidden" name="winnerUserId" value="<%= bet.Opponent.id %>">
-                                        <button type="submit" class="btn btn-warning">Declare <%= bet.Opponent.name %>
-                                                as
-                                                Winner</button>
+                                        <button type="submit" class="btn btn-warning">Verklaar <%= bet.Opponent.name %>
+                                                als
+                                                Winnaar</button>
                                     </form>
                                     <% } %>
                             </div>
@@ -71,12 +72,12 @@
                                 <h5 class="card-title">
                                     <%= bet.Initiator.name %> vs. <%= bet.Opponent.name %>
                                 </h5>
-                                <h6 class="card-subtitle mb-2 text-muted">Judge: <%= bet.Judge.name %>
+                                <h6 class="card-subtitle mb-2 text-muted">Scheidsrechter: <%= bet.Judge.name %>
                                 </h6>
-                                <p class="card-text">Description: <%= bet.betDescription %>
+                                <p class="card-text">Beschrijving: <%= bet.betDescription %>
                                 </p>
-                                <p class="card-text">Stake: <%= bet.stake %> REP points</p>
-                                <p class="card-text"><strong>Winner:</strong>
+                                <p class="card-text">Inzet: <%= bet.stake %> REP punten</p>
+                                <p class="card-text"><strong>Winnaar:</strong>
                                     <%= bet.winnerUserId===bet.Initiator.id ? bet.Initiator.name : bet.Opponent.name %>
                                 </p>
                             </div>
@@ -84,6 +85,7 @@
                         <% }); %>
                 </div>
             </div>
+
 
         </div>
 

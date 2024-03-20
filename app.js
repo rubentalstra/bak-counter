@@ -5,6 +5,8 @@ const passport = require('passport');
 require('./config/passport-setup');
 const app = express();
 
+const attachPendingRequestCount = require('./middleware/pendingRequests');
+
 // Parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -20,6 +22,9 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Apply it globally
+app.use(attachPendingRequestCount);
 
 // Set up routes
 app.use(require('./routes/auth'));

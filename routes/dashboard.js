@@ -199,14 +199,12 @@ router.get('/submit-bak', isAuthenticated, async (req, res) => {
 
         // Fetch all users except the current user
         const users = await User.findAll({
-            where: {
-                id: {
-                    [Op.not]: req.user.id // Exclude current user's ID
-                }
-            }
+            // where: {
+            //     id: {
+            //         [Op.not]: req.user.id // Exclude current user's ID
+            //     }
+            // }
         });
-
-        console.log(users)
 
         res.render('submit-bak', { user: req.user, users, errorMessage: errorMessage ?? null });
     } catch (error) {
@@ -223,10 +221,10 @@ router.post('/submit-bak', isAuthenticated, async (req, res) => {
         const requesterId = req.user.id; // Assuming you have user ID stored in session
 
         // Check if requesterId and targetId are the same
-        if (requesterId === parseInt(targetId)) { // Assuming IDs are integers
-            const errorMessage = 'You cannot send a BAK request to yourself.';
-            return res.redirect(`/submit-bak?errorMessage=${encodeURIComponent(errorMessage)}`);
-        }
+        // if (requesterId === parseInt(targetId)) { // Assuming IDs are integers
+        //     const errorMessage = 'You cannot send a BAK request to yourself.';
+        //     return res.redirect(`/submit-bak?errorMessage=${encodeURIComponent(errorMessage)}`);
+        // }
 
         // Continue with BAK request creation
         await BakRequest.create({

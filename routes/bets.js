@@ -30,10 +30,12 @@ router.get('/create', isAuthenticated, async (req, res) => {
 router.post('/create', isAuthenticated, async (req, res) => {
     const { opponentUserId, judgeUserId, betTitle, betDescription, stake } = req.body;
 
-    const loggedInUserId = req.user.id;
+    const loggedInUserId = parseInt(req.user.id, 10); // Zet naar integer
+    const intOpponentUserId = parseInt(opponentUserId, 10); // Zet naar integer
+    const intJudgeUserId = parseInt(judgeUserId, 10); // Zet naar integer
 
     // Valideer dat de judgeUserId verschilt van initiatorUserId en opponentUserId
-    if (judgeUserId === opponentUserId) {
+    if (loggedInUserId === intJudgeUserId || intJudgeUserId === intOpponentUserId) {
         // Stuur een foutbericht terug als de judge dezelfde is als de initiator of de tegenstander
         return res.status(400).send("De judge moet een neutrale derde partij zijn en kan niet dezelfde zijn als de tegenstander van de weddenschap.");
     }
@@ -41,8 +43,8 @@ router.post('/create', isAuthenticated, async (req, res) => {
     try {
         await Bet.create({
             initiatorUserId: loggedInUserId,
-            opponentUserId,
-            judgeUserId,
+            opponentUserId: intOpponentUserId,
+            judgeUserId: intJudgeUserId,
             betTitle,
             betDescription,
             stake,
@@ -93,17 +95,18 @@ router.post('/judge/:betId', isAuthenticated, async (req, res) => {
         // Mark the bet as completed with the winner declared
         await Bet.update({ winnerUserId, status: 'completed' }, { where: { betId } });
 
-        // Log event for the winner
+        // Logboeking voor de winnaar
         await logEvent({
             userId: winnerUserId,
-            description: `Won bet ${bet.betTitle}. Awarded ${bet.stake} REP points. Gewonnen van ${loser.name}`
+            description: `Heeft de weddenschap ${bet.betTitle} gewonnen. ${bet.stake} REP punten toegekend. Gewonnen van ${loser.name}`
         });
 
-        // Log event for the loser
+        // Logboeking voor de verliezer
         await logEvent({
             userId: loserUserId,
-            description: `Lost bet ${bet.betTitle}. Assigned ${bet.stake} BAKs. Verloren van ${winner.name}`
+            description: `Heeft de weddenschap ${bet.betTitle} verloren. ${bet.stake} BAKs toegewezen. Verloren van ${winner.name}`
         });
+
 
         res.redirect('/bets');
     } catch (error) {
