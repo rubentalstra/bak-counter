@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Submit a BAK Request</title>
+    <title>BAK Verzoek Indienen</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
 </head>
 
@@ -12,35 +12,35 @@
 
     <%- include('partials/_navbar') %>
 
-        <div class="container mt-5">
-            <h1>Submit a BAK Request</h1>
+    <div class="container mt-5">
+        <h1>BAK Verzoek Indienen</h1>
 
-            <% if (errorMessage) { %>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <%= errorMessage %>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                <% } %>
-
-                    <form action="/submit-bak" method="POST">
-                        <div class="mb-3">
-                            <label for="targetId" class="form-label">Recipient</label>
-                            <select id="targetId" name="targetId" class="form-select" required>
-                                <% users.forEach(user=> { %>
-                                    <option value="<%= user.id %>">
-                                        <%= user.name %>
-                                    </option>
-                                    <% }) %>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="reasonBak" class="form-label">Reason for BAK</label>
-                            <textarea id="reasonBak" name="reasonBak" class="form-control" rows="3" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Submit BAK Request</button>
-                    </form>
+        <% if (errorMessage) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <%= errorMessage %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+        <% } %>
+
+        <form action="/submit-bak" method="POST">
+            <div class="mb-3">
+                <label for="targetId" class="form-label">Ontvanger</label>
+                <select id="targetId" name="targetId" class="form-select" required>
+                    <% users.forEach(user=> { %>
+                    <option value="<%= user.id %>">
+                        <%= user.name %>
+                    </option>
+                    <% }) %>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="reasonBak" class="form-label">Reden voor BAK</label>
+                <textarea id="reasonBak" name="reasonBak" class="form-control" rows="3" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">BAK Verzoek Indienen</button>
+        </form>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

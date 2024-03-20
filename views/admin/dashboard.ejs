@@ -12,45 +12,45 @@
 
     <%- include('partials/_navbar') %>
 
-        <div class="container mt-4">
+    <div class="container mt-4">
 
-            <div class="mb-3">
-                <h2>Users and BAK Counts</h2>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th scope="col">Name</th>
-                            <th scope="col">Confirmed BAKs</th>
-                            <th scope="col">Pending BAK Requests</th>
-                            <th scope="col">Pending BAK Has Taken Requests</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% users.forEach(function(user) { %>
-                            <tr>
-                                <td>
-                                    <%= user.name %>
-                                </td>
-                                <td>
-                                    <%= user.confirmedBakCount %>
-                                </td>
-                                <td>
-                                    <%= user.pendingBakRequestCount %>
-                                </td>
-                                <td>
-                                    <%= user.pendingBakHasTakenRequestCount %>
-                                </td>
-                            </tr>
-                            <% }); %>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Optionally, add more sections here for other data or actions -->
-
+        <div class="mb-3">
+            <h2>Users and BAK Counts</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Confirmed BAKs</th>
+                        <th scope="col">Pending BAK Requests</th>
+                        <th scope="col">Pending BAK Has Taken Requests</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% users.forEach(function(user) { %>
+                    <tr>
+                        <td>
+                            <%= user.name %>
+                        </td>
+                        <td>
+                            <%= user.confirmedBakCount %>
+                        </td>
+                        <td>
+                            <%= user.pendingBakRequestCount %>
+                        </td>
+                        <td>
+                            <%= user.pendingBakHasTakenRequestCount %>
+                        </td>
+                    </tr>
+                    <% }); %>
+                </tbody>
+            </table>
         </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Optionally, add more sections here for other data or actions -->
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

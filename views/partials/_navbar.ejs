@@ -8,11 +8,20 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" href="/submit-bak">Submit a BAK</a>
+                    <a class="nav-link" href="/submit-bak">BAK Versturen</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/validate-bak">Validate BAK</a>
+                <li class="nav-item position-relative">
+                    <a class="nav-link" href="/validate-bak">BAK Valideren</a>
+                    <% if (pendingRequestCount> 0) { %>
+                    <span class="position-absolute translate-middle badge rounded-pill bg-danger"
+                        style="top: 10%; right: -20px; transform: translate(50%, -50%);">
+                        <%= pendingRequestCount %>
+                        <span class="visually-hidden">Pending requests</span>
+                    </span>
+                    <% } %>
                 </li>
+
+
                 <li class="nav-item">
                     <a class="nav-link" href="/validationRequests">Getrokken Bak aanvragen</a>
                 </li>
