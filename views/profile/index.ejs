@@ -105,14 +105,10 @@
                                 <div id="descriptionText" class="editable">
                                     <% const descriptionLines=profile.profileDescription.split('\n'); %>
                                         <% descriptionLines.forEach((line)=> { %>
-                                            <% if (line) { %>
-                                                <p>
-                                                    <%= line %>
-                                                </p>
-                                                <% } else { %>
-                                                    <br>
-                                                    <% } %>
-                                                        <% }); %>
+                                            <span>
+                                                <%= line %><br>
+                                            </span>
+                                            <% }); %>
                                 </div>
                             </div>
                             <% if (profile.id===user.id) { %>
