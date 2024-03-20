@@ -28,17 +28,19 @@ router.get('/create', isAuthenticated, async (req, res) => {
 
 // Route to post a new bet
 router.post('/create', isAuthenticated, async (req, res) => {
-    const { initiatorUserId, opponentUserId, judgeUserId, betTitle, betDescription, stake } = req.body;
+    const { opponentUserId, judgeUserId, betTitle, betDescription, stake } = req.body;
+
+    const loggedInUserId = req.user.id;
 
     // Valideer dat de judgeUserId verschilt van initiatorUserId en opponentUserId
-    if (judgeUserId === initiatorUserId || judgeUserId === opponentUserId) {
+    if (judgeUserId === opponentUserId) {
         // Stuur een foutbericht terug als de judge dezelfde is als de initiator of de tegenstander
-        return res.status(400).send("De judge moet een neutrale derde partij zijn en kan niet dezelfde zijn als de initiator of de tegenstander van de weddenschap.");
+        return res.status(400).send("De judge moet een neutrale derde partij zijn en kan niet dezelfde zijn als de tegenstander van de weddenschap.");
     }
 
     try {
         await Bet.create({
-            initiatorUserId,
+            initiatorUserId: loggedInUserId,
             opponentUserId,
             judgeUserId,
             betTitle,
