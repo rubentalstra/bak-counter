@@ -1,6 +1,6 @@
-<nav class="navbar navbar-expand-lg" style="background-color: rgb(28, 39, 44);">
+<nav class="navbar navbar-expand-lg navbar-custom navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="/dashboard" style="color: white;">
+        <a class="navbar-brand" href="/dashboard">
             <img src="/images/bak_counter_logo-sm.png" alt="Logo" height="40">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
@@ -10,10 +10,10 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" href="/submit-bak" style="color: white;">BAK Versturen</a>
+                    <a class="nav-link" href="/bak/submit">BAK Versturen</a>
                 </li>
                 <li class="nav-item position-relative">
-                    <a class="nav-link" href="/validate-bak" style="color: white;">BAK Valideren</a>
+                    <a class="nav-link" href="/bak/validate">BAK Valideren</a>
                     <% if (pendingRequestCount> 0) { %>
                     <span class="position-absolute translate-middle badge rounded-pill bg-danger"
                         style="top: 10%; right: -20px; transform: translate(50%, -50%);">
@@ -25,10 +25,10 @@
 
 
                 <li class="nav-item">
-                    <a class="nav-link" href="/validationRequests" style="color: white;">Getrokken Bak aanvragen</a>
+                    <a class="nav-link" href="/bak-getrokken">Getrokken Bak aanvragen</a>
                 </li>
                 <li class="nav-item position-relative">
-                    <a class="nav-link" href="/bets" style="color: white;">Weddenschappen</a>
+                    <a class="nav-link" href="/bets">Weddenschappen</a>
                     <% if (pendingBetCount > 0) { %>
                     <span class="position-absolute translate-middle badge rounded-pill bg-danger"
                         style="top: 10%; right: -20px; transform: translate(50%, -50%);">
@@ -38,16 +38,16 @@
                     <% } %>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/eventLogs" style="color: white;">Event Logs</a>
+                    <a class="nav-link" href="/eventLogs">Event Logs</a>
                 </li>
             </ul>
             <span class="navbar-text">
-                <a href="/profile/<%= user.id %>" class="nav-link d-inline p-0" style="color: white;">Logged in as <%=
+                <a href="/profile/<%= user.id %>" class="nav-link d-inline p-0">Logged in as <%=
                         user.name %></a>
             </span>
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link" href="/logout" style="color: white;">Logout</a>
+                    <a class="nav-link" href="/logout">Logout</a>
                 </li>
             </ul>
         </div>

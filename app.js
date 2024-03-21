@@ -35,10 +35,19 @@ app.use(require('./routes/auth'));
 app.use(require('./routes/index'));
 app.use(require('./routes/dashboard'));
 app.use('/bets', require('./routes/bets'));
+app.use('/profile', require('./routes/profile'));
+app.use('/bak', require('./routes/bak'));
+app.use('/bak-getrokken', require('./routes/bakGetrokken'));
 app.use(require('./routes/admin'));
+
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
+
+app.use(function (req, res, next) {
+    res.status(404).render('error/404');
+});
+
 
 const port = process.env.PORT || 8080;
 app.listen(port, () => console.log(`App listening on port ${port}`));
