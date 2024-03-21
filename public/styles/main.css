@@ -1,0 +1,126 @@
+/* main.css */
+
+body {
+    background-color: rgb(255, 253, 241);
+}
+
+h1 {
+    color: rgb(207, 163, 80);
+}
+
+/* Text and background colors */
+.dark {
+    color: rgb(1, 14, 19);
+    /* For text */
+    /* background-color: rgb(1, 14, 19); Uncomment for background usage */
+}
+
+.text-less-dark {
+    color: rgb(28, 39, 44);
+}
+
+/* Navbar styling */
+.navbar-custom {
+    background-color: rgb(28, 39, 44);
+}
+
+.navbar-custom .navbar-brand,
+.navbar-custom .nav-link {
+    color: white !important;
+    /* Overrides Bootstrap's styles */
+}
+
+.navbar-custom .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+
+/* Card styling */
+.card-custom {
+    margin-bottom: 20px;
+}
+
+.card-custom .card {
+    background-color: rgb(247, 245, 235);
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.card-custom .card-body {
+    padding: 20px;
+}
+
+.card-custom .card-title {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.card-custom .card-subtitle {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.card-custom .card-text {
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+.card-custom .btn {
+    margin-top: 10px;
+}
+
+
+/* table styling */
+.table-custom {
+    background-color: rgb(1, 14, 19);
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Styling for table images */
+.table-custom img.rounded-circle {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+}
+
+/* Styling for action buttons in the last column */
+.table-custom .action-col a {
+    background-color: rgb(28, 39, 44);
+    /* Dark background for buttons */
+    color: white;
+    /* White text for contrast */
+    border: none;
+}
+
+.table-custom .action-col a:hover {
+    background-color: rgb(207, 163, 80);
+    /* H1 color for button hover state */
+    color: white;
+}
+
+
+
+
+/* Button styling */
+.btn-theme {
+    background-color: rgb(207, 163, 80);
+    color: white;
+}
+
+.btn-theme:hover {
+    background-color: rgb(186, 146, 72);
+    /* Darker shade for hover state */
+    color: white;
+}
+
+/* Utility classes for theme colors */
+.bg-theme {
+    background-color: rgb(28, 39, 44);
+}
+
+.text-white {
+    color: white;
+}
