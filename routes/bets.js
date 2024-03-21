@@ -23,7 +23,7 @@ router.get('/create', isAuthenticated, async (req, res) => {
 
     // const users = await User.findAll();
 
-    res.render('createBet', { user: req.user, users });
+    res.render('bets/create', { user: req.user, users });
 });
 
 // Route to post a new bet
@@ -64,7 +64,7 @@ router.get('/', isAuthenticated, async (req, res) => {
     const bets = await Bet.findAll({
         include: ['Initiator', 'Opponent', 'Judge']
     });
-    res.render('viewBets', { user: req.user, bets });
+    res.render('bets/view', { user: req.user, bets });
 });
 
 // Route for the judge to declare a winner
