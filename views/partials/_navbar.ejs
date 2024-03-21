@@ -18,12 +18,10 @@
                     <span class="position-absolute translate-middle badge rounded-pill bg-danger"
                         style="top: 10%; right: -20px; transform: translate(50%, -50%);">
                         <%= pendingRequestCount %>
-                        <span class="visually-hidden">Pending requests</span>
+                        <span class="visually-hidden">Openstaande verzoeken</span>
                     </span>
                     <% } %>
                 </li>
-
-
                 <li class="nav-item">
                     <a class="nav-link" href="/bak-getrokken">Getrokken Bak aanvragen</a>
                 </li>
@@ -40,14 +38,19 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/eventLogs">Event Logs</a>
                 </li>
+                <!-- Admin only option -->
+                <% if (user.isAdmin) { %>
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin">Admin Overzicht</a>
+                </li>
+                <% } %>
             </ul>
             <span class="navbar-text">
-                <a href="/profile/<%= user.id %>" class="nav-link d-inline p-0">Logged in as <%=
-                        user.name %></a>
+                <a href="/profile/<%= user.id %>" class="nav-link d-inline p-0">Ingelogd als <%= user.name %></a>
             </span>
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link" href="/logout">Logout</a>
+                    <a class="nav-link" href="/logout">Uitloggen</a>
                 </li>
             </ul>
         </div>

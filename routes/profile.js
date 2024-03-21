@@ -30,7 +30,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 
-router.get('/:userId', isAuthenticated, async (req, res) => {
+router.get('/:userId', async (req, res) => {
     try {
         const userId = req.params.userId;
 
@@ -73,7 +73,7 @@ router.get('/:userId', isAuthenticated, async (req, res) => {
 });
 
 
-router.post('/updatePicture', isAuthenticated, isAuthorized, upload.single('profilePicture'), async (req, res) => {
+router.post('/updatePicture', isAuthorized, upload.single('profilePicture'), async (req, res) => {
     if (!req.file) {
         return res.status(400).send('No file uploaded.');
     }
@@ -101,7 +101,7 @@ router.post('/updatePicture', isAuthenticated, isAuthorized, upload.single('prof
 });
 
 
-router.post('/deletePicture', isAuthenticated, isAuthorized, async (req, res) => {
+router.post('/deletePicture', isAuthorized, async (req, res) => {
     const userId = req.user.id;
 
     try {
@@ -121,7 +121,7 @@ router.post('/deletePicture', isAuthenticated, isAuthorized, async (req, res) =>
 
 
 // Route for updating profile description
-router.post('/updateDescription', isAuthenticated, isAuthorized, async (req, res) => {
+router.post('/updateDescription', isAuthorized, async (req, res) => {
     const { profileDescription } = req.body;
     const userId = req.user.id; // Adjust based on your session management
 

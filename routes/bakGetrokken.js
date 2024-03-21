@@ -46,7 +46,7 @@ const uploadProve = multer({
     }
 });
 
-router.get('/', isAuthenticated, async (req, res) => {
+router.get('/', async (req, res) => {
     try {
         const openRequests = await BakHasTakenRequest.findAll({
             where: { status: 'pending' },
@@ -82,7 +82,7 @@ router.get('/', isAuthenticated, async (req, res) => {
 
 
 
-router.get('/validate/approve/:id', isAuthenticated, async (req, res) => {
+router.get('/validate/approve/:id', async (req, res) => {
     const requestId = req.params.id;
     const userId = req.user.id;
     const userIsAdmin = adminEmails.includes(req.user.email);
@@ -137,7 +137,7 @@ router.get('/validate/approve/:id', isAuthenticated, async (req, res) => {
 });
 
 
-router.get('/validate/decline/:id', isAuthenticated, async (req, res) => {
+router.get('/validate/decline/:id', async (req, res) => {
     try {
         const requestId = req.params.id;
 
@@ -186,7 +186,7 @@ router.get('/validate/decline/:id', isAuthenticated, async (req, res) => {
 
 
 // Route to show the page for creating a new BAK validation request
-router.get('/create', isAuthenticated, async (req, res) => {
+router.get('/create', async (req, res) => {
     try {
         // Fetch all users from the database to populate the select dropdown
         const users = await User.findAll({
@@ -203,7 +203,7 @@ router.get('/create', isAuthenticated, async (req, res) => {
 });
 
 // Route to create a new BAK validation request
-router.post('/create', isAuthenticated, uploadProve.single('evidence'), async (req, res) => {
+router.post('/create', uploadProve.single('evidence'), async (req, res) => {
     try {
         // Extract data from the request body
         const { targetUserId } = req.body;

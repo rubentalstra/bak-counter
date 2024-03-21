@@ -9,7 +9,7 @@ const { isAuthenticated } = require('../utils/isAuthenticated');
 
 
 // Route to display form to create a new bet
-router.get('/create', isAuthenticated, async (req, res) => {
+router.get('/create', async (req, res) => {
 
 
     //  Fetch all users to select as opponent and judge
@@ -27,7 +27,7 @@ router.get('/create', isAuthenticated, async (req, res) => {
 });
 
 // Route to post a new bet
-router.post('/create', isAuthenticated, async (req, res) => {
+router.post('/create', async (req, res) => {
     const { opponentUserId, judgeUserId, betTitle, betDescription, stake } = req.body;
 
     const loggedInUserId = parseInt(req.user.id, 10); // Zet naar integer
@@ -60,7 +60,7 @@ router.post('/create', isAuthenticated, async (req, res) => {
 
 
 // Route to view all bets
-router.get('/', isAuthenticated, async (req, res) => {
+router.get('/', async (req, res) => {
     const bets = await Bet.findAll({
         include: ['Initiator', 'Opponent', 'Judge']
     });
@@ -68,7 +68,7 @@ router.get('/', isAuthenticated, async (req, res) => {
 });
 
 // Route for the judge to declare a winner
-router.post('/judge/:betId', isAuthenticated, async (req, res) => {
+router.post('/judge/:betId', async (req, res) => {
     const { betId } = req.params;
     const { winnerUserId } = req.body;
 

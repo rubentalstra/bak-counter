@@ -7,7 +7,7 @@ const router = express.Router();
 
 
 
-router.get('/submit', isAuthenticated, async (req, res) => {
+router.get('/submit', async (req, res) => {
     try {
         const errorMessage = req.query.errorMessage;
 
@@ -28,17 +28,26 @@ router.get('/submit', isAuthenticated, async (req, res) => {
 
 
 
-// Route to handle form submission
-router.post('/submit', isAuthenticated, async (req, res) => {
+router.post('/submit', async (req, res) => {
     try {
         const { targetId, reasonBak } = req.body;
-        const requesterId = req.user.id; // Assuming you have user ID stored in session
+        const requesterId = req.user.id;
 
         // Check if requesterId and targetId are the same
-        if (requesterId === parseInt(targetId)) { // Assuming IDs are integers
+        if (parseInt(requesterId) === parseInt(targetId)) {
             const errorMessage = 'You cannot send a BAK request to yourself.';
             return res.redirect(`/submit-bak?errorMessage=${encodeURIComponent(errorMessage)}`);
         }
+
+        // Retrieve both requester and target user details
+        const requester = await User.findByPk(requesterId);
+        const target = await User.findByPk(targetId);
+
+        if (!requester || !target) {
+            const errorMessage = 'Gebruiker niet gevonden.';
+            return res.redirect(`/submit-bak?errorMessage=${encodeURIComponent(errorMessage)}`);
+        }
+
 
         // Continue with BAK request creation
         await BakRequest.create({
@@ -48,7 +57,20 @@ router.post('/submit', isAuthenticated, async (req, res) => {
             status: 'pending'
         });
 
-        res.redirect('/dashboard'); // Redirect to the dashboard or another appropriate page
+        // Log event for the requester
+        await logEvent({
+            userId: requesterId,
+            description: `Je hebt een BAK verzoek gestuurd naar ${target.name} met reden: ${reasonBak}.`
+        });
+
+        // Log event for the target
+        await logEvent({
+            userId: targetId,
+            description: `Je hebt een BAK verzoek ontvangen van ${requester.name} met reden: ${reasonBak}.`
+        });
+
+
+        res.redirect('/dashboard');
     } catch (error) {
         res.status(500).send(error.message);
     }
@@ -56,7 +78,7 @@ router.post('/submit', isAuthenticated, async (req, res) => {
 
 
 
-router.get('/validate', isAuthenticated, async (req, res) => {
+router.get('/validate', async (req, res) => {
     const requesterId = req.user.id;
 
     try {
@@ -73,7 +95,7 @@ router.get('/validate', isAuthenticated, async (req, res) => {
     }
 });
 
-router.post('/validate/:requestId/:status', isAuthenticated, async (req, res) => {
+router.post('/validate/:requestId/:status', async (req, res) => {
     const { requestId, status } = req.params;
     try {
         const request = await BakRequest.findByPk(requestId, {

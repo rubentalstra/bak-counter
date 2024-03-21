@@ -1,14 +1,13 @@
 const express = require('express');
 
 const { BakRequest, User, BakHasTakenRequest, EventLog } = require('../models');
-const { isAuthenticated } = require('../utils/isAuthenticated');
 
 const router = express.Router();
 
 
 
 
-router.get('/dashboard', isAuthenticated, async (req, res) => {
+router.get('/dashboard', async (req, res) => {
     try {
         const users = await User.findAll({
             attributes: ['id', 'name', 'bak', 'profilePicture'],
@@ -40,7 +39,7 @@ router.get('/dashboard', isAuthenticated, async (req, res) => {
 
 
 
-router.get('/eventLogs', isAuthenticated, async (req, res) => {
+router.get('/eventLogs', async (req, res) => {
     const page = parseInt(req.query.page, 10) || 1; // Default to first page
     const limit = parseInt(req.query.limit, 10) || 10; // Default to 10 logs per page
     const offset = (page - 1) * limit;
