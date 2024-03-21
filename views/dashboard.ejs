@@ -37,43 +37,45 @@
 
         <div class="card shadow-sm mb-3">
             <div class="card-body">
-                <table class="table table-striped table-custom" id="usersTable">
-                    <thead>
-                        <tr>
-                            <th scope="col">Naam</th>
-                            <th scope="col">Bevestigde BAKKEN</th>
-                            <th scope="col">In behandeling BAK Ontvangen</th>
-                            <th scope="col">In behandeling BAK Getrokken</th>
-                            <th scope="col"></th>
-                        </tr>
-                    </thead>
+                <div class="table-responsive">
+                    <table class="table table-striped table-custom" id="usersTable">
+                        <thead>
+                            <tr>
+                                <th scope="col">Naam</th>
+                                <th scope="col">Bevestigde BAKKEN</th>
+                                <th scope="col">In behandeling BAK Ontvangen</th>
+                                <th scope="col">In behandeling BAK Getrokken</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
 
-                    <tbody>
-                        <% users.sort((a, b)=> b.bak - a.bak).forEach(user => { %>
-                        <tr>
-                            <td>
-                                <img src="<%= user.profilePicture ? '/uploads/profile/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
-                                    alt="Profielfoto" class="rounded-circle me-2"
-                                    style="width: 30px; height: 30px; object-fit: cover;">
-                                <%= user.name %>
-                            </td>
-                            <td>
-                                <%= user.bak %>
-                            </td>
-                            <td>
-                                <%= user.BakRequests.length %>
-                            </td>
-                            <td>
-                                <%= user.ReceivedProposals.length %>
-                            </td>
-                            <td class="action-col">
-                                <a href="/profile/<%= user.id %>" class="btn btn-theme btn-sm">Profiel bekijken</a>
-                            </td>
-                        </tr>
-                        <% }) %>
+                        <tbody>
+                            <% users.sort((a, b)=> b.bak - a.bak).forEach(user => { %>
+                            <tr>
+                                <td>
+                                    <img src="<%= user.profilePicture ? '/uploads/profile/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
+                                        alt="Profielfoto" class="rounded-circle me-2"
+                                        style="width: 30px; height: 30px; object-fit: cover;">
+                                    <%= user.name %>
+                                </td>
+                                <td>
+                                    <%= user.bak %>
+                                </td>
+                                <td>
+                                    <%= user.BakRequests.length %>
+                                </td>
+                                <td>
+                                    <%= user.ReceivedProposals.length %>
+                                </td>
+                                <td class="action-col">
+                                    <a href="/profile/<%= user.id %>" class="btn btn-theme btn-sm">Profiel bekijken</a>
+                                </td>
+                            </tr>
+                            <% }) %>
 
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
