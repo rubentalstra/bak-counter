@@ -16,6 +16,14 @@
 
     <div class="container mt-5">
         <h2>Create a New BAK Validation Request</h2>
+
+        <% if (errorMessage) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <%= errorMessage %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <% } %>
+
         <form action="/bak-getrokken/create" method="POST" enctype="multipart/form-data">
 
             <div class="mb-3">
