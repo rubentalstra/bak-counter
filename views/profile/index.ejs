@@ -78,6 +78,15 @@
 
 
     <div class="container mt-5">
+
+        <% if (errorMessage) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <%= errorMessage %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <% } %>
+
+
         <div class="profile-header">
             <div class="row">
                 <!-- Profile Picture -->
@@ -253,8 +262,7 @@
                         <% } %>
                         <form action="/profile/updatePicture" method="post" enctype="multipart/form-data">
                             <input type="file" id="newProfilePicture" name="profilePicture"
-                                accept="image/png, image/jpeg, image/gif" class="form-control">
-
+                                accept="image/png, image/jpeg, image/jpg, image/gif" class="form-control">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

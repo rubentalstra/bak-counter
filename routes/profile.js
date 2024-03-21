@@ -27,11 +27,33 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ storage: storage });
+// Add a file filter
+const fileFilter = (req, file, cb) => {
+    // Allowed ext
+    const filetypes = /jpeg|jpg|png|gif/;
+    // Check ext
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    // Check mime
+    const mimetype = filetypes.test(file.mimetype);
+
+    if (mimetype && extname) {
+        return cb(null, true);
+    } else {
+        cb('Error: Images and GIFs Only!');
+    }
+};
+
+const upload = multer({
+    storage: storage,
+    fileFilter: fileFilter,
+    limits: { fileSize: 1000000 } // for example, limit file size to 1MB
+});
+
 
 
 router.get('/:userId', async (req, res) => {
     try {
+        const errorMessage = req.query.errorMessage;
         const userId = req.params.userId;
 
         const profile = await User.findByPk(userId, {
@@ -59,6 +81,7 @@ router.get('/:userId', async (req, res) => {
         res.render('profile/index', {
             user: req.user,
             profile,
+            errorMessage: errorMessage ?? null,
             level: levelNames[levelIndex],
             reputation: reputationNames[repIndex],
             xpPercentage,
@@ -73,9 +96,32 @@ router.get('/:userId', async (req, res) => {
 });
 
 
-router.post('/updatePicture', isAuthorized, upload.single('profilePicture'), async (req, res) => {
+
+// Middleware for handling multer upload and potential errors, including file type restriction
+const uploadMiddleware = (req, res, next) => {
+    const uploadWithMulter = upload.single('profilePicture');
+    uploadWithMulter(req, res, function (err) {
+        if (err instanceof multer.MulterError) {
+            // A Multer error occurred when uploading (e.g., file too large).
+            const errorMessage = `Er is een fout opgetreden bij het uploaden van het bestand: ${err.message}`;
+            return res.redirect(`/profile/${req.user.id}?errorMessage=${encodeURIComponent(errorMessage)}`);
+        } else if (err) {
+            // A custom error from the fileFilter (e.g., wrong file type).
+            return res.redirect(`/profile/${req.user.id}?errorMessage=${encodeURIComponent(err)}`);
+        }
+        // Everything went fine, proceed to the next middleware
+        next();
+    });
+};
+
+
+
+
+
+router.post('/updatePicture', isAuthorized, uploadMiddleware, async (req, res) => {
     if (!req.file) {
-        return res.status(400).send('No file uploaded.');
+        const errorMessage = 'Geen bestand geüpload. Zorg ervoor dat het bestandstype wordt ondersteund.';
+        return res.redirect(`/profile/${req.user.id}?errorMessage=${encodeURIComponent(errorMessage)}`);
     }
 
     const userId = req.user.id;
@@ -96,7 +142,8 @@ router.post('/updatePicture', isAuthorized, upload.single('profilePicture'), asy
         res.redirect(`/profile/${req.user.id}`);
     } catch (error) {
         console.error('Error updating profile picture:', error);
-        res.status(500).send('Error updating profile.');
+        const errorMessage = 'Fout bij het bijwerken van de profielfoto.';
+        res.redirect(`/profile/${req.user.id}?errorMessage=${encodeURIComponent(errorMessage)}`);
     }
 });
 
