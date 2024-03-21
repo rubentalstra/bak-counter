@@ -16,6 +16,7 @@ const router = express.Router();
 
 
 
+
 // Configure multer for file storage
 const storageProve = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -28,12 +29,13 @@ const storageProve = multer.diskStorage({
     }
 });
 
+
 // Only allow image or video files
-const fileFilter = function (req, file, cb) {
+const fileFilter = (req, file, cb) => {
     if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
         cb(null, true);
     } else {
-        cb(new Error('Only image or video files are allowed!'), false);
+        cb(new Error('Alleen afbeeldingen of video\'s zijn toegestaan!'), false);
     }
 };
 
@@ -188,6 +190,7 @@ router.get('/validate/decline/:id', async (req, res) => {
 // Route to show the page for creating a new BAK validation request
 router.get('/create', async (req, res) => {
     try {
+        const errorMessage = req.query.errorMessage;
         // Fetch all users from the database to populate the select dropdown
         const users = await User.findAll({
             attributes: ['id', 'name'],
@@ -195,15 +198,35 @@ router.get('/create', async (req, res) => {
         });
 
         // Render the create request page with the users data
-        res.render('bak-getrokken/create', { user: req.user, users });
+        res.render('bak-getrokken/create', { user: req.user, users, errorMessage: errorMessage ?? null });
     } catch (error) {
         console.error('Error fetching users for BAK validation request:', error);
         res.status(500).send('Error fetching data');
     }
 });
 
-// Route to create a new BAK validation request
-router.post('/create', uploadProve.single('evidence'), async (req, res) => {
+
+// Middleware for handling multer upload and potential errors, including file type restriction
+const uploadProveMiddleware = (req, res, next) => {
+    const upload = uploadProve.single('evidence');
+    upload(req, res, function (err) {
+        if (err instanceof multer.MulterError) {
+            // A Multer error occurred when uploading (e.g., file too large).
+            const errorMessage = `Er is een fout opgetreden bij het uploaden van het bewijs: ${err.message}`;
+            return res.redirect(`/bak-getrokken/create?errorMessage=${encodeURIComponent(errorMessage)}`);
+        } else if (err) {
+            // An error occurred due to the file filter (e.g., wrong file type).
+            return res.redirect(`/bak-getrokken/create?errorMessage=${encodeURIComponent(err)}`);
+        }
+        // If the file type and size are correct, proceed to the next middleware
+        next();
+    });
+};
+
+
+
+// Route to create a new BAK validation request with middleware for handling file upload
+router.post('/create', uploadProveMiddleware, async (req, res) => {
     try {
         // Extract data from the request body
         const { targetUserId } = req.body;
@@ -211,9 +234,15 @@ router.post('/create', uploadProve.single('evidence'), async (req, res) => {
 
         // Ensure that the requester and target are different users
         if (requesterId === targetUserId) {
-            return res.status(400).send('Aanvrager en Ontvanger kunnen niet dezelfde gebruiker zijn');
+            const errorMessage = 'Aanvrager en Ontvanger kunnen niet dezelfde gebruiker zijn';
+            return res.redirect(`/bak-getrokken/create?errorMessage=${encodeURIComponent(errorMessage)}`);
         }
 
+        if (!req.file) {
+            // Handle the case where the file is not uploaded
+            const errorMessage = 'Bewijs is vereist';
+            return res.redirect(`/bak-getrokken/create?errorMessage=${encodeURIComponent(errorMessage)}`);
+        }
 
         // Get the file path of the uploaded evidence
         const evidenceFilePath = req.file.path.replace('public/uploads/prove/', '');
@@ -232,6 +261,7 @@ router.post('/create', uploadProve.single('evidence'), async (req, res) => {
         res.status(500).send('Error processing request');
     }
 });
+
 
 
 
