@@ -74,25 +74,9 @@ h1 {
 
 /* table styling */
 .table-custom {
-    color: rgb(1, 14, 19);
-    /* Dark text color for readability */
-}
-
-.table-custom thead {
-    background-color: rgb(207, 163, 80);
-    /* H1 color for the table header */
-    color: white;
-    /* White text for contrast */
-}
-
-.table-custom tbody tr:nth-of-type(odd) {
-    background-color: rgba(207, 163, 80, 0.1);
-    /* Lighter shade of H1 color for odd rows */
-}
-
-.table-custom tbody tr:hover {
-    background-color: rgba(207, 163, 80, 0.2);
-    /* Slightly darker on hover for interactivity */
+    background-color: rgb(1, 14, 19);
+    width: 100%;
+    border-collapse: collapse;
 }
 
 /* Styling for table images */
@@ -103,7 +87,7 @@ h1 {
 }
 
 /* Styling for action buttons in the last column */
-.table-custom .action-col button {
+.table-custom .action-col a {
     background-color: rgb(28, 39, 44);
     /* Dark background for buttons */
     color: white;
@@ -111,7 +95,7 @@ h1 {
     border: none;
 }
 
-.table-custom .action-col button:hover {
+.table-custom .action-col a:hover {
     background-color: rgb(207, 163, 80);
     /* H1 color for button hover state */
     color: white;
