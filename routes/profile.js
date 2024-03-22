@@ -3,12 +3,12 @@ const multer = require('multer');
 const crypto = require('crypto');
 const path = require('path');
 const fs = require('fs');
+const sharp = require('sharp');
 const util = require('util');
 const unlinkAsync = util.promisify(fs.unlink);
 
 const { User, EventLog } = require('../models');
 const { Op } = require('sequelize');
-const { isAuthenticated } = require('../utils/isAuthenticated');
 const { isAuthorized } = require('../utils/isAuthorized');
 const router = express.Router();
 
@@ -18,28 +18,23 @@ const router = express.Router();
 // Configure multer for file storage
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'public/uploads/profile/'); // Ensure this directory exists
+        cb(null, 'uploads/temp/'); // Temporary directory for initial uploads
     },
     filename: function (req, file, cb) {
         let randomHex = crypto.randomBytes(8).toString('hex');
-        let extension = path.extname(file.originalname);
-        cb(null, randomHex + extension); // Construct file name
+        cb(null, randomHex + path.extname(file.originalname)); // Construct file name with original extension
     }
 });
 
 // Add a file filter
 const fileFilter = (req, file, cb) => {
-    // Allowed ext
-    const filetypes = /jpeg|jpg|png|gif/;
-    // Check ext
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    // Check mime
-    const mimetype = filetypes.test(file.mimetype);
+    const allowedTypes = /jpeg|jpg|png|gif/;
+    const isSupportedFile = allowedTypes.test(path.extname(file.originalname).toLowerCase()) && allowedTypes.test(file.mimetype);
 
-    if (mimetype && extname) {
-        return cb(null, true);
+    if (isSupportedFile) {
+        cb(null, true);
     } else {
-        cb('Error: Images and GIFs Only!');
+        cb('Only image files (JPEG, JPG, PNG, GIF) are allowed!');
     }
 };
 
@@ -48,6 +43,40 @@ const upload = multer({
     fileFilter: fileFilter,
     limits: { fileSize: 10 * 1024 * 1024 } // for example, limit file size to 10MB
 });
+
+const processImage = async (req, res, next) => {
+    if (!req.file) return next(); // Skip if no file is uploaded
+
+    try {
+        const tempPath = req.file.path;
+        const outputPath = `public/uploads/profile/${req.file.filename}`;
+
+        // Use sharp to validate and rewrite the image, stripping non-image data
+        await sharp(tempPath).toFile(outputPath);
+
+        // Cleanup: Delete the temporary file
+        await unlinkAsync(tempPath);
+
+        // Update req.file.path to the new location for further use
+        req.file.path = outputPath;
+
+        next();
+    } catch (error) {
+        console.error('Error processing image:', error);
+
+        // Attempt to delete the temporary file in case of error
+        try {
+            await unlinkAsync(req.file.path);
+        } catch (cleanupError) {
+            console.error('Error cleaning up image file:', cleanupError);
+        }
+
+        // Redirect with error message
+        const errorMessage = 'Failed to process image. Please try again with a valid image file.';
+        return res.redirect(`/profile/${req.user.id}?errorMessage=${encodeURIComponent(errorMessage)}`);
+    }
+};
+
 
 
 
@@ -63,7 +92,7 @@ router.get('/:userId', async (req, res) => {
 
         const xpLevels = [0, 10, 25, 50, 100, 200]; // XP milestones
         const repTiers = [0, 10, 25, 50, 100]; // REP milestones
-        const levelNames = ['Looser', 'Junior', 'Senior', 'Master', 'Alcoholist', 'Leverfalen'];
+        const levelNames = ['Loser', 'Junior', 'Senior', 'Master', 'Alcoholist', 'Leverfalen'];
         const reputationNames = ['Neutral', 'Strooier', 'Mormel', 'Schoft', 'Klootzak'];
 
         let levelIndex = xpLevels.findIndex(xp => profile.xp < xp) - 1;
@@ -118,7 +147,7 @@ const uploadMiddleware = (req, res, next) => {
 
 
 
-router.post('/updatePicture', isAuthorized, uploadMiddleware, async (req, res) => {
+router.post('/updatePicture', isAuthorized, uploadMiddleware, processImage, async (req, res) => {
     if (!req.file) {
         const errorMessage = 'Geen bestand geüpload. Zorg ervoor dat het bestandstype wordt ondersteund.';
         return res.redirect(`/profile/${req.user.id}?errorMessage=${encodeURIComponent(errorMessage)}`);

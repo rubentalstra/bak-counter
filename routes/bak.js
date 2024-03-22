@@ -61,13 +61,13 @@ router.post('/submit', async (req, res) => {
         // Log event for the requester
         await logEvent({
             userId: requesterId,
-            description: `Je hebt een BAK verzoek gestuurd naar ${target.name} met reden: ${reasonBak}.`
+            description: `Heeft een BAK verzoek gestuurd naar ${target.name} met reden: ${reasonBak}.`
         });
 
         // Log event for the target
         await logEvent({
             userId: targetId,
-            description: `Je hebt een BAK verzoek ontvangen van ${requester.name} met reden: ${reasonBak}.`
+            description: `Heeft een BAK verzoek ontvangen van ${requester.name} met reden: ${reasonBak}.`
         });
 
 
