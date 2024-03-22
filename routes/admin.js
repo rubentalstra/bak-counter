@@ -62,13 +62,13 @@ router.post('/:userId/edit', async (req, res) => {
         // Logboeking voor de admin
         await logEvent({
             userId: req.user.id,
-            description: `Je hebt de BAK-telling van ${user.name} met ${bakAmount - oldBakAmount} aangepast. Reden: ${reason}`
+            description: `Heeft de BAK-telling van ${user.name} met ${bakAmount - oldBakAmount} aangepast. Reden: ${reason}`
         });
 
         // Logboeking voor de betrokken gebruiker
         await logEvent({
             userId: user.id,
-            description: `Je BAK-telling is met ${bakAmount - oldBakAmount} aangepast door admin ${req.user.name}. Reden: ${reason}`
+            description: `De BAK-telling is met ${bakAmount - oldBakAmount} aangepast door admin ${req.user.name}. Reden: ${reason}`
         });
 
         res.redirect('/admin');
