@@ -15,6 +15,8 @@ const sequelize = new Sequelize(process.env.AZURE_SQL_DATABASE, process.env.AZUR
         options: {
             encrypt: true, // Necessary for Azure SQL Database
             trustServerCertificate: true, // Set to true only if on a local/trusted server
+            keepAlive: true, // Enable TCP keep-alive
+            keepAliveInitialDelay: 30000, // Start sending keep-alive packets after 30 seconds of inactivity
         }
     },
     pool: {
@@ -22,7 +24,8 @@ const sequelize = new Sequelize(process.env.AZURE_SQL_DATABASE, process.env.AZUR
         min: 0, // Minimum number of connections in pool
         acquire: 30000, // Maximum time, in milliseconds, that pool will try to get connection before throwing error
         idle: 10000 // Maximum time, in milliseconds, that a connection can be idle before being released
-    }
+    },
+    logging: false, // Disable logging
 });
 
 // Import model definitions and initialize them with the sequelize instance

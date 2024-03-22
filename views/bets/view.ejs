@@ -47,7 +47,7 @@
                             <p class="card-text">Beschrijving: <%= bet.betDescription %>
                             </p>
                             <p class="card-text">Inzet: <%= bet.stake %> REP punten</p>
-                            <% if (user.id === bet.judgeUserId && bet.status === 'pending') { %>
+                            <% if (user.id === bet.judgeUserId && bet.status === 'pending' && opponentApproval === true) { %>
                             <form action="/bets/judge/<%= bet.betId %>" method="POST" class="d-inline">
                                 <input type="hidden" name="winnerUserId" value="<%= bet.Initiator.id %>">
                                 <button type="submit" class="btn btn-success">Verklaar <%= bet.Initiator.name %> als
@@ -59,7 +59,11 @@
                                     Winnaar</button>
                             </form>
                             <% } %>
-
+                            <% if (user.id === bet.opponentUserId && bet.status === 'pending' && bet.opponentApproval === false ) {%>
+                            <form action="/bets/approve/<%= bet.betId %>" method="POST">
+                                <button type="submit" class="btn btn-primary">Keur Weddenschap Goed</button>
+                            </form>
+                            <% } %>
                         </div>
                     </div>
                     <% }); %>
