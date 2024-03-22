@@ -63,7 +63,7 @@ router.get('/:userId', async (req, res) => {
 
         const xpLevels = [0, 10, 25, 50, 100, 200]; // XP milestones
         const repTiers = [0, 10, 25, 50, 100]; // REP milestones
-        const levelNames = ['Looser', 'Junior', 'Senior', 'Master', 'Alcoholist', 'Leverfalen'];
+        const levelNames = ['Loser', 'Junior', 'Senior', 'Master', 'Alcoholist', 'Leverfalen'];
         const reputationNames = ['Neutral', 'Strooier', 'Mormel', 'Schoft', 'Klootzak'];
 
         let levelIndex = xpLevels.findIndex(xp => profile.xp < xp) - 1;
