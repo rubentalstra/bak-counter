@@ -3,6 +3,7 @@ const express = require('express');
 const { User, BakRequest } = require('../models');
 const { Op } = require('sequelize');
 const { isAuthenticated } = require('../utils/isAuthenticated');
+const { logEvent } = require('../utils/eventLogger');
 const router = express.Router();
 
 
