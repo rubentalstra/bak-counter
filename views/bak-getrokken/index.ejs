@@ -40,11 +40,10 @@
                 <div class="card-custom">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Requested by <a href="/profile/<%= request.Requester.id %>">
-                                    <%= request.Requester.name %>
-                                </a> for <a href="/profile/<%= request.Target.id %>">
-                                    <%= request.Target.name %>
-                                </a></h5>
+                            <h5 class="card-title">Requested by <a
+                                    href="/profile/<%= request.Requester.id %>"><%= request.Requester.name %></a> for <a
+                                    href="/profile/<%= request.Target.id %>"><%= request.Target.name %></a>
+                            </h5>
                             <p class="card-text">Evidence: <a href="/uploads/prove/<%= request.evidenceUrl %>"
                                     target="_blank">View</a></p>
                             <p class="card-text">Status: <%= request.status %>
@@ -109,13 +108,12 @@
                                     <% } %>
                                     <% if (request.SecondApprover) { %>
                                     <li>
-                                        <span>Second Approver: <a href="/profile/<%= request.SecondApprover.id %>">
-                                                <%= request.SecondApprover.name %>
-                                            </a></span>
+                                        <span>Second Approver: <a
+                                                href="/profile/<%= request.SecondApprover.id %>"><%= request.SecondApprover.name %></a>
+                                        </span>
                                     </li>
                                     <% } %>
-                                    <% if (!request.FirstApprover &&
-                                                                        !request.SecondApprover) { %>
+                                    <% if (!request.FirstApprover && !request.SecondApprover) { %>
                                     <li>
                                         <span>No approvers yet.</span>
                                     </li>
@@ -123,8 +121,7 @@
                                 </ul>
                             </div>
                             <% } %>
-                            <p class="card-text">Created at: <%= new
-                                                        Date(request.createdAt).toLocaleString('nl-NL') %>
+                            <p class="card-text">Created at: <%= new Date(request.createdAt).toLocaleString('nl-NL') %>
                             </p>
                         </div>
                     </div>

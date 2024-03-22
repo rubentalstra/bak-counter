@@ -80,26 +80,99 @@
         </div>
 
         <!-- Functie om totaal aantal BAKs uit te geven -->
-        <% function getTotalBaksUitgegeven(users) { let totalBaks=0; users.forEach(user=> {
-                totalBaks += user.bak;
-                });
-                return totalBaks;
-                }
+        <% 
+       // function getTotalBaksUitgegeven(users) { let totalBaks=0; users.forEach(user=> {
+                    //totalBaks += user.bak;
+                //    });
+                  //  return totalBaks;
+                 //   }
+    
+                    %>
 
-                %>
-        <!-- Snelstatistieken Sectie -->
-        <div class="card mb-3">
-            <div class="card-header">
-                Statistieken
+
+        <div class="row">
+            <!-- Leaderboard for Top BAK Scores -->
+            <div class="col-md-4">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        Top BAK Scores
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <% topUsersByBak.forEach(user => { %>
+                        <li class="list-group-item">
+                            <%= user.name %> - <%= user.bak %> BAK
+                        </li>
+                        <% }) %>
+                    </ul>
+
+                    <!-- <p>Totaal aantal gebruikers: <%= //users.length %> -->
+                    <!-- </p> -->
+                    <!-- <p>Totaal aantal uitgegeven BAKKEN: <%= //getTotalBaksUitgegeven(users) %> -->
+                    <!-- </p> -->
+                </div>
             </div>
-            <div class="card-body">
-                <p>Totaal aantal gebruikers: <%= users.length %>
-                </p>
-                <p>Totaal aantal uitgegeven BAKKEN: <%= getTotalBaksUitgegeven(users) %>
-                </p>
-                <!-- Voeg hier meer snelstatistieken toe indien nodig -->
+
+
+            <!-- Leaderboard for Highest Levels (XP) -->
+            <div class="col-md-4">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        Highest Levels
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <% topUsersByXp.forEach(user => { %>
+                        <li class="list-group-item d-flex align-items-center">
+                            <img src="<%= user.profilePicture ? '/uploads/profile/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
+                                alt="Profielfoto" class="rounded-circle me-3"
+                                style="width: 40px; height: 40px; object-fit: cover;">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0"><%= user.name %></h6>
+                                <small class="text-muted">XP: <%= user.xp %></small>
+                                <div class="progress" style="height: 5px;">
+                                    <div class="progress-bar" role="progressbar"
+                                        style="width: <%= user.xpPercentage %>%;" aria-valuenow="<%= user.xp %>"
+                                        aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <small>Level: <strong><%= user.level %></strong></small>
+                            </div>
+                        </li>
+                        <% }) %>
+                    </ul>
+                </div>
             </div>
+
+            <!-- Leaderboard for Top Reputation (REP) -->
+            <div class="col-md-4">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        Top Reputation
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <% topUsersByRep.forEach(user => { %>
+                        <li class="list-group-item d-flex align-items-center">
+                            <img src="<%= user.profilePicture ? '/uploads/profile/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
+                                alt="Profielfoto" class="rounded-circle me-3"
+                                style="width: 40px; height: 40px; object-fit: cover;">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0"><%= user.name %></h6>
+                                <small class="text-muted">REP: <%= user.rep %></small>
+                                <div class="progress" style="height: 5px;">
+                                    <div class="progress-bar bg-success" role="progressbar"
+                                        style="width: <%= user.repPercentage %>%;" aria-valuenow="<%= user.rep %>"
+                                        aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <small>Reputation: <strong><%= user.reputation %></strong></small>
+                            </div>
+                        </li>
+                        <% }) %>
+                    </ul>
+                </div>
+            </div>
+
         </div>
+
+
+
 
     </div>
 
