@@ -3,7 +3,6 @@ const router = express.Router();
 const { Op } = require('sequelize');
 const { Bet, User } = require('../models'); // Adjust the path as necessary
 const { logEvent } = require('../utils/eventLogger');
-const { isAuthenticated } = require('../utils/isAuthenticated');
 
 
 
@@ -16,7 +15,7 @@ router.get('/', async (req, res) => {
 });
 
 
-router.post('/approve/:betId', isAuthenticated, async (req, res) => {
+router.post('/approve/:betId', async (req, res) => {
     const { betId } = req.params;
 
     try {
@@ -37,6 +36,32 @@ router.post('/approve/:betId', isAuthenticated, async (req, res) => {
         res.status(500).send("An error occurred while processing your request.");
     }
 });
+
+router.post('/decline/:betId', async (req, res) => {
+    const { betId } = req.params;
+
+    try {
+        const bet = await Bet.findOne({ where: { betId } });
+
+        if (!bet) {
+            return res.status(404).send('Bet not found');
+        }
+
+        if (parseInt(req.user.id) !== parseInt(bet.opponentUserId)) {
+            return res.status(403).send('You are not authorized to decline this bet');
+        }
+
+        // Update the bet status to 'declined'
+        await bet.update({ status: 'declined' });
+
+        // Redirect or send a response
+        res.redirect('/bets');
+    } catch (error) {
+        console.error("Error declining the bet:", error);
+        res.status(500).send("An error occurred while processing your request.");
+    }
+});
+
 
 
 // Route to display form to create a new bet
