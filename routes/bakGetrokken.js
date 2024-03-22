@@ -4,6 +4,7 @@ const multer = require('multer');
 const crypto = require('crypto');
 const path = require('path');
 const fs = require('fs');
+const sharp = require('sharp');
 const util = require('util');
 const unlinkAsync = util.promisify(fs.unlink);
 
@@ -20,14 +21,15 @@ const router = express.Router();
 // Configure multer for file storage
 const storageProve = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'public/uploads/prove/'); // Save files to public/uploads/prove directory
+        cb(null, 'uploads/temp/'); // Temporary directory for initial uploads
     },
     filename: function (req, file, cb) {
         let randomHex = crypto.randomBytes(8).toString('hex');
-        let extension = path.extname(file.originalname);
+        let extension = path.extname(file.originalname).toLowerCase();
         cb(null, randomHex + extension); // Generate unique filename
     }
 });
+
 
 
 // Only allow image or video files
@@ -44,9 +46,54 @@ const uploadProve = multer({
     storage: storageProve,
     fileFilter: fileFilter,
     limits: {
-        fileSize: 10 * 1024 * 1024 // Limit file size to 10MB
+        fileSize: 30 * 1024 * 1024 // Limit file size to 30MB
     }
 });
+
+const processFile = async (req, res, next) => {
+    if (!req.file) return next(); // Skip if no file is uploaded
+
+    try {
+        const tempPath = req.file.path;
+        // Determine output directory based on file type
+
+        const outputPath = `public/uploads/prove/${req.file.filename}`;
+
+        // Process only if it's an image
+        if (req.file.mimetype.startsWith('image/')) {
+            // Use sharp to validate and rewrite the image, stripping non-image data
+            await sharp(tempPath).toFile(outputPath);
+        } else if (req.file.mimetype.startsWith('video/')) {
+            // Directly move video files without processing
+            await fs.promises.rename(tempPath, outputPath);
+        }
+
+        // Cleanup: Delete the temporary file if it's an image (videos are moved, not copied)
+        if (req.file.mimetype.startsWith('image/')) {
+            await unlinkAsync(tempPath);
+        }
+
+        // Update req.file.path to the new location for further use
+        req.file.path = outputPath;
+
+        next();
+    } catch (error) {
+        console.error('Error processing file:', error);
+
+        // Attempt to delete the temporary file in case of error
+        try {
+            await unlinkAsync(req.file.path);
+        } catch (cleanupError) {
+            console.error('Error cleaning up file:', cleanupError);
+        }
+
+        // Redirect with error message, customizing the message based on the file type
+        const fileType = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
+        const errorMessage = `Failed to process ${fileType}. Please try again with a valid file.`;
+        return res.redirect(`/bak-getrokken/create?errorMessage=${encodeURIComponent(errorMessage)}`);
+    }
+};
+
 
 router.get('/', async (req, res) => {
     try {
@@ -226,7 +273,7 @@ const uploadProveMiddleware = (req, res, next) => {
 
 
 // Route to create a new BAK validation request with middleware for handling file upload
-router.post('/create', uploadProveMiddleware, async (req, res) => {
+router.post('/create', uploadProveMiddleware, processFile, async (req, res) => {
     try {
         // Extract data from the request body
         const { targetUserId } = req.body;
