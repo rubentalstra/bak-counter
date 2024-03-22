@@ -233,7 +233,7 @@ router.post('/create', uploadProveMiddleware, async (req, res) => {
         const requesterId = req.user.id;
 
         // Ensure that the requester and target are different users
-        if (requesterId === targetUserId) {
+        if (parseInt(requesterId) === parseInt(targetUserId)) {
             const errorMessage = 'Aanvrager en Ontvanger kunnen niet dezelfde gebruiker zijn';
             return res.redirect(`/bak-getrokken/create?errorMessage=${encodeURIComponent(errorMessage)}`);
         }
