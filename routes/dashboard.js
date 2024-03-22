@@ -1,6 +1,7 @@
 const express = require('express');
 
 const { BakRequest, User, BakHasTakenRequest, EventLog } = require('../models');
+const { getUserReputationDetails, getUserLevelDetails } = require('../utils/levelUtils');
 
 const router = express.Router();
 
@@ -28,8 +29,45 @@ router.get('/dashboard', async (req, res) => {
         });
 
 
+        const [topUsersByBak, topUsersByXp, topUsersByRep] = await Promise.all([
+            User.findAll({
+                attributes: ['id', 'name', 'profilePicture', 'bak'],
+                order: [['bak', 'DESC']],
+                limit: 5
+            }),
+            User.findAll({
+                attributes: ['id', 'name', 'profilePicture', 'xp'],
+                order: [['xp', 'DESC']],
+                limit: 5
+            }),
+            User.findAll({
+                attributes: ['id', 'name', 'profilePicture', 'rep'],
+                order: [['rep', 'DESC']],
+                limit: 5
+            })
+        ]);
+
+
+        topUsersByXp.forEach(user => {
+            const levelDetails = getUserLevelDetails(user.xp);
+            user.level = levelDetails.level;
+            user.xpPercentage = levelDetails.xpPercentage;
+        });
+
+        topUsersByRep.forEach(user => {
+            const reputationDetails = getUserReputationDetails(user.rep);
+            user.reputation = reputationDetails.reputation;
+            user.repPercentage = reputationDetails.repPercentage;
+        });
+
+
         // Render the dashboard view with the fetched data
-        res.render('dashboard', { user: req.user, users });
+        res.render('dashboard', {
+            user: req.user, users,
+            topUsersByBak,
+            topUsersByXp,
+            topUsersByRep
+        });
     } catch (error) {
         console.error(error);
         res.status(500).send('Internal Server Error');

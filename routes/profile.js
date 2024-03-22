@@ -10,6 +10,7 @@ const unlinkAsync = util.promisify(fs.unlink);
 const { User, EventLog } = require('../models');
 const { Op } = require('sequelize');
 const { isAuthorized } = require('../utils/isAuthorized');
+const { getUserLevelDetails, getUserReputationDetails } = require('../utils/levelUtils');
 const router = express.Router();
 
 
@@ -90,33 +91,19 @@ router.get('/:userId', async (req, res) => {
             order: [[{ model: EventLog, as: 'eventLogs' }, 'createdAt', 'DESC']]
         });
 
-        const xpLevels = [0, 10, 25, 50, 100, 200]; // XP milestones
-        const repTiers = [0, 10, 25, 50, 100]; // REP milestones
-        const levelNames = ['Loser', 'Junior', 'Senior', 'Master', 'Alcoholist', 'Leverfalen'];
-        const reputationNames = ['Neutral', 'Strooier', 'Mormel', 'Schoft', 'Klootzak'];
-
-        let levelIndex = xpLevels.findIndex(xp => profile.xp < xp) - 1;
-        if (levelIndex === -2) levelIndex = xpLevels.length - 1; // Handles max level case
-        let repIndex = repTiers.findIndex(rep => profile.rep < rep) - 1;
-        if (repIndex === -2) repIndex = repTiers.length - 1; // Handles max rep case
-
-        const nextXPLevel = levelIndex + 1 < xpLevels.length ? xpLevels[levelIndex + 1] : null;
-        const nextRepTier = repIndex + 1 < repTiers.length ? repTiers[repIndex + 1] : null;
-
-        // Calculate percentage towards next level/tier for dynamic progress bar updates
-        const xpPercentage = nextXPLevel ? Math.round((profile.xp / nextXPLevel) * 100) : 100;
-        const repPercentage = nextRepTier ? Math.round((profile.rep / nextRepTier) * 100) : 100;
+        const levelDetails = getUserLevelDetails(profile.xp);
+        const reputationDetails = getUserReputationDetails(profile.rep);
 
         res.render('profile/index', {
             user: req.user,
             profile,
             errorMessage: errorMessage ?? null,
-            level: levelNames[levelIndex],
-            reputation: reputationNames[repIndex],
-            xpPercentage,
-            repPercentage,
-            nextXPLevel,
-            nextRepTier
+            level: levelDetails.level,
+            reputation: reputationDetails.reputation,
+            xpPercentage: levelDetails.xpPercentage,
+            repPercentage: reputationDetails.repPercentage,
+            nextXPLevel: levelDetails.nextXPLevel,
+            nextRepTier: reputationDetails.nextRepTier
         });
     } catch (error) {
         console.error('Error fetching user profile:', error);
