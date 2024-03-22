@@ -49,8 +49,9 @@
                 <div class="dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
                         data-bs-toggle="dropdown" aria-expanded="false">
-                        <%= user.name %> <img src="/uploads/profile/<%= user.profilePicture %>" alt="Profiel"
-                            class="profile-icon rounded-circle">
+                        <%= user.name %> <img
+                            src="<%= user.profilePicture ? '/uploads/profile/'+user.profilePicture : '/uploads/profile/blank_image.png' %>"
+                            alt="Profiel" class="profile-icon rounded-circle">
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
                         <li><a class="dropdown-item" href="/profile/<%= user.id %>">Profiel</a></li>

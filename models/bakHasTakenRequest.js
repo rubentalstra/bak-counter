@@ -60,6 +60,7 @@ module.exports = (sequelize) => {
         }
     }, {
         tableName: 'BakHasTakenRequest',
+        timestamps: true, // Automatically add createdAt and updatedAt timestamps
         comment: 'Table for managing requests for BAK validations'
     });
 };

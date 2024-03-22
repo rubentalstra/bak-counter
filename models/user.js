@@ -36,5 +36,8 @@ module.exports = (sequelize) => {
             type: DataTypes.TEXT,
             allowNull: true
         }
+    }, {
+        // tableName: 'User',
+        timestamps: true, // Automatically add createdAt and updatedAt timestamps
     });
 };

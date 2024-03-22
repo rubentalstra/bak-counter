@@ -4,7 +4,6 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const { User } = require('../models');
-const { adminEmails } = require('./isAdmin');
 
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
