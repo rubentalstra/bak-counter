@@ -1,7 +1,29 @@
+const dotenv = require('dotenv');
+dotenv.config();
+
 const { Sequelize, Op } = require('sequelize');
 
 // Initialize the database connection
-const sequelize = new Sequelize('sqlite:./db.sqlite');
+// const sequelize = new Sequelize('sqlite:./db.sqlite');
+
+// Initialize the database connection for Azure SQL Server using environment variables
+const sequelize = new Sequelize(process.env.AZURE_SQL_DATABASE, process.env.AZURE_SQL_USER, process.env.AZURE_SQL_PASSWORD, {
+    host: process.env.AZURE_SQL_SERVER,
+    dialect: 'mssql', // Specify using MSSQL
+    dialectModule: require('tedious'), // Explicitly require the 'tedious' module
+    dialectOptions: {
+        options: {
+            encrypt: true, // Necessary for Azure SQL Database
+            trustServerCertificate: true, // Set to true only if on a local/trusted server
+        }
+    },
+    pool: {
+        max: 5, // Maximum number of connections in pool
+        min: 0, // Minimum number of connections in pool
+        acquire: 30000, // Maximum time, in milliseconds, that pool will try to get connection before throwing error
+        idle: 10000 // Maximum time, in milliseconds, that a connection can be idle before being released
+    }
+});
 
 // Import model definitions and initialize them with the sequelize instance
 const User = require('./user')(sequelize);
