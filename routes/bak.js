@@ -37,7 +37,7 @@ router.post('/submit', async (req, res) => {
         // Check if requesterId and targetId are the same
         if (parseInt(requesterId) === parseInt(targetId)) {
             const errorMessage = 'You cannot send a BAK request to yourself.';
-            return res.redirect(`/submit-bak?errorMessage=${encodeURIComponent(errorMessage)}`);
+            return res.redirect(`/submit?errorMessage=${encodeURIComponent(errorMessage)}`);
         }
 
         // Retrieve both requester and target user details
@@ -46,7 +46,7 @@ router.post('/submit', async (req, res) => {
 
         if (!requester || !target) {
             const errorMessage = 'Gebruiker niet gevonden.';
-            return res.redirect(`/submit-bak?errorMessage=${encodeURIComponent(errorMessage)}`);
+            return res.redirect(`/submit?errorMessage=${encodeURIComponent(errorMessage)}`);
         }
 
 
