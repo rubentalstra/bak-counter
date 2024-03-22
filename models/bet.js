@@ -60,8 +60,14 @@ module.exports = (sequelize) => {
             },
             comment: 'The ID of the user who won the bet (set by the judge)'
         },
+        opponentApproval: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+            comment: 'Indicates whether the opponent has approved the bet'
+        },
         status: {
-            type: DataTypes.ENUM('pending', 'completed', 'cancelled'),
+            type: DataTypes.ENUM('pending', 'completed', 'cancelled', 'declined'),
             defaultValue: 'pending',
             allowNull: false,
             comment: 'The current status of the bet'
