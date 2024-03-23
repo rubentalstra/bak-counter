@@ -1,3 +1,5 @@
-const adminEmails = ['h.doze@sv-realtime.nl', 's.dorreboom@sv-realtime.nl', 't.dejong@sv-realtime.nl', 'j.bodewes@sv-realtime.nl', 'r.talstra@sv-realtime.nl']; // Add your admin emails here
+require('dotenv').config();
 
-module.exports = { adminEmails }
+const adminEmails = process.env.ADMIN_EMAILS.split(',');
+
+module.exports = { adminEmails };

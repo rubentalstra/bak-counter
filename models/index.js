@@ -13,10 +13,12 @@ const sequelize = new Sequelize(process.env.AZURE_SQL_DATABASE, process.env.AZUR
     dialectModule: require('tedious'), // Explicitly require the 'tedious' module
     dialectOptions: {
         options: {
-            encrypt: true, // Necessary for Azure SQL Database
-            trustServerCertificate: true, // Set to true only if on a local/trusted server
-            keepAlive: true, // Enable TCP keep-alive
-            keepAliveInitialDelay: 30000, // Start sending keep-alive packets after 30 seconds of inactivity
+            encrypt: true,
+            trustServerCertificate: true,
+            keepAlive: true,
+            keepAliveInitialDelay: 30000,
+            connectTimeout: 15000, // Adjust the connection timeout as needed
+            requestTimeout: 300000
         }
     },
     pool: {
