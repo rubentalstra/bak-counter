@@ -130,7 +130,6 @@ router.get('/', async (req, res) => {
 
 
 
-
 router.get('/validate/approve/:id', async (req, res) => {
     const requestId = req.params.id;
     const userId = req.user.id;
@@ -144,14 +143,26 @@ router.get('/validate/approve/:id', async (req, res) => {
             ]
         });
 
-        // Temporarily augment users with isAdmin property
+        if (!request) {
+            return res.status(404).send('Request not found');
+        }
+
+        if (userId === request.requesterId || userId === request.targetId) {
+            // Prevent requester or target from approving
+            return res.status(403).send('Requester or target cannot approve the request.');
+        }
+
         const augmentUserWithAdminFlag = (user) => ({
             ...user.toJSON(),
             isAdmin: adminEmails.includes(user.email)
         });
 
-        const firstApprover = request.firstApproverId ? await User.findByPk(request.firstApproverId) : null;
-        const firstApproverIsAdmin = firstApprover ? augmentUserWithAdminFlag(firstApprover).isAdmin : false;
+        let firstApprover = null;
+        let firstApproverIsAdmin = false;
+        if (request.firstApproverId) {
+            firstApprover = await User.findByPk(request.firstApproverId);
+            firstApproverIsAdmin = augmentUserWithAdminFlag(firstApprover).isAdmin;
+        }
 
         if (!request.firstApproverId) {
             // This is the first approval
@@ -159,31 +170,35 @@ router.get('/validate/approve/:id', async (req, res) => {
         } else if (!request.secondApproverId && request.firstApproverId !== userId) {
             // This is the second approval, and it's not the same user
             if (userIsAdmin || firstApproverIsAdmin) {
-                // Ensure at least one admin has approved
+                // At least one admin must approve, proceed with second approval
                 await request.update({ secondApproverId: userId, status: 'approved' });
 
-
-
+                // Additional logic for handling evidence file deletion
                 if (request.evidenceUrl) {
-                    // Delete the file from the filesystem
-                    await unlinkAsync(`public/uploads/prove/${request.evidenceUrl}`);
+                    const filePath = `public/uploads/prove/${request.evidenceUrl}`;
+                    try {
+                        await unlinkAsync(filePath);
+                        await request.update({ evidenceUrl: '' });
+                    } catch (fileError) {
+                        console.error('Error deleting evidence file:', fileError);
+                        // Consider how to handle file deletion errors, e.g., log or notify
+                    }
                 }
-
-                await request.update({ evidenceUrl: '' }, { where: { id: requestId } });
-
             } else {
-                // Cannot approve because there needs to be at least one admin approver
                 return res.status(403).send('An admin must approve this request.');
             }
+        } else {
+            // Request already fully approved or user attempting to approve again
+            return res.status(403).send('Request already approved or cannot be approved by this user.');
         }
 
-        // Redirect or respond based on your application's needs
         res.redirect('/bak-getrokken');
     } catch (error) {
         console.error('Error approving BAK validation request:', error);
         res.status(500).send('Error processing request');
     }
 });
+
 
 
 router.get('/validate/decline/:id', async (req, res) => {

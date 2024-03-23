@@ -40,11 +40,10 @@
                 <div class="card-custom">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Requested by <a href="/profile/<%= request.Requester.id %>">
-                                    <%= request.Requester.name %>
-                                </a> for <a href="/profile/<%= request.Target.id %>">
-                                    <%= request.Target.name %>
-                                </a></h5>
+                            <h5 class="card-title">Requested by <a
+                                    href="/profile/<%= request.Requester.id %>"><%= request.Requester.name %></a> for <a
+                                    href="/profile/<%= request.Target.id %>"><%= request.Target.name %></a>
+                            </h5>
                             <p class="card-text">Evidence: <a href="/uploads/prove/<%= request.evidenceUrl %>"
                                     target="_blank">View</a></p>
                             <p class="card-text">Status: <%= request.status %>
@@ -64,17 +63,31 @@
                                 <span>No approvers yet.</span>
                                 <% } %>
                             </p>
-                            <% if (!request.FirstApprover || user.isAdmin) { %>
-                            <% if (!request.FirstApprover || user.id !==request.FirstApprover.id) { %>
-                            <% if (user.isAdmin || (!user.isAdmin && user.id !==request.requesterId)) { %>
+                            <% if (user.id !== request.requesterId && user.id !== request.targetId) { %>
+                            <% if (!request.FirstApprover) { %>
+                            <!-- No first approver yet, non-admins can approve if they are not the requester or the target -->
+                            <button onclick="location.href='/bak-getrokken/validate/approve/<%= request.id %>'"
+                                class="btn btn-success">Approve</button>
+                            <% } else if (request.FirstApprover.isAdmin && !user.isAdmin) { %>
+                            <!-- First approver is an admin, current non-admin user can approve as the second approver -->
+                            <button onclick="location.href='/bak-getrokken/validate/approve/<%= request.id %>'"
+                                class="btn btn-success">Approve</button>
+                            <% } else if (!request.FirstApprover.isAdmin && user.isAdmin) { %>
+                            <!-- First approver is not an admin, only admin can approve as the second approver -->
+                            <button onclick="location.href='/bak-getrokken/validate/approve/<%= request.id %>'"
+                                class="btn btn-success">Approve</button>
+                            <% } %>
+                            <% if (user.isAdmin) { %>
+                            <!-- If the user is an admin, they can always approve, even if the first approver was an admin -->
                             <button onclick="location.href='/bak-getrokken/validate/approve/<%= request.id %>'"
                                 class="btn btn-success">Approve</button>
                             <% } %>
                             <% } %>
+
                             <% if (user.isAdmin) { %>
+                            <!-- Decline button visible only to admins -->
                             <button onclick="location.href='/bak-getrokken/validate/decline/<%= request.id %>'"
                                 class="btn btn-danger">Decline</button>
-                            <% } %>
                             <% } %>
                         </div>
                     </div>
@@ -109,13 +122,12 @@
                                     <% } %>
                                     <% if (request.SecondApprover) { %>
                                     <li>
-                                        <span>Second Approver: <a href="/profile/<%= request.SecondApprover.id %>">
-                                                <%= request.SecondApprover.name %>
-                                            </a></span>
+                                        <span>Second Approver: <a
+                                                href="/profile/<%= request.SecondApprover.id %>"><%= request.SecondApprover.name %></a>
+                                        </span>
                                     </li>
                                     <% } %>
-                                    <% if (!request.FirstApprover &&
-                                                                        !request.SecondApprover) { %>
+                                    <% if (!request.FirstApprover && !request.SecondApprover) { %>
                                     <li>
                                         <span>No approvers yet.</span>
                                     </li>
@@ -123,8 +135,7 @@
                                 </ul>
                             </div>
                             <% } %>
-                            <p class="card-text">Created at: <%= new
-                                                        Date(request.createdAt).toLocaleString('nl-NL') %>
+                            <p class="card-text">Created at: <%= new Date(request.createdAt).toLocaleString('nl-NL') %>
                             </p>
                         </div>
                     </div>
