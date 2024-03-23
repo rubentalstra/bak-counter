@@ -63,17 +63,31 @@
                                 <span>No approvers yet.</span>
                                 <% } %>
                             </p>
-                            <% if (!request.FirstApprover || user.isAdmin) { %>
-                            <% if (!request.FirstApprover || user.id !==request.FirstApprover.id) { %>
-                            <% if (user.isAdmin || (!user.isAdmin && user.id !==request.requesterId)) { %>
+                            <% if (user.id !== request.requesterId && user.id !== request.targetId) { %>
+                            <% if (!request.FirstApprover) { %>
+                            <!-- No first approver yet, non-admins can approve if they are not the requester or the target -->
+                            <button onclick="location.href='/bak-getrokken/validate/approve/<%= request.id %>'"
+                                class="btn btn-success">Approve</button>
+                            <% } else if (request.FirstApprover.isAdmin && !user.isAdmin) { %>
+                            <!-- First approver is an admin, current non-admin user can approve as the second approver -->
+                            <button onclick="location.href='/bak-getrokken/validate/approve/<%= request.id %>'"
+                                class="btn btn-success">Approve</button>
+                            <% } else if (!request.FirstApprover.isAdmin && user.isAdmin) { %>
+                            <!-- First approver is not an admin, only admin can approve as the second approver -->
+                            <button onclick="location.href='/bak-getrokken/validate/approve/<%= request.id %>'"
+                                class="btn btn-success">Approve</button>
+                            <% } %>
+                            <% if (user.isAdmin) { %>
+                            <!-- If the user is an admin, they can always approve, even if the first approver was an admin -->
                             <button onclick="location.href='/bak-getrokken/validate/approve/<%= request.id %>'"
                                 class="btn btn-success">Approve</button>
                             <% } %>
                             <% } %>
+
                             <% if (user.isAdmin) { %>
+                            <!-- Decline button visible only to admins -->
                             <button onclick="location.href='/bak-getrokken/validate/decline/<%= request.id %>'"
                                 class="btn btn-danger">Decline</button>
-                            <% } %>
                             <% } %>
                         </div>
                     </div>
