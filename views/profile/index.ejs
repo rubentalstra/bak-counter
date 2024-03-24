@@ -138,6 +138,8 @@
                     <!-- Hidden Form for Editing Description -->
                     <% if (profile.id===user.id) { %>
                     <form id="descriptionForm" action="/profile/updateDescription" method="post" class="hidden">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
                         <textarea id="descriptionEdit" name="profileDescription" class="form-control"
                             rows="4"><%= profile.profileDescription %></textarea>
                         <div class="mt-2">
@@ -242,6 +244,7 @@
 
 
         <form id="deletePictureForm" action="/profile/deletePicture" method="post" style="display: none;">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <!-- Optionally, include CSRF token if your framework requires it for security -->
         </form>
 
@@ -261,6 +264,7 @@
                         <button class="btn btn-danger" onclick="deleteProfilePicture()">Delete Picture</button>
                         <% } %>
                         <form action="/profile/updatePicture" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                             <input type="file" id="newProfilePicture" name="profilePicture"
                                 accept="image/png, image/jpeg, image/jpg, image/gif" class="form-control">
                     </div>

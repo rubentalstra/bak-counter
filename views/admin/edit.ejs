@@ -25,6 +25,8 @@
         <% } %>
 
         <form action="/admin/<%= lid.id %>/edit" method="post">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
             <div class="mb-3">
                 <label for="bakAmount" class="form-label">BAK Aantal:</label>
                 <input type="number" id="bakAmount" name="bakAmount" value="<%= lid.bak %>" class="form-control"
