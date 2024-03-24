@@ -6,6 +6,8 @@ require('./config/passport-setup');
 const { sequelize } = require('./models');
 const cron = require('node-cron');
 const app = express();
+const cookieParser = require("cookie-parser");
+const csrf = require('lusca').csrf;
 
 // Disable X-Powered-By header
 app.disable('x-powered-by');
@@ -28,6 +30,7 @@ const updateDatabaseConnectionStatus = async () => {
 };
 
 
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
@@ -45,6 +48,8 @@ app.use(session({
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     }
 }));
+
+app.use(csrf());
 
 app.set('trust proxy', true);
 app.use(passport.initialize());

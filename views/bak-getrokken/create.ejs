@@ -25,6 +25,7 @@
         <% } %>
 
         <form action="/bak-getrokken/create" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
             <div class="mb-3">
                 <label for="targetUserId" class="form-label">Persoon die Bak heeft getrokken:</label>

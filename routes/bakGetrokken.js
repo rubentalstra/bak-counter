@@ -120,7 +120,7 @@ router.get('/', async (req, res) => {
             order: [['createdAt', 'DESC']],
         });
 
-        res.render('bak-getrokken/index', { user: req.user, openRequests, closedRequests });
+        res.render('bak-getrokken/index', { csrfToken: req.csrfToken(), user: req.user, openRequests, closedRequests });
     } catch (error) {
         console.error('Error fetching open BAK validation requests:', error);
         res.status(500).send('Error fetching data');
@@ -260,7 +260,7 @@ router.get('/create', async (req, res) => {
         });
 
         // Render the create request page with the users data
-        res.render('bak-getrokken/create', { user: req.user, users, errorMessage: errorMessage ?? null });
+        res.render('bak-getrokken/create', { csrfToken: req.csrfToken(), user: req.user, users, errorMessage: errorMessage ?? null });
     } catch (error) {
         console.error('Error fetching users for BAK validation request:', error);
         res.status(500).send('Error fetching data');

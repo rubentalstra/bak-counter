@@ -101,6 +101,7 @@ router.get('/:userId', async (req, res) => {
         const reputationDetails = getUserReputationDetails(profile.rep);
 
         res.render('profile/index', {
+            csrfToken: req.csrfToken(),
             user: req.user,
             profile,
             errorMessage: errorMessage ?? null,
