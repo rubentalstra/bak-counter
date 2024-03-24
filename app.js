@@ -32,13 +32,16 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.use(session({
+    name: 'mijnBakCookie',
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
     cookie: {
         secure: true,
+        httpOnly: true,
         sameSite: 'lax',
         domain: 'bak-counter.azurewebsites.net',
+        path: '/',
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     }
 }));
