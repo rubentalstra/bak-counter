@@ -65,6 +65,15 @@ h1 {
     /* Zorgt dat de foto goed in de cirkel past */
 }
 
+.user-link {
+    color: rgb(28, 39, 44);
+    text-decoration: none;
+}
+
+.user-link:hover {
+    color: rgb(207, 163, 80);
+}
+
 
 /* Card styling */
 .card-custom {

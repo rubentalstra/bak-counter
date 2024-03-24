@@ -42,33 +42,37 @@
                         <thead>
                             <tr>
                                 <th scope="col">Naam</th>
-                                <th scope="col">Bevestigde BAKKEN</th>
+                                <th scope="col">Openstaande BAKKEN</th>
+                                <th scope="col">Getrokken BAKKEN</th>
                                 <th scope="col">In behandeling BAK Ontvangen</th>
                                 <th scope="col">In behandeling BAK Getrokken</th>
-                                <th scope="col"></th>
                             </tr>
                         </thead>
 
                         <tbody>
                             <% users.sort((a, b)=> b.bak - a.bak).forEach(user => { %>
                             <tr>
+
                                 <td>
-                                    <img src="<%= user.profilePicture ? '/uploads/profile/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
-                                        alt="Profielfoto" class="rounded-circle me-2"
-                                        style="width: 30px; height: 30px; object-fit: cover;">
-                                    <a href="/profile/<%= user.id %>" class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-75-hover"><%= user.name %></a>
+                                    <a href="/profile/<%= user.id %>" class="user-link">
+                                        <img src="<%= user.profilePicture ? '/uploads/profile/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
+                                            alt="Profielfoto" class="rounded-circle me-2"
+                                            style="width: 30px; height: 30px; object-fit: cover;">
+                                        <%= user.name %>
+                                    </a>
                                 </td>
+
                                 <td>
                                     <%= user.bak %>
+                                </td>
+                                <td>
+                                    <%= user.xp %>
                                 </td>
                                 <td>
                                     <%= user.BakRequests.length %>
                                 </td>
                                 <td>
                                     <%= user.ReceivedProposals.length %>
-                                </td>
-                                <td class="action-col">
-                                    <a href="/profile/<%= user.id %>" class="btn btn-theme btn-sm">Profiel bekijken</a>
                                 </td>
                             </tr>
                             <% }) %>
@@ -79,15 +83,7 @@
             </div>
         </div>
 
-        <!-- Functie om totaal aantal BAKs uit te geven -->
-        <% 
-       // function getTotalBaksUitgegeven(users) { let totalBaks=0; users.forEach(user=> {
-                    //totalBaks += user.bak;
-                //    });
-                  //  return totalBaks;
-                 //   }
-    
-                    %>
+
 
 
         <div class="row">
@@ -95,22 +91,29 @@
             <div class="col-md-4">
                 <div class="card mb-3">
                     <div class="card-header">
-                        Top BAK Scores
+                        Top Getrokken Bakken
                     </div>
                     <ul class="list-group list-group-flush">
-                        <% topUsersByBak.forEach(user => { %>
-                        <li class="list-group-item">
-                            <a href="/profile/<%= user.id %>" class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-75-hover"><%= user.name %></a> - <%= user.bak %> BAK
+                        <% topUsersByXp.forEach(user => { %>
+                        <li class="list-group-item d-flex align-items-center">
+                            <img src="<%= user.profilePicture ? '/uploads/profile/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
+                                alt="Profielfoto" class="rounded-circle me-3"
+                                style="width: 40px; height: 40px; object-fit: cover;">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0">
+                                    <a href="/profile/<%= user.id %>" class="user-link"><%= user.name %></a>
+                                </h6>
+                                <div style="height: 5px;">
+                                </div>
+                                <small class="text-muted">Getrokken Bakken: <%= user.xp %></small>
+                            </div>
                         </li>
                         <% }) %>
                     </ul>
-
-                    <!-- <p>Totaal aantal gebruikers: <%= //users.length %> -->
-                    <!-- </p> -->
-                    <!-- <p>Totaal aantal uitgegeven BAKKEN: <%= //getTotalBaksUitgegeven(users) %> -->
-                    <!-- </p> -->
                 </div>
             </div>
+
+
 
 
             <!-- Leaderboard for Highest Levels (XP) -->
@@ -126,8 +129,10 @@
                                 alt="Profielfoto" class="rounded-circle me-3"
                                 style="width: 40px; height: 40px; object-fit: cover;">
                             <div class="flex-grow-1">
-                                <h6 class="mb-0"><a href="/profile/<%= user.id %>" class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-75-hover"><%= user.name %></a></h6>
-                                <small class="text-muted">XP: <%= user.xp %></small>
+                                <h6 class="mb-0">
+                                    <a href="/profile/<%= user.id %>" class="user-link"><%= user.name %></a>
+                                </h6>
+                                <!-- <small class="text-muted">XP: <%= user.xp %></small> -->
                                 <div class="progress" style="height: 5px;">
                                     <div class="progress-bar" role="progressbar"
                                         style="width: <%= user.xpPercentage %>%;" aria-valuenow="<%= user.xp %>"
@@ -154,8 +159,10 @@
                                 alt="Profielfoto" class="rounded-circle me-3"
                                 style="width: 40px; height: 40px; object-fit: cover;">
                             <div class="flex-grow-1">
-                                <h6 class="mb-0"><a href="/profile/<%= user.id %>" class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-75-hover"><%= user.name %></a></h6>
-                                <small class="text-muted">REP: <%= user.rep %></small>
+                                <h6 class="mb-0">
+                                    <a href="/profile/<%= user.id %>" class="user-link"><%= user.name %></a>
+                                </h6>
+                                <!-- <small class="text-muted">REP: <%= user.rep %></small> -->
                                 <div class="progress" style="height: 5px;">
                                     <div class="progress-bar bg-success" role="progressbar"
                                         style="width: <%= user.repPercentage %>%;" aria-valuenow="<%= user.rep %>"
