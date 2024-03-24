@@ -13,21 +13,17 @@ const sequelize = new Sequelize(process.env.AZURE_SQL_DATABASE, process.env.AZUR
     dialectModule: require('tedious'), // Explicitly require the 'tedious' module
     dialectOptions: {
         options: {
-            encrypt: true,
-            trustServerCertificate: true,
-            keepAlive: true,
-            keepAliveInitialDelay: 30000,
-            connectTimeout: 15000, // Adjust the connection timeout as needed
-            requestTimeout: 300000
+            encrypt: true, // Required for Azure SQL Database
+            trustServerCertificate: true, // Depending on your SSL configuration, might not be needed
         }
     },
     pool: {
-        max: 5, // Maximum number of connections in pool
-        min: 0, // Minimum number of connections in pool
-        acquire: 30000, // Maximum time, in milliseconds, that pool will try to get connection before throwing error
-        idle: 10000 // Maximum time, in milliseconds, that a connection can be idle before being released
+        max: 5,
+        min: 0,
+        acquire: 30000,
+        idle: 10000
     },
-    logging: false, // Disable logging
+    logging: console.log, // Enable logging for debugging purposes (consider disabling in production)
 });
 
 // Import model definitions and initialize them with the sequelize instance
