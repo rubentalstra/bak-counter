@@ -56,6 +56,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 
+
 // Periodically attempt to reconnect every 10 minutes
 cron.schedule('*/10 * * * *', async () => {
     console.log('Attempting to reconnect to the database...');
@@ -69,6 +70,20 @@ app.use(attachPendingRequestCount);
 app.use(attachPendingBetsCount);
 app.use(setAdminStatus);
 
+// Set up rate limiter: maximum of 100 requests per 15 minutes
+var RateLimit = require('express-rate-limit');
+var limiter = RateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 250, // max 100 requests per windowMs
+});
+
+
+app.set('view engine', 'ejs');
+app.use(express.static('public'));
+
+// Apply rate limiter to all requests
+app.use(limiter);
+
 app.use(require('./routes/auth'));
 app.use(require('./routes/index'));
 app.use(isAuthenticated, require('./routes/dashboard'));
@@ -78,8 +93,7 @@ app.use('/bak', isAuthenticated, require('./routes/bak'));
 app.use('/bak-getrokken', isAuthenticated, require('./routes/bakGetrokken'));
 app.use('/admin', isAuthenticated, isAdmin, require('./routes/admin'));
 
-app.set('view engine', 'ejs');
-app.use(express.static('public'));
+
 
 app.use(function (req, res, next) {
     res.status(404).render('error/404');
