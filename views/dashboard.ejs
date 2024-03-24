@@ -56,7 +56,7 @@
                                     <img src="<%= user.profilePicture ? '/uploads/profile/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
                                         alt="Profielfoto" class="rounded-circle me-2"
                                         style="width: 30px; height: 30px; object-fit: cover;">
-                                    <%= user.name %>
+                                    <a href="/profile/<%= user.id %>" class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-75-hover"><%= user.name %></a>
                                 </td>
                                 <td>
                                     <%= user.bak %>
@@ -100,7 +100,7 @@
                     <ul class="list-group list-group-flush">
                         <% topUsersByBak.forEach(user => { %>
                         <li class="list-group-item">
-                            <%= user.name %> - <%= user.bak %> BAK
+                            <a href="/profile/<%= user.id %>" class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-75-hover"><%= user.name %></a> - <%= user.bak %> BAK
                         </li>
                         <% }) %>
                     </ul>
@@ -126,7 +126,7 @@
                                 alt="Profielfoto" class="rounded-circle me-3"
                                 style="width: 40px; height: 40px; object-fit: cover;">
                             <div class="flex-grow-1">
-                                <h6 class="mb-0"><%= user.name %></h6>
+                                <h6 class="mb-0"><a href="/profile/<%= user.id %>" class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-75-hover"><%= user.name %></a></h6>
                                 <small class="text-muted">XP: <%= user.xp %></small>
                                 <div class="progress" style="height: 5px;">
                                     <div class="progress-bar" role="progressbar"
@@ -154,7 +154,7 @@
                                 alt="Profielfoto" class="rounded-circle me-3"
                                 style="width: 40px; height: 40px; object-fit: cover;">
                             <div class="flex-grow-1">
-                                <h6 class="mb-0"><%= user.name %></h6>
+                                <h6 class="mb-0"><a href="/profile/<%= user.id %>" class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-75-hover"><%= user.name %></a></h6>
                                 <small class="text-muted">REP: <%= user.rep %></small>
                                 <div class="progress" style="height: 5px;">
                                     <div class="progress-bar bg-success" role="progressbar"
