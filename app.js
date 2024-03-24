@@ -3,6 +3,8 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 require('./config/passport-setup');
+const { sequelize } = require('./models');
+const cron = require('node-cron');
 const app = express();
 
 const attachPendingRequestCount = require('./middleware/pendingRequests');
@@ -11,12 +13,19 @@ const setAdminStatus = require('./middleware/setAdminStatus');
 const { isAdmin } = require('./utils/isAdmin');
 const { isAuthenticated } = require('./utils/isAuthenticated');
 
-// Parse application/x-www-form-urlencoded
+
+const updateDatabaseConnectionStatus = async () => {
+    try {
+        await sequelize.authenticate();
+        console.log('Database connection has been established successfully.');
+    } catch (error) {
+        console.error('Unable to connect to the database:', error);
+    }
+};
+
+
 app.use(bodyParser.urlencoded({ extended: false }));
-
-// Parse application/json
 app.use(bodyParser.json());
-
 
 app.use(session({
     secret: process.env.SESSION_SECRET,
@@ -29,17 +38,23 @@ app.use(session({
 }));
 
 app.set('trust proxy', true);
-
-
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Apply it globally
+
+// Periodically attempt to reconnect every 10 minutes
+cron.schedule('*/10 * * * *', async () => {
+    console.log('Attempting to reconnect to the database...');
+    await updateDatabaseConnectionStatus();
+});
+
+// Initialize the status at startup
+updateDatabaseConnectionStatus();
+
 app.use(attachPendingRequestCount);
 app.use(attachPendingBetsCount);
 app.use(setAdminStatus);
 
-// Set up routes
 app.use(require('./routes/auth'));
 app.use(require('./routes/index'));
 app.use(isAuthenticated, require('./routes/dashboard'));
@@ -49,7 +64,6 @@ app.use('/bak', isAuthenticated, require('./routes/bak'));
 app.use('/bak-getrokken', isAuthenticated, require('./routes/bakGetrokken'));
 app.use('/admin', isAuthenticated, isAdmin, require('./routes/admin'));
 
-
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 
@@ -57,7 +71,5 @@ app.use(function (req, res, next) {
     res.status(404).render('error/404');
 });
 
-
 const port = process.env.PORT || 8080;
 app.listen(port, () => console.log(`App listening on port ${port}`));
-

@@ -15,19 +15,15 @@ const sequelize = new Sequelize(process.env.AZURE_SQL_DATABASE, process.env.AZUR
         options: {
             encrypt: true, // Required for Azure SQL Database
             trustServerCertificate: true, // Depending on your SSL configuration, might not be needed
-            keepAlive: true, // Keep the connection alive
-            keepAliveInitialDelay: 15000, // Adjust the initial delay for keepAlive to 15 seconds
-            connectTimeout: 30000, // Increase the connection timeout to 30 seconds
-            requestTimeout: 60000 // Increase the request timeout to 60 seconds
         }
     },
     pool: {
-        max: 5, // Increase max connections in the pool to 5
-        min: 1, // Minimum number of connections in the pool
-        acquire: 30000, // Increase maximum time to acquire a connection to 30 seconds
-        idle: 10000 // Increase idle time before releasing a connection to 10 seconds
+        max: 5,
+        min: 0,
+        acquire: 30000,
+        idle: 10000
     },
-    logging: false, // Enable logging for debugging purposes (consider disabling in production)
+    logging: console.log, // Enable logging for debugging purposes (consider disabling in production)
 });
 
 // Import model definitions and initialize them with the sequelize instance
