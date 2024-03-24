@@ -25,6 +25,8 @@
         <% } %>
 
         <form action="/bak/submit" method="POST">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
             <div class="mb-3">
                 <label for="targetId" class="form-label">Ontvanger</label>
                 <select id="targetId" name="targetId" class="form-select" required>

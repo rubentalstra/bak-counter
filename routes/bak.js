@@ -21,7 +21,7 @@ router.get('/submit', async (req, res) => {
             }
         });
 
-        res.render('bak-send-recieve/submit', { user: req.user, users, errorMessage: errorMessage ?? null });
+        res.render('bak-send-recieve/submit', { csrfToken: req.csrfToken(), user: req.user, users, errorMessage: errorMessage ?? null });
     } catch (error) {
         res.status(500).send(error.message);
     }
@@ -89,7 +89,7 @@ router.get('/validate', async (req, res) => {
         });
 
         console.log(bakRequests)
-        res.render('bak-send-recieve/validate', { user: req.user, bakRequests });
+        res.render('bak-send-recieve/validate', { csrfToken: req.csrfToken(), user: req.user, bakRequests });
     } catch (error) {
         console.error(error);
         res.status(500).send('Error fetching BAK requests');

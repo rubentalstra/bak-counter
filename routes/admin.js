@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
         const errorMessage = req.query.errorMessage;
 
         const leden = await User.findAll();
-        res.render('admin/index', { user: req.user, leden, errorMessage: errorMessage ?? null });
+        res.render('admin/index', { csrfToken: req.csrfToken(), user: req.user, leden, errorMessage: errorMessage ?? null });
     } catch (error) {
         console.error("Fout bij het ophalen van gebruikers:", error);
         res.status(500).send("Interne Server Fout");
@@ -32,7 +32,7 @@ router.get('/:userId/edit', async (req, res) => {
         if (!lid) {
             return res.status(404).send("lid niet gevonden");
         }
-        res.render('admin/edit', { user: req.user, lid, errorMessage: errorMessage ?? null });
+        res.render('admin/edit', { csrfToken: req.csrfToken(), user: req.user, lid, errorMessage: errorMessage ?? null });
     } catch (error) {
         console.error("Fout bij het ophalen van de gebruiker:", error);
         res.status(500).send("Interne Server Fout");

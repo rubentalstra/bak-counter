@@ -17,6 +17,7 @@
     <div class="container mt-5">
         <h2>Create a New Bet</h2>
         <form action="/bets/create" method="POST">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
             <div class="mb-3">
                 <label for="opponentUserId" class="form-label">Opponent:</label>

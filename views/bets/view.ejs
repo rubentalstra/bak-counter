@@ -58,11 +58,13 @@
 
                             <% if (user.id === bet.judgeUserId && bet.status === 'pending' && bet.opponentApproval === true) { %>
                             <form action="/bets/judge/<%= bet.betId %>" method="POST" class="d-inline">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                 <input type="hidden" name="winnerUserId" value="<%= bet.Initiator.id %>">
                                 <button type="submit" class="btn btn-success">Verklaar <%= bet.Initiator.name %> als
                                     Winnaar</button>
                             </form>
                             <form action="/bets/judge/<%= bet.betId %>" method="POST" class="d-inline">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                 <input type="hidden" name="winnerUserId" value="<%= bet.Opponent.id %>">
                                 <button type="submit" class="btn btn-warning">Verklaar <%= bet.Opponent.name %> als
                                     Winnaar</button>
@@ -70,9 +72,11 @@
                             <% } %>
                             <% if (user.id === bet.opponentUserId && bet.status === 'pending' && bet.opponentApproval === false) { %>
                             <form action="/bets/approve/<%= bet.betId %>" method="POST" style="display: inline;">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                 <button type="submit" class="btn btn-primary">Keur Weddenschap Goed</button>
                             </form>
                             <form action="/bets/decline/<%= bet.betId %>" method="POST" style="display: inline;">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                 <button type="submit" class="btn btn-danger">Weiger Weddenschap</button>
                             </form>
                             <% } %>
