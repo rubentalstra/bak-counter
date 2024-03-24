@@ -29,12 +29,7 @@ router.get('/dashboard', async (req, res) => {
         });
 
 
-        const [topUsersByBak, topUsersByXp, topUsersByRep] = await Promise.all([
-            User.findAll({
-                attributes: ['id', 'name', 'profilePicture', 'bak'],
-                order: [['bak', 'DESC']],
-                limit: 5
-            }),
+        const [topUsersByXp, topUsersByRep] = await Promise.all([
             User.findAll({
                 attributes: ['id', 'name', 'profilePicture', 'xp'],
                 order: [['xp', 'DESC']],
@@ -64,7 +59,6 @@ router.get('/dashboard', async (req, res) => {
         // Render the dashboard view with the fetched data
         res.render('dashboard', {
             user: req.user, users,
-            topUsersByBak,
             topUsersByXp,
             topUsersByRep
         });
