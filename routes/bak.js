@@ -73,7 +73,8 @@ router.post('/submit', async (req, res) => {
 
         res.redirect('/dashboard');
     } catch (error) {
-        res.status(500).send(error.message);
+        console.error(error.message); // Log the error on the server
+        res.status(500).send('An error occurred'); // Send a generic error message to the client
     }
 });
 
