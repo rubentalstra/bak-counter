@@ -80,7 +80,7 @@ const processImage = async (req, res, next) => {
 
         // Redirect with error message
         const errorMessage = 'Failed to process image. Please try again with a valid image file.';
-        return res.redirect(`/profile/${req.user.id}?errorMessage=${encodeURIComponent(errorMessage)}`);
+        return res.redirect(`/profile/${parseInt(req.user.id)}?errorMessage=${encodeURIComponent(errorMessage)}`);
     }
 };
 
