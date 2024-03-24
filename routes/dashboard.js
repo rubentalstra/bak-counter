@@ -11,7 +11,7 @@ const router = express.Router();
 router.get('/dashboard', async (req, res) => {
     try {
         const users = await User.findAll({
-            attributes: ['id', 'name', 'bak', 'profilePicture'],
+            attributes: ['id', 'name', 'bak', 'xp', 'profilePicture'],
             include: [
                 {
                     model: BakRequest,

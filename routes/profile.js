@@ -48,12 +48,18 @@ const upload = multer({
 const processImage = async (req, res, next) => {
     if (!req.file) return next(); // Skip if no file is uploaded
 
-    try {
-        const tempPath = req.file.path;
-        const outputPath = `public/uploads/profile/${req.file.filename}`;
+    const tempPath = req.file.path;
+    const outputPath = `public/uploads/profile/${req.file.filename}`;
+    const isGif = req.file.mimetype === 'image/gif';
 
-        // Use sharp to validate and rewrite the image, stripping non-image data
-        await sharp(tempPath).toFile(outputPath);
+    try {
+        if (!isGif) {
+            // Use sharp to process non-GIF images, stripping non-image data
+            await sharp(tempPath).toFile(outputPath);
+        } else {
+            // For GIFs, just move them without processing
+            fs.copyFileSync(tempPath, outputPath);
+        }
 
         // Cleanup: Delete the temporary file
         await unlinkAsync(tempPath);
@@ -67,7 +73,7 @@ const processImage = async (req, res, next) => {
 
         // Attempt to delete the temporary file in case of error
         try {
-            await unlinkAsync(req.file.path);
+            await unlinkAsync(tempPath);
         } catch (cleanupError) {
             console.error('Error cleaning up image file:', cleanupError);
         }
