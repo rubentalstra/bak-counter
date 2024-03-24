@@ -37,7 +37,7 @@ app.use(session({
     saveUninitialized: true,
     cookie: {
         secure: true,
-        sameSite: 'Lax',
+        sameSite: 'lax',
         domain: 'bak-counter.azurewebsites.net',
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     }
