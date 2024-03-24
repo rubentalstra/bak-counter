@@ -7,6 +7,10 @@ const { sequelize } = require('./models');
 const cron = require('node-cron');
 const app = express();
 
+// Disable X-Powered-By header
+app.disable('x-powered-by');
+
+
 const attachPendingRequestCount = require('./middleware/pendingRequests');
 const attachPendingBetsCount = require('./middleware/pendingBets');
 const setAdminStatus = require('./middleware/setAdminStatus');
@@ -33,6 +37,7 @@ app.use(session({
     saveUninitialized: true,
     cookie: {
         secure: true,
+        sameSite: 'Lax',
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     }
 }));
