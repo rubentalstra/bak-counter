@@ -26,6 +26,7 @@
     "passport-google-oauth20": "^2.0.0",
     "sequelize": "^6.37.1",
     "sharp": "^0.33.3",
+    "sqlite3": "^5.1.7",
     "tedious": "^18.1.0"
   },
   "engines": {
