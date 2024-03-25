@@ -182,7 +182,13 @@ router.post('/deletePicture', isAuthorized, async (req, res) => {
         }
 
         await User.update({ profilePicture: null }, { where: { id: userId } });
-        res.redirect(`/profile/${req.user.id}`);
+
+
+        if (Number.isInteger(req.user.id)) {
+            res.redirect(`/profile/${parseInt(req.user.id)}`);
+        } else {
+            res.redirect('/dashboard');
+        }
     } catch (error) {
         console.error('Error deleting profile picture:', error);
         res.status(500).send('Error updating profile.');
