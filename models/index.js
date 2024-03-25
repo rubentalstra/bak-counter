@@ -11,7 +11,7 @@ function isLocal() {
         return sequelize
     } else {
         // Initialize the database connection for Azure SQL Server using environment variables
-        console.log('Using local db')
+        console.log('Using Azure SQL Server db')
         const sequelize = new Sequelize(process.env.AZURE_SQL_DATABASE, process.env.AZURE_SQL_USER, process.env.AZURE_SQL_PASSWORD, {
             host: process.env.AZURE_SQL_SERVER,
             dialect: 'mssql', // Specify using MSSQL
