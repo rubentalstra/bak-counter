@@ -3,28 +3,39 @@ dotenv.config();
 
 const { Sequelize, Op } = require('sequelize');
 
-// Initialize the database connection
-// const sequelize = new Sequelize('sqlite:./db.sqlite');
+function isLocal() {
+    if (process.env.LOCAL_DB == 'true') {
+        // Initialize the database connection
+        console.log('Using local db')
+        const sequelize = new Sequelize('sqlite:./db.sqlite');
+        return sequelize
+    } else {
+        // Initialize the database connection for Azure SQL Server using environment variables
+        console.log('Using local db')
+        const sequelize = new Sequelize(process.env.AZURE_SQL_DATABASE, process.env.AZURE_SQL_USER, process.env.AZURE_SQL_PASSWORD, {
+            host: process.env.AZURE_SQL_SERVER,
+            dialect: 'mssql', // Specify using MSSQL
+            dialectModule: require('tedious'), // Explicitly require the 'tedious' module
+            dialectOptions: {
+                options: {
+                    encrypt: true, // Required for Azure SQL Database
+                    trustServerCertificate: true, // Depending on your SSL configuration, might not be needed
+                }
+            },
+            pool: {
+                max: 5,
+                min: 0,
+                acquire: 30000,
+                idle: 10000
+            },
+            logging: false, //  console.log
+        });
+        return sequelize
+    }
+}
 
-// Initialize the database connection for Azure SQL Server using environment variables
-const sequelize = new Sequelize(process.env.AZURE_SQL_DATABASE, process.env.AZURE_SQL_USER, process.env.AZURE_SQL_PASSWORD, {
-    host: process.env.AZURE_SQL_SERVER,
-    dialect: 'mssql', // Specify using MSSQL
-    dialectModule: require('tedious'), // Explicitly require the 'tedious' module
-    dialectOptions: {
-        options: {
-            encrypt: true, // Required for Azure SQL Database
-            trustServerCertificate: true, // Depending on your SSL configuration, might not be needed
-        }
-    },
-    pool: {
-        max: 5,
-        min: 0,
-        acquire: 30000,
-        idle: 10000
-    },
-    logging: false, //  console.log
-});
+const sequelize = isLocal()
+
 
 // Import model definitions and initialize them with the sequelize instance
 const User = require('./user')(sequelize);
