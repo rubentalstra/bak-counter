@@ -128,3 +128,12 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# SQLite database file
+*.sqlite
+
+# Test files
+public/uploads/profile/*
+!public/uploads/profile/blanc_image.png
+public/uploads/prove/*
+!public/uploads/prove/blanc_image.png
