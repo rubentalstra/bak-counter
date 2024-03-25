@@ -34,20 +34,37 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.use(session({
-    name: 'mijnBakCookie',
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-        secure: true,
-        httpOnly: true,
-        sameSite: 'lax',
-        domain: 'bak-counter.azurewebsites.net',
-        path: '/',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    }
-}));
+if (process.env.LOCAL_DB == 'true') {
+    app.use(session({
+        name: 'mijnBakCookie',
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+        saveUninitialized: true,
+        cookie: {
+            // secure: true,
+            httpOnly: true,
+            sameSite: 'lax',
+            // domain: 'bak-counter.azurewebsites.net',
+            path: '/',
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        }
+    }));
+} else {
+    app.use(session({
+        name: 'mijnBakCookie',
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+        saveUninitialized: true,
+        cookie: {
+            secure: true,
+            httpOnly: true,
+            sameSite: 'lax',
+            domain: 'bak-counter.azurewebsites.net',
+            path: '/',
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        }
+    }));
+}
 
 app.use(csrf());
 

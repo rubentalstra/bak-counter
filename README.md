@@ -26,13 +26,14 @@ A step-by-step series of examples that tell you how to get a development environ
 
 2. **Create a `.env` file in the root directory**
 
-    Copy the following content into the `.env` file. Make sure to replace `your_random_secret_here` with a strong, unique secret for the `SESSION_SECRET`.
+    Copy the following content into the `.env` file. Make sure to replace `your_random_secret_here` with a strong, unique secret for the `SESSION_SECRET`. Set `LOCAL_DB` to `true` or `false` depending on if you are using a local .SQLite database or the MYSQL database hosted on Azure.
 
     ```
     GOOGLE_CLIENT_ID=
     GOOGLE_CLIENT_SECRET=
     SESSION_SECRET=your_random_secret_here
     ADMIN_EMAILS=
+    LOCAL_DB=true|false
     ```
 
 3. **Prepare the database connection for local development**
