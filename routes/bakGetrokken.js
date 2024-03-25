@@ -90,7 +90,7 @@ const processFile = async (req, res, next) => {
         // Redirect with error message, customizing the message based on the file type
         const fileType = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
         const errorMessage = `Failed to process ${fileType}. Please try again with a valid file.`;
-        return res.redirect(`/bak-getrokken/create?errorMessage=${encodeURIComponent(errorMessage)}`);
+        return res.status(400).json({ error: true, message: errorMessage });
     }
 };
 
@@ -275,10 +275,10 @@ const uploadProveMiddleware = (req, res, next) => {
         if (err instanceof multer.MulterError) {
             // A Multer error occurred when uploading (e.g., file too large).
             const errorMessage = `Er is een fout opgetreden bij het uploaden van het bewijs: ${err.message}`;
-            return res.redirect(`/bak-getrokken/create?errorMessage=${encodeURIComponent(errorMessage)}`);
+            return res.status(400).json({ error: true, message: errorMessage });
         } else if (err) {
             // An error occurred due to the file filter (e.g., wrong file type).
-            return res.redirect(`/bak-getrokken/create?errorMessage=${encodeURIComponent(err)}`);
+            return res.status(400).json({ error: true, message: err });
         }
         // If the file type and size are correct, proceed to the next middleware
         next();
@@ -296,14 +296,12 @@ router.post('/create', uploadProveMiddleware, processFile, async (req, res) => {
 
         // Ensure that the requester and target are different users
         if (parseInt(requesterId) === parseInt(targetUserId)) {
-            const errorMessage = 'Aanvrager en Ontvanger kunnen niet dezelfde gebruiker zijn';
-            return res.redirect(`/bak-getrokken/create?errorMessage=${encodeURIComponent(errorMessage)}`);
+            res.status(500).json({ success: false, message: 'Aanvrager en Ontvanger kunnen niet dezelfde gebruiker zijn' });
         }
 
         if (!req.file) {
             // Handle the case where the file is not uploaded
-            const errorMessage = 'Bewijs is vereist';
-            return res.redirect(`/bak-getrokken/create?errorMessage=${encodeURIComponent(errorMessage)}`);
+            res.status(500).json({ success: false, message: 'Bewijs is vereist' });
         }
 
         // Get the file path of the uploaded evidence
@@ -317,10 +315,11 @@ router.post('/create', uploadProveMiddleware, processFile, async (req, res) => {
         });
 
         // Redirect to a success page or back to the homepage
-        res.redirect('/bak-getrokken');
+
+        res.json({ success: true, message: 'success' });
     } catch (error) {
         console.error('Error creating BAK validation request:', error);
-        res.status(500).send('Error processing request');
+        res.status(500).json({ success: false, message: 'Fout bij het maken van een Getrokken BAK request.' });
     }
 });
 
