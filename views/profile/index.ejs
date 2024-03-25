@@ -263,7 +263,8 @@
                         <% if (profile.profilePicture) { %>
                         <button class="btn btn-danger" onclick="deleteProfilePicture()">Delete Picture</button>
                         <% } %>
-                        <form action="/profile/updatePicture" method="post" enctype="multipart/form-data">
+                        <form id="updatePictureForm" action="/profile/updatePicture" method="post"
+                            enctype="multipart/form-data">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                             <input type="file" id="newProfilePicture" name="profilePicture"
                                 accept="image/png, image/jpeg, image/jpg, image/gif" class="form-control">
@@ -284,8 +285,38 @@
     <!-- Bootstrap JS -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+        integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
+
+        $(document).ready(function () {
+            $('#updatePictureForm').submit(function (e) {
+                e.preventDefault(); // Prevent default form submission
+
+                var formData = new FormData(this); // Create a FormData object from the form
+
+                $.ajax({
+                    url: $(this).attr('action'), // Get form action URL
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('X-CSRF-Token', $('input[name="_csrf"]').val());
+                    },
+                    success: function (response) {
+                        // Display success alert (you might need to adjust based on your page's HTML structure)
+                        window.location.href = `/profile/${parseInt(<%= user.id %>)}?errorMessage=${encodeURIComponent(response.message || 'Unknown Success')}`;
+                    },
+                    error: function (xhr) {
+                        // Parse the JSON response
+                        var response = JSON.parse(xhr.responseText);
+                        window.location.href = `/profile/${parseInt(<%= user.id %>)}?errorMessage=${encodeURIComponent(response.message || 'Unknown error')}`;
+                    }
+                });
+            });
+        });
 
 
         function editDescription() {

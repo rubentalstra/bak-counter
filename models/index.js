@@ -23,7 +23,7 @@ const sequelize = new Sequelize(process.env.AZURE_SQL_DATABASE, process.env.AZUR
         acquire: 30000,
         idle: 10000
     },
-    logging: console.log, // Enable logging for debugging purposes (consider disabling in production)
+    logging: false, //  console.log
 });
 
 // Import model definitions and initialize them with the sequelize instance

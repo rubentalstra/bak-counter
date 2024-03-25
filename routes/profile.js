@@ -78,9 +78,8 @@ const processImage = async (req, res, next) => {
             console.error('Error cleaning up image file:', cleanupError);
         }
 
-        // Redirect with error message
-        const errorMessage = 'Failed to process image. Please try again with a valid image file.';
-        return res.redirect(`/profile/${parseInt(req.user.id)}?errorMessage=${encodeURIComponent(errorMessage)}`);
+        // Send JSON error message
+        return res.status(400).json({ error: true, message: 'Failed to process image. Please try again with a valid image file.' });
     }
 };
 
@@ -125,12 +124,12 @@ const uploadMiddleware = (req, res, next) => {
     const uploadWithMulter = upload.single('profilePicture');
     uploadWithMulter(req, res, function (err) {
         if (err instanceof multer.MulterError) {
-            // A Multer error occurred when uploading (e.g., file too large).
+            // A Multer error occurred when uploading.
             const errorMessage = `Er is een fout opgetreden bij het uploaden van het bestand: ${err.message}`;
-            return res.redirect(`/profile/${req.user.id}?errorMessage=${encodeURIComponent(errorMessage)}`);
+            return res.status(400).json({ error: true, message: errorMessage });
         } else if (err) {
-            // A custom error from the fileFilter (e.g., wrong file type).
-            return res.redirect(`/profile/${req.user.id}?errorMessage=${encodeURIComponent(err)}`);
+            // A custom error from the fileFilter.
+            return res.status(400).json({ error: true, message: err });
         }
         // Everything went fine, proceed to the next middleware
         next();
@@ -143,8 +142,10 @@ const uploadMiddleware = (req, res, next) => {
 
 router.post('/updatePicture', isAuthorized, uploadMiddleware, processImage, async (req, res) => {
     if (!req.file) {
-        const errorMessage = 'Geen bestand geüpload. Zorg ervoor dat het bestandstype wordt ondersteund.';
-        return res.redirect(`/profile/${req.user.id}?errorMessage=${encodeURIComponent(errorMessage)}`);
+        return res.status(400).json({
+            success: false,
+            message: 'Geen bestand geüpload. Zorg ervoor dat het bestandstype wordt ondersteund.',
+        });
     }
 
     const userId = req.user.id;
@@ -162,11 +163,10 @@ router.post('/updatePicture', isAuthorized, uploadMiddleware, processImage, asyn
         }
 
         await User.update({ profilePicture: filePath }, { where: { id: userId } });
-        res.redirect(`/profile/${req.user.id}`);
+        res.json({ success: true, message: 'Profielfoto succesvol bijgewerkt.' });
     } catch (error) {
         console.error('Error updating profile picture:', error);
-        const errorMessage = 'Fout bij het bijwerken van de profielfoto.';
-        res.redirect(`/profile/${req.user.id}?errorMessage=${encodeURIComponent(errorMessage)}`);
+        res.status(500).json({ success: false, message: 'Fout bij het bijwerken van de profielfoto.' });
     }
 });
 
@@ -182,7 +182,13 @@ router.post('/deletePicture', isAuthorized, async (req, res) => {
         }
 
         await User.update({ profilePicture: null }, { where: { id: userId } });
-        res.redirect(`/profile/${req.user.id}`);
+
+
+        if (Number.isInteger(req.user.id)) {
+            res.redirect(`/profile/${parseInt(req.user.id)}`);
+        } else {
+            res.redirect('/dashboard');
+        }
     } catch (error) {
         console.error('Error deleting profile picture:', error);
         res.status(500).send('Error updating profile.');
