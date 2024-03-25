@@ -96,12 +96,16 @@
                     <ul class="list-group list-group-flush">
                         <% topUsersByXp.forEach(user => { %>
                         <li class="list-group-item d-flex align-items-center">
-                            <img src="<%= user.profilePicture ? '/uploads/profile/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
-                                alt="Profielfoto" class="rounded-circle me-3"
-                                style="width: 40px; height: 40px; object-fit: cover;">
+                            <a href="/profile/<%= user.id %>" class="user-link" style="inline-size: 49px; overflow-wrap: break-word; margin-right: 7px;">
+                                <img src="<%= user.profilePicture ? '/uploads/profile/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
+                                    alt="Profielfoto" class="rounded-circle me-3" 
+                                    style="width: 40px; height: 40px; object-fit: cover;">
+                            </a>
                             <div class="flex-grow-1">
                                 <h6 class="mb-0">
-                                    <a href="/profile/<%= user.id %>" class="user-link"><%= user.name %></a>
+                                    <a href="/profile/<%= user.id %>" class="user-link">
+                                        <%= user.name %>
+                                    </a>
                                 </h6>
                                 <div style="height: 5px;">
                                 </div>
@@ -125,12 +129,16 @@
                     <ul class="list-group list-group-flush">
                         <% topUsersByXp.forEach(user => { %>
                         <li class="list-group-item d-flex align-items-center">
-                            <img src="<%= user.profilePicture ? '/uploads/profile/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
-                                alt="Profielfoto" class="rounded-circle me-3"
-                                style="width: 40px; height: 40px; object-fit: cover;">
+                            <a href="/profile/<%= user.id %>" class="user-link" style="inline-size: 49px; overflow-wrap: break-word; margin-right: 7px;">
+                                <img src="<%= user.profilePicture ? '/uploads/profile/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
+                                    alt="Profielfoto" class="rounded-circle me-3" 
+                                    style="width: 40px; height: 40px; object-fit: cover;">
+                            </a>
                             <div class="flex-grow-1">
                                 <h6 class="mb-0">
-                                    <a href="/profile/<%= user.id %>" class="user-link"><%= user.name %></a>
+                                    <a href="/profile/<%= user.id %>" class="user-link">
+                                        <%= user.name %>
+                                    </a>
                                 </h6>
                                 <!-- <small class="text-muted">XP: <%= user.xp %></small> -->
                                 <div class="progress" style="height: 5px;">
@@ -155,12 +163,16 @@
                     <ul class="list-group list-group-flush">
                         <% topUsersByRep.forEach(user => { %>
                         <li class="list-group-item d-flex align-items-center">
-                            <img src="<%= user.profilePicture ? '/uploads/profile/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
-                                alt="Profielfoto" class="rounded-circle me-3"
-                                style="width: 40px; height: 40px; object-fit: cover;">
+                            <a href="/profile/<%= user.id %>" class="user-link" style="inline-size: 49px; overflow-wrap: break-word; margin-right: 7px;">
+                                <img src="<%= user.profilePicture ? '/uploads/profile/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
+                                    alt="Profielfoto" class="rounded-circle me-3" 
+                                    style="width: 40px; height: 40px; object-fit: cover;">
+                            </a>
                             <div class="flex-grow-1">
                                 <h6 class="mb-0">
-                                    <a href="/profile/<%= user.id %>" class="user-link"><%= user.name %></a>
+                                    <a href="/profile/<%= user.id %>" class="user-link">
+                                        <%= user.name %>
+                                    </a>
                                 </h6>
                                 <!-- <small class="text-muted">REP: <%= user.rep %></small> -->
                                 <div class="progress" style="height: 5px;">
