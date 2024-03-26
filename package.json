@@ -15,7 +15,7 @@
     "csrf-csrf": "^3.0.3",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.9",
-    "express": "^4.19.1",
+    "express": "^4.19.2",
     "express-rate-limit": "^7.2.0",
     "express-session": "^1.18.0",
     "lusca": "^1.7.0",
