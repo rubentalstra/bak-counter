@@ -101,7 +101,7 @@ app.use('/profile', isAuthenticated, require('./routes/profile'));
 app.use('/bak', isAuthenticated, require('./routes/bak'));
 app.use('/bak-getrokken', isAuthenticated, require('./routes/bakGetrokken'));
 app.use('/admin', isAuthenticated, isAdmin, require('./routes/admin'));
-app.use(isAuthenticated, require('./routes/trophies'));
+
 
 
 app.use(function (req, res, next) {
