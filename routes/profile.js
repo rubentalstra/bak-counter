@@ -7,7 +7,7 @@ const sharp = require('sharp');
 const util = require('util');
 const unlinkAsync = util.promisify(fs.unlink);
 
-const { User, EventLog } = require('../models');
+const { User, EventLog, Trophy } = require('../models');
 const { Op } = require('sequelize');
 const { isAuthorized } = require('../utils/isAuthorized');
 const { getUserLevelDetails, getUserReputationDetails } = require('../utils/levelUtils');
@@ -92,7 +92,13 @@ router.get('/:userId', async (req, res) => {
         const userId = req.params.userId;
 
         const profile = await User.findByPk(userId, {
-            include: [{ model: EventLog, as: 'eventLogs', }],
+            include: [{ model: EventLog, as: 'eventLogs', },
+            {
+                model: Trophy,
+                as: 'Trophies',
+                through: { attributes: [] },
+                attributes: ['name', 'description', 'trophyImage']
+            }],
             order: [[{ model: EventLog, as: 'eventLogs' }, 'createdAt', 'DESC']]
         });
 

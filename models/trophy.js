@@ -11,7 +11,7 @@ module.exports = (sequelize) => {
             type: DataTypes.TEXT,
             allowNull: false
         },
-        badgeImage: {
+        trophyImage: {
             type: DataTypes.STRING,
             allowNull: true,
             comment: 'URL or path to the badge image for the trophy. This field is optional and can be left blank if a trophy does not have a badge.'

@@ -208,6 +208,19 @@
                 <h4>Statistics</h4>
                 <p>Bakken in x aantal uur: <%= profile.recordCounter %>
                 </p>
+
+                <% profile.Trophies.forEach(trophy=> { %>
+                <div class="row">
+                    <div class="col-2">
+                        <img src="<%= trophy.trophyImage %>" alt="<%= trophy.name %>" class="img-fluid"
+                            style="width: 50px; height: 50px;">
+                    </div>
+                    <div class="col-10">
+                        <h5><%= trophy.name %></h5>
+                        <p><%= trophy.description %></p>
+                    </div>
+                </div>
+                <% }); %>
                 <!-- Add more stats as needed -->
             </div>
         </div>
