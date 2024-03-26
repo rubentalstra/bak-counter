@@ -1,6 +1,6 @@
-async function awardTrophyIfEligible(userId) {
-    const { xpLevels, levelNames, repTiers, reputationNames } = require("../config/milestones");
-    const { User, Trophy, UserTrophies } = require("../models/index");
+async function xpOrRepIfEligible(userId) {
+    const { xpLevels, levelNames, repTiers, reputationNames } = require("../../config/milestones");
+    const { User, Trophy, UserTrophies } = require("../../models/index");
 
     const user = await User.findByPk(userId);
     // console.log(`Checking trophies for user ${user.name} with XP: ${user.xp} and REP: ${user.rep}`);
@@ -49,4 +49,4 @@ async function awardTrophyIfEligible(userId) {
     await awardTrophyByName(userId, repTrophyName);
 }
 
-module.exports = { awardTrophyIfEligible };
+module.exports = { xpOrRepIfEligible };

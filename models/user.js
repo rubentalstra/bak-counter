@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const { awardTrophyIfEligible } = require('../utils/awardTrophyIfEligible');
+const { xpOrRepIfEligible } = require('../utils/awardTrophy/xpOrRepIfEligible');
 
 module.exports = (sequelize) => {
     return sequelize.define('User', {
@@ -44,7 +44,7 @@ module.exports = (sequelize) => {
             async afterUpdate(user, options) {
                 console.info('User updated, checking for trophies...');
                 if (user.changed('xp') || user.changed('rep')) {
-                    await awardTrophyIfEligible(user.id);
+                    await xpOrRepIfEligible(user.id);
                 }
             }
         }
