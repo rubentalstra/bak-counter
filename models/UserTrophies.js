@@ -1,19 +1,18 @@
 const { DataTypes } = require('sequelize');
-const { Trophy, User } = require('.');
 
 module.exports = (sequelize) => {
     return sequelize.define('UserTrophies', {
         userId: {
             type: DataTypes.INTEGER,
             references: {
-                model: User,
+                model: 'User',
                 key: 'id'
             }
         },
         trophyId: {
             type: DataTypes.INTEGER,
             references: {
-                model: Trophy,
+                model: 'Trophies',
                 key: 'id'
             }
         },

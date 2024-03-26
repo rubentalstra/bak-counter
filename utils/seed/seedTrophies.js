@@ -25,7 +25,7 @@ const defaultTrophies = [
     {
         name: 'Leverfalen',
         description: 'Awarded for legendary status in XP.',
-        trophyImage: '//images/trophies/Leverfalen.png'
+        trophyImage: '/images/trophies/Leverfalen.png'
     },
 ];
 
