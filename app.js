@@ -20,14 +20,15 @@ const { isAdmin } = require('./utils/isAdmin');
 const { isAuthenticated } = require('./utils/isAuthenticated');
 
 
-const updateDatabaseConnectionStatus = async () => {
+cron.schedule('*/30 * * * *', async () => {
     try {
-        await sequelize.authenticate();
-        console.log('Database connection has been established successfully.');
+        // Replace with a lightweight query suitable for your database
+        await sequelize.query('SELECT 1');
+        console.log('Keep-alive query executed.');
     } catch (error) {
-        console.error('Unable to connect to the database:', error);
+        console.error('Error executing keep-alive query:', error);
     }
-};
+});
 
 
 app.use(cookieParser());
@@ -73,15 +74,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 
-
-// Periodically attempt to reconnect every 10 minutes
-cron.schedule('*/10 * * * *', async () => {
-    console.log('Attempting to reconnect to the database...');
-    await updateDatabaseConnectionStatus();
-});
-
-// Initialize the status at startup
-updateDatabaseConnectionStatus();
 
 app.use(attachPendingRequestCount);
 app.use(attachPendingBetsCount);
