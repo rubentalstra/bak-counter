@@ -2,6 +2,8 @@ const xpLevels = [0, 10, 25, 50, 100, 200]; // XP milestones
 const repTiers = [0, 10, 25, 50, 100]; // REP milestones
 const levelNames = ['Loser', 'Junior', 'Senior', 'Master', 'Alcoholist', 'Leverfalen'];
 const reputationNames = ['Neutral', 'Strooier', 'Mormel', 'Schoft', 'Klootzak'];
+const xpBadges = ['', 'normal', 'gray', 'bronze', 'zilver', 'gold'];
+const repBadges = ['', 'normal', 'gray', 'bronze', 'zilver', 'gold'];
 
 function getUserLevelDetails(xp) {
     let levelIndex = xpLevels.findIndex(level => xp < level) - 1;
@@ -11,7 +13,8 @@ function getUserLevelDetails(xp) {
     return {
         level: levelNames[levelIndex],
         nextXPLevel,
-        xpPercentage
+        xpPercentage,
+        badge: xpBadges[levelIndex]
     };
 }
 
@@ -23,7 +26,8 @@ function getUserReputationDetails(rep) {
     return {
         reputation: reputationNames[repIndex],
         nextRepTier,
-        repPercentage
+        repPercentage,
+        badge: repBadges[repIndex]
     };
 }
 
