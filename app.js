@@ -75,8 +75,6 @@ app.use(passport.session());
 
 
 
-app.use(attachPendingRequestCount);
-app.use(attachPendingBetsCount);
 app.use(setAdminStatus);
 
 // Set up rate limiter: maximum of 100 requests per 15 minutes
@@ -95,6 +93,10 @@ app.use(limiter);
 
 app.use(require('./routes/auth'));
 app.use(require('./routes/index'));
+
+app.use(attachPendingRequestCount);
+app.use(attachPendingBetsCount);
+
 app.use(isAuthenticated, require('./routes/dashboard'));
 app.use('/bets', isAuthenticated, require('./routes/bets'));
 app.use('/profile', isAuthenticated, require('./routes/profile'));
