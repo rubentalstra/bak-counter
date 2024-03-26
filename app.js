@@ -3,8 +3,8 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 require('./config/passport-setup');
-// const { sequelize } = require('./models');
-// const cron = require('node-cron');
+const { sequelize } = require('./models');
+const cron = require('node-cron');
 const app = express();
 const cookieParser = require("cookie-parser");
 const csrf = require('lusca').csrf;
@@ -20,15 +20,15 @@ const { isAdmin } = require('./utils/isAdmin');
 const { isAuthenticated } = require('./utils/isAuthenticated');
 
 
-// cron.schedule('*/30 * * * *', async () => {
-//     try {
-//         // Replace with a lightweight query suitable for your database
-//         await sequelize.query('SELECT 1');
-//         console.log('Keep-alive query executed.');
-//     } catch (error) {
-//         console.error('Error executing keep-alive query:', error);
-//     }
-// });
+cron.schedule('0 */1 * * *', async () => {
+    try {
+        // Replace with a lightweight query suitable for your database
+        await sequelize.query('SELECT 1');
+        console.log('Keep-alive query executed.');
+    } catch (error) {
+        console.error('Error executing keep-alive query:', error);
+    }
+});
 
 
 app.use(cookieParser());
