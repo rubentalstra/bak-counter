@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node app.js",
+    "test": "jest",
     "build": "echo \"No build step required for Express.js app\""
   },
   "keywords": [],
@@ -31,5 +32,8 @@
   },
   "engines": {
     "node": "20.x"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }

@@ -1,4 +1,5 @@
 const { DataTypes } = require('sequelize');
+const { awardTrophyIfEligible } = require('../utils/awardTrophyIfEligible');
 
 module.exports = (sequelize) => {
     return sequelize.define('User', {
@@ -38,6 +39,14 @@ module.exports = (sequelize) => {
         }
     }, {
         // tableName: 'User',
-        timestamps: true, // Automatically add createdAt and updatedAt timestamps
+        timestamps: true,
+        hooks: {
+            async afterUpdate(user, options) {
+                console.info('User updated, checking for trophies...');
+                if (user.changed('xp') || user.changed('rep')) {
+                    await awardTrophyIfEligible(user.id);
+                }
+            }
+        }
     });
 };

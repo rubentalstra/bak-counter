@@ -43,6 +43,8 @@ const BakRequest = require('./bakRequest')(sequelize); // Ensure the model file 
 const BakHasTakenRequest = require('./bakHasTakenRequest')(sequelize); // New model import
 const EventLog = require('./eventLog')(sequelize); // Import the EventLog model
 const Bet = require('./bet')(sequelize); // Import the new Bet model
+const Trophy = require('./trophy')(sequelize); // Import the new trophy model
+const UserTrophies = require('./UserTrophies')(sequelize); // Import the new trophy model
 
 // Setup associations for User and BakRequest
 User.hasMany(BakRequest, {
@@ -142,6 +144,11 @@ Bet.belongsTo(User, {
     foreignKey: 'judgeUserId'
 });
 
+
+// Setup associations
+User.belongsToMany(Trophy, { through: UserTrophies, as: 'Trophies', foreignKey: 'userId' });
+Trophy.belongsToMany(User, { through: UserTrophies, as: 'Winners', foreignKey: 'trophyId' });
+
 // Synchronize the models with the database
 sequelize.sync({ force: false }).then(() => {
     console.log('Database & tables created!');
@@ -153,5 +160,7 @@ module.exports = {
     BakRequest,
     BakHasTakenRequest,
     EventLog,
-    Bet
+    Bet,
+    Trophy,
+    UserTrophies
 };
