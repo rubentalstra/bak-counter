@@ -1,5 +1,15 @@
-# bak-counter
-counter for keeping track of the 'BAK'
+## Bak-counter
+An website for keeping track of the 'BAK' a person has
+
+## Tabel Of Contents
+- [Bak-counter](#bak-counter)
+- [Tabel Of Contents](#tabel-of-contents)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installing](#installing)
+- [Built With](#built-with)
+- [Authors](#authors)
+- [License](#license)
 
 ## Getting Started
 
@@ -26,7 +36,7 @@ A step-by-step series of examples that tell you how to get a development environ
 
 2. **Create a `.env` file in the root directory**
 
-    Copy the following content into the `.env` file. Make sure to replace `your_random_secret_here` with a strong, unique secret for the `SESSION_SECRET`. Set `LOCAL_DB` to `true` or `false` depending on if you are using a local .SQLite database or the MYSQL database hosted on Azure.
+    Copy the following content into the `.env` file. Make sure to replace `your_random_secret_here` with a strong, unique secret for the `SESSION_SECRET`. Set `LOCAL_DB` to `true` or `false` depending on if you are using a local SQLite database or the MySQL database hosted on Azure.
 
     ```
     GOOGLE_CLIENT_ID=
@@ -36,7 +46,8 @@ A step-by-step series of examples that tell you how to get a development environ
     LOCAL_DB=true|false
     ```
 
-3. **Prepare the database connection for local development**
+3. ***Prepare the database connection for local development***
+    ##### !! Not required if `LOCAL_DB` in `.env` is set to `true` !!
 
     Go to `models/index.js`:
 
@@ -52,9 +63,10 @@ A step-by-step series of examples that tell you how to get a development environ
         ```javascript
         // Initialize the database connection for Azure SQL Server using environment variables
         // const sequelize = new Sequelize(...);
-        ```
+     ```
 
-4. **Modify the `app.js` for local development**
+4. ***Modify the `app.js` for local development***
+    ##### !! Not required if `LOCAL_DB` in `.env` is set to `true` !!
 
     In the root file `app.js`, comment out the following to disable secure cookies in a non-HTTPS environment:
 
@@ -99,7 +111,7 @@ Please read [CONTRIBUTING.md](link to CONTRIBUTING.md) for details on our code o
 
 - **Ruben Talstra** - *Initial work* - [rubentalstra](https://github.com/rubentalstra)
 
-See also the list of [contributors](link to contributors) who participated in this project.
+See also the list of [contributors]((https://github.com/rubentalstra/bak-counter/graphs/contributors)) who participated in this project.
 
 ## License
 
