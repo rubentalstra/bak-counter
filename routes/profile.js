@@ -89,6 +89,7 @@ const processImage = async (req, res, next) => {
 router.get('/:userId', async (req, res) => {
     try {
         const errorMessage = req.query.errorMessage;
+        const alertType = req.query.alertType || 'danger';
         const userId = req.params.userId;
 
         const profile = await User.findByPk(userId, {
@@ -110,6 +111,7 @@ router.get('/:userId', async (req, res) => {
             user: req.user,
             profile,
             errorMessage: errorMessage ?? null,
+            alertType: alertType,
             level: levelDetails.level,
             reputation: reputationDetails.reputation,
             xpPercentage: levelDetails.xpPercentage,
