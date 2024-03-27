@@ -3,7 +3,7 @@ const multer = require('multer');
 const crypto = require('crypto');
 const path = require('path');
 
-const { DeleteObjectCommand } = require("@aws-sdk/client-s3");
+const { S3Client, DeleteObjectCommand, PutObjectCommand } = require("@aws-sdk/client-s3");
 const multerS3 = require("multer-s3");
 
 const { User, EventLog, Trophy } = require('../models');
@@ -13,21 +13,13 @@ const { getUserLevelDetails, getUserReputationDetails } = require('../utils/leve
 const config = require('../config/config');
 const { s3Client } = require('../config/s3Client');
 const router = express.Router();
+const sharp = require('sharp');
 
 
 
 
 const multerUpload = multer({
-    storage: multerS3({
-        s3: s3Client,
-        bucket: config.digitalOcean.bucket,
-        acl: "public-read",
-        key: function (req, file, cb) {
-            const randomHex = crypto.randomBytes(8).toString("hex");
-            const filename = `profile/${randomHex}${path.extname(file.originalname)}`;
-            cb(null, filename);
-        },
-    }),
+    storage: multer.memoryStorage(),
     fileFilter: (req, file, cb) => {
         const allowedTypes = /jpeg|jpg|png|gif/;
         const isSupportedFile =
@@ -36,12 +28,47 @@ const multerUpload = multer({
         if (isSupportedFile) {
             cb(null, true);
         } else {
-            cb(new Error("Only image files (JPEG, JPG, PNG, GIF) are allowed!"));
+            cb(new Error("Only image files (JPEG, JPG, PNG, GIF) are allowed!"), false); //! alart is not showing in the profile page
         }
     },
-    limits: { fileSize: config.uploadLimits.fileSize }, // Example: limit file size to 10MB
+    limits: { fileSize: config.uploadLimits.fileSize },
 });
 
+
+const uploadImageToSpaces = async (req, res, next) => {
+    if (!req.file) return next(); // Skip if no file is uploaded
+
+    const randomHex = crypto.randomBytes(8).toString("hex");
+    const filename = `realtime/profile/${randomHex}${path.extname(req.file.originalname)}`;
+    const mimeType = req.file.mimetype;
+
+    try {
+        let imageBuffer = req.file.buffer;
+
+        if (mimeType !== 'image/gif') {
+            // Resize if not a GIF
+            imageBuffer = await sharp(req.file.buffer).toBuffer();
+        }
+
+        // Upload to DigitalOcean Spaces
+        const uploadParams = {
+            Bucket: config.digitalOcean.bucket,
+            Key: filename,
+            Body: imageBuffer,
+            ContentType: mimeType,
+            ACL: "public-read",
+        };
+
+        await s3Client.send(new PutObjectCommand(uploadParams));
+
+        // Save the filename to request for further processing in next middleware or route handler
+        req.file.filename = filename; // Store the path for further use
+        next();
+    } catch (error) {
+        console.error("Error processing or uploading image:", error);
+        res.status(500).json({ success: false, message: "Error processing or uploading image." });
+    }
+};
 
 
 const deleteImage = async (filePath) => {
@@ -103,7 +130,7 @@ router.get('/:userId', async (req, res) => {
 
 
 
-router.post('/updatePicture', isAuthorized, multerUpload.single('profilePicture'), async (req, res) => {
+router.post('/updatePicture', isAuthorized, multerUpload.single('profilePicture'), uploadImageToSpaces, async (req, res) => {
     if (!req.file) {
         return res.status(400).json({
             success: false,
@@ -112,7 +139,7 @@ router.post('/updatePicture', isAuthorized, multerUpload.single('profilePicture'
     }
 
     const userId = req.user.id;
-    const filePath = req.file.key; // Use the key from the uploaded file
+    const filePath = req.file.filename; // Filename in Spaces
 
     try {
         const user = await User.findByPk(userId);

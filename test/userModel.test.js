@@ -9,10 +9,10 @@ describe('User XP Update and Trophy Awarding', () => {
         const user = await User.findByPk(userId);
 
         // Increase the user's XP to 10
-        await user.update({ xp: 10 });
+        await user.update({ xp: 26 });
 
-        // Find any trophies awarded to this user with the name 'Junior'
-        const trophyAwarded = await user.getTrophies({ where: { name: 'Junior' } });
+        // Find any trophies awarded to this user with the name 'Senior'
+        const trophyAwarded = await user.getTrophies({ where: { name: 'Senior' } });
 
         // Assert that a trophy named 'Junior' was awarded
         expect(trophyAwarded.length).toBeGreaterThan(0);

@@ -20,7 +20,7 @@
             <h1>Admin Gebruikersoverzicht</h1>
 
             <% if (errorMessage) { %>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <div class="alert alert-<%= alertType %> alert-dismissible fade show" role="alert">
                 <%= errorMessage %>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
@@ -37,7 +37,7 @@
                 <tbody>
                     <% leden.forEach(lid => { %>
                     <tr>
-                        <td><img src="<%= lid.profilePicture ? '/uploads/profile/' + lid.profilePicture : '/uploads/profile/blank_image.png' %>"
+                        <td><img src="<%= lid.profilePicture ? 'https://bak-counter-images.ams3.digitaloceanspaces.com/' + lid.profilePicture : '/uploads/profile/blank_image.png' %>"
                                 alt="Profielfoto" class="rounded-circle me-2"
                                 style="width: 30px; height: 30px; object-fit: cover;">
                             <%= lid.name %>
@@ -45,7 +45,7 @@
                         <td><%= lid.bak %></td>
                         <td>
                             <% if (lid.id !== user.id) { %>
-                            <a href="/admin/<%= lid.id %>/edit" class="btn btn-theme btn-sm">Bijwerken</a>
+                            <a href="/admin/<%= lid.id %>" class="btn btn-theme btn-sm">Bijwerken</a>
                             <% } %>
                         </td>
                     </tr>

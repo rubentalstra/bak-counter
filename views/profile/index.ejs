@@ -277,10 +277,12 @@
 
                 <div class="row row-cols-3 row-cols-sm-4 row-cols-md-6">
                     <% profile.Trophies.forEach(trophy=> { %>
-                        <div class="col-md-auto" style="margin-bottom: 20px; padding: 0px 0px 0px 12px;">
-                            <div class="popup" onclick="trophyDetails('<%= trophy.name %>', 'click')" onmouseover="trophyDetails('<%= trophy.name %>', 'hover')" onmouseout="trophyDetails('<%= trophy.name %>', 'hover')">
-                                <h5><%= trophy.name %></h5>
-                                <img src="<%= trophy.trophyImage %>" alt="<%= trophy.name %>" class="img-fluid rounded"
+                    <div class="col-md-auto" style="margin-bottom: 20px; padding: 0px 0px 0px 12px;">
+                        <div class="popup" onclick="trophyDetails('<%= trophy.name %>', 'click')"
+                            onmouseover="trophyDetails('<%= trophy.name %>', 'hover')"
+                            onmouseout="trophyDetails('<%= trophy.name %>', 'hover')">
+                            <h5><%= trophy.name %></h5>
+                            <img src="<%= trophy.trophyImage %>" alt="<%= trophy.name %>" class="img-fluid rounded"
                                 style="width: 100px; height: 100px;">
                             <span class="popuptext" id="<%= trophy.name %>">
                                 <%= trophy.description %>
