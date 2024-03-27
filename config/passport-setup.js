@@ -37,40 +37,26 @@ passport.use(new GoogleStrategy({
     }
 ));
 
-// Passport serialization of the user
 passport.serializeUser((user, done) => {
-    done(null, user.id); // Store user ID in the session
+    done(null, user.id);
 });
 
-// Passport deserialization of the user
 passport.deserializeUser((id, done) => {
+    // Implement your logic to find a user by their ID and pass the user object to done
     findUserById(id, (err, user) => {
-        done(err, user); // Retrieve the user object from the session ID
+        done(err, user);
     });
 });
 
-// Helper function to find or create a user based on Google ID
 async function findOrCreateUser(userInfo) {
-    let [user, created] = await User.findOrCreate({
-        where: { googleId: userInfo.googleId },
-        defaults: userInfo
-    });
-    return user; // Return the user instance
+    let user = await User.findOrCreate({ where: { googleId: userInfo.googleId }, defaults: userInfo });
+    return user[0]; // Sequelize findOrCreate returns an array [instance, created]
 }
 
 // Helper function to find a user by ID
-const userCache = new Map();
-
 function findUserById(id, callback) {
-    if (userCache.has(id)) {
-        return callback(null, userCache.get(id));
-    }
-
-    User.findByPk(id)
-        .then(user => {
-            userCache.set(id, user); // Cache the user object
-            callback(null, user);
-        })
-        .catch(err => callback(err, null));
+    // Implement this function based on your User model and database
+    User.findByPk(id).then(user => callback(null, user)).catch(err => callback(err, null));
 }
+
 
