@@ -85,12 +85,12 @@
         /* The actual popup */
         .popup .popuptext {
             visibility: hidden;
-            width: 160px;
+            width: 200px;
             background-color: #555;
             color: #fff;
             text-align: center;
             border-radius: 6px;
-            padding: 8px 0;
+            padding: 8px 8px;
             position: absolute;
             z-index: 1;
             bottom: 125%;
@@ -277,11 +277,10 @@
 
                 <div class="row row-cols-3 row-cols-sm-4 row-cols-md-6">
                     <% profile.Trophies.forEach(trophy=> { %>
-                    <div class="col-md-auto" style="margin-bottom: 20px; padding: 0px 0px 0px 12px;">
-                        <div class="popup" onmouseover="trophyDetails('<%= trophy.name %>')"
-                            onmouseout="trophyDetails('<%= trophy.name %>')">
-                            <h5><%= trophy.name %></h5>
-                            <img src="<%= trophy.trophyImage %>" alt="<%= trophy.name %>" class="img-fluid rounded"
+                        <div class="col-md-auto" style="margin-bottom: 20px; padding: 0px 0px 0px 12px;">
+                            <div class="popup" onclick="trophyDetails('<%= trophy.name %>', 'click')" onmouseover="trophyDetails('<%= trophy.name %>', 'hover')" onmouseout="trophyDetails('<%= trophy.name %>', 'hover')">
+                                <h5><%= trophy.name %></h5>
+                                <img src="<%= trophy.trophyImage %>" alt="<%= trophy.name %>" class="img-fluid rounded"
                                 style="width: 100px; height: 100px;">
                             <span class="popuptext" id="<%= trophy.name %>">
                                 <p><%= trophy.description %></p>
@@ -443,9 +442,20 @@
         }
 
         // When the user hovers over the trophy it opens the popup
-        function trophyDetails(popup_id) {
-            var popup = document.getElementById(popup_id);
-            popup.classList.toggle("show");
+        function trophyDetails(popup_id, click_type) {
+            var is_mobile = !!navigator.userAgent.match(/iphone|android|blackberry/ig) || false;
+            if ('click' === click_type && is_mobile) {
+                var popup = document.getElementById(popup_id);
+                popup.classList.toggle("show");
+                setTimeout(function () {
+                    if (popup.classList.contains("show")) {
+                        popup.classList.toggle("show");
+                    }
+                }, 2500);
+            } else if ('hover' === click_type && !is_mobile) {
+                var popup = document.getElementById(popup_id);
+                popup.classList.toggle("show");
+            }
         }
     </script>
     <script>
