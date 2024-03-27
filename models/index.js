@@ -1,41 +1,4 @@
-const dotenv = require('dotenv');
-dotenv.config();
-
-const { Sequelize, Op } = require('sequelize');
-
-function isLocal() {
-    if (process.env.LOCAL_DB == 'true') {
-        // Initialize the database connection
-        console.log('Using local db')
-        const sequelize = new Sequelize('sqlite:./db.sqlite');
-        return sequelize
-    } else {
-        // Initialize the database connection for Azure SQL Server using environment variables
-        console.log('Using Azure SQL Server db')
-        const sequelize = new Sequelize(process.env.AZURE_SQL_DATABASE, process.env.AZURE_SQL_USER, process.env.AZURE_SQL_PASSWORD, {
-            host: process.env.AZURE_SQL_SERVER,
-            dialect: 'mssql', // Specify using MSSQL
-            dialectModule: require('tedious'), // Explicitly require the 'tedious' module
-            dialectOptions: {
-                options: {
-                    encrypt: true, // Required for Azure SQL Database
-                    trustServerCertificate: true, // Depending on your SSL configuration, might not be needed
-                }
-            },
-            pool: {
-                max: 5,
-                min: 0,
-                acquire: 30000,
-                idle: 10000
-            },
-            logging: false, //  console.log
-        });
-        return sequelize
-    }
-}
-
-const sequelize = isLocal()
-
+const { sequelize } = require('../database/connection');
 
 // Import model definitions and initialize them with the sequelize instance
 const User = require('./user')(sequelize);
@@ -43,6 +6,9 @@ const BakRequest = require('./bakRequest')(sequelize); // Ensure the model file 
 const BakHasTakenRequest = require('./bakHasTakenRequest')(sequelize); // New model import
 const EventLog = require('./eventLog')(sequelize); // Import the EventLog model
 const Bet = require('./bet')(sequelize); // Import the new Bet model
+const Trophy = require('./trophy')(sequelize); // Import the new trophy model
+const UserTrophies = require('./UserTrophies')(sequelize); // Import the new trophy model
+
 
 // Setup associations for User and BakRequest
 User.hasMany(BakRequest, {
@@ -142,6 +108,11 @@ Bet.belongsTo(User, {
     foreignKey: 'judgeUserId'
 });
 
+
+// Setup associations
+User.belongsToMany(Trophy, { through: UserTrophies, as: 'Trophies', foreignKey: 'userId' });
+Trophy.belongsToMany(User, { through: UserTrophies, as: 'Winners', foreignKey: 'trophyId' });
+
 // Synchronize the models with the database
 sequelize.sync({ force: false }).then(() => {
     console.log('Database & tables created!');
@@ -153,5 +124,7 @@ module.exports = {
     BakRequest,
     BakHasTakenRequest,
     EventLog,
-    Bet
+    Bet,
+    Trophy,
+    UserTrophies
 };

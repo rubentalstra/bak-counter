@@ -131,9 +131,13 @@ dist
 
 # SQLite database file
 *.sqlite
+*.sqlite-journal
 
 # Test files
 public/uploads/profile/*
 !public/uploads/profile/blanc_image.png
 public/uploads/prove/*
 !public/uploads/prove/blanc_image.png
+
+# ignore CA file
+# certs/*

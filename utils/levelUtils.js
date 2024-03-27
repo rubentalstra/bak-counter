@@ -1,7 +1,5 @@
-const xpLevels = [0, 10, 25, 50, 100, 200]; // XP milestones
-const repTiers = [0, 10, 25, 50, 100]; // REP milestones
-const levelNames = ['Loser', 'Junior', 'Senior', 'Master', 'Alcoholist', 'Leverfalen'];
-const reputationNames = ['Neutral', 'Strooier', 'Mormel', 'Schoft', 'Klootzak'];
+const { xpLevels, levelNames, repTiers, reputationNames } = require("../config/milestones");
+
 
 function getUserLevelDetails(xp) {
     let levelIndex = xpLevels.findIndex(level => xp < level) - 1;

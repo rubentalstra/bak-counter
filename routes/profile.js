@@ -7,7 +7,7 @@ const sharp = require('sharp');
 const util = require('util');
 const unlinkAsync = util.promisify(fs.unlink);
 
-const { User, EventLog } = require('../models');
+const { User, EventLog, Trophy } = require('../models');
 const { Op } = require('sequelize');
 const { isAuthorized } = require('../utils/isAuthorized');
 const { getUserLevelDetails, getUserReputationDetails } = require('../utils/levelUtils');
@@ -89,10 +89,17 @@ const processImage = async (req, res, next) => {
 router.get('/:userId', async (req, res) => {
     try {
         const errorMessage = req.query.errorMessage;
+        const alertType = req.query.alertType || 'danger';
         const userId = req.params.userId;
 
         const profile = await User.findByPk(userId, {
-            include: [{ model: EventLog, as: 'eventLogs', }],
+            include: [{ model: EventLog, as: 'eventLogs', },
+            {
+                model: Trophy,
+                as: 'Trophies',
+                through: { attributes: [] },
+                attributes: ['name', 'description', 'trophyImage']
+            }],
             order: [[{ model: EventLog, as: 'eventLogs' }, 'createdAt', 'DESC']]
         });
 
@@ -104,6 +111,7 @@ router.get('/:userId', async (req, res) => {
             user: req.user,
             profile,
             errorMessage: errorMessage ?? null,
+            alertType: alertType,
             level: levelDetails.level,
             reputation: reputationDetails.reputation,
             xpPercentage: levelDetails.xpPercentage,
