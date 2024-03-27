@@ -13,6 +13,7 @@ const { getUserLevelDetails, getUserReputationDetails } = require('../utils/leve
 const config = require('../config/config');
 const { s3Client } = require('../config/s3Client');
 const router = express.Router();
+const sharp = require('sharp');
 
 
 
