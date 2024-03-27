@@ -140,4 +140,4 @@ public/uploads/prove/*
 !public/uploads/prove/blanc_image.png
 
 # ignore CA file
-certs/*
+# certs/*
