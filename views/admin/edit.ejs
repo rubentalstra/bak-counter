@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BAK Aantal Bewerken</title>
+    <title>Bewerk of Toeken Award</title>
     <%- include('../partials/_favicon') %>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="/styles/main.css">
@@ -15,34 +15,37 @@
     <%- include('../partials/_navbar') %>
 
     <div class="container mt-5">
-        <h2>BAK Aantal Bewerken voor <%= lid.name %></h2>
-
-        <% if (errorMessage) { %>
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <%= errorMessage %>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <h1 class="mb-4">Bewerk of Toeken Award</h1>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Bewerk BAK-telling</h5>
+                        <p class="card-text">Klik hier om de BAK-telling van de gebruiker te bewerken.</p>
+                        <a href="/admin/<%= lid.id %>/edit-bak" class="btn btn-primary">Doorgaan</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Toeken Award</h5>
+                        <p class="card-text">Klik hier om een award toe te kennen aan de gebruiker.</p>
+                        <a href="/admin/<%= lid.id %>/assign-award" class="btn btn-primary">Doorgaan</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Award verwijderen</h5>
+                        <p class="card-text">Klik hier om een award van de gebruiker te verwijderen.</p>
+                        <a href="/admin/<%= lid.id %>/remove-award" class="btn btn-primary">Doorgaan</a>
+                    </div>
+                </div>
+            </div>
         </div>
-        <% } %>
-
-        <form action="/admin/<%= lid.id %>/edit" method="post">
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-
-            <div class="mb-3">
-                <label for="bakAmount" class="form-label">BAK Aantal:</label>
-                <input type="number" id="bakAmount" name="bakAmount" value="<%= lid.bak %>" class="form-control"
-                    required>
-            </div>
-
-            <div class="mb-3">
-                <label for="reason" class="form-label">Reden:</label>
-                <textarea id="reason" name="reason" class="form-control" rows="3" required></textarea>
-            </div>
-
-            <button type="submit" class="btn btn-theme">BAK Bijwerken</button>
-        </form>
     </div>
-
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

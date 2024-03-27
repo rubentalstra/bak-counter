@@ -20,7 +20,7 @@
             <h1>Admin Gebruikersoverzicht</h1>
 
             <% if (errorMessage) { %>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <div class="alert alert-<%= alertType %> alert-dismissible fade show" role="alert">
                 <%= errorMessage %>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
@@ -45,7 +45,7 @@
                         <td><%= lid.bak %></td>
                         <td>
                             <% if (lid.id !== user.id) { %>
-                            <a href="/admin/<%= lid.id %>/edit" class="btn btn-theme btn-sm">Bijwerken</a>
+                            <a href="/admin/<%= lid.id %>" class="btn btn-theme btn-sm">Bijwerken</a>
                             <% } %>
                         </td>
                     </tr>
