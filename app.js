@@ -42,10 +42,8 @@ if (process.env.LOCAL_DB == 'true') {
         resave: false,
         saveUninitialized: true,
         cookie: {
-            secure: true,
             httpOnly: true,
             sameSite: 'lax',
-            domain: 'bak-counter-app-grn3x.ondigitalocean.app',
             path: '/',
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         }
@@ -57,10 +55,10 @@ if (process.env.LOCAL_DB == 'true') {
         resave: false,
         saveUninitialized: true,
         cookie: {
-            // secure: true,
+            secure: true,
             httpOnly: true,
             sameSite: 'lax',
-            // domain: 'bak-counter.azurewebsites.net',
+            domain: 'bak-counter-app-grn3x.ondigitalocean.app',
             path: '/',
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         }

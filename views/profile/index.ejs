@@ -81,7 +81,7 @@
             -ms-user-select: none;
             user-select: none;
         }
-        
+
         /* The actual popup */
         .popup .popuptext {
             visibility: hidden;
@@ -97,7 +97,7 @@
             left: 50%;
             margin-left: -80px;
         }
-        
+
         /* Popup arrow */
         .popup .popuptext::after {
             content: "";
@@ -109,23 +109,33 @@
             border-style: solid;
             border-color: #555 transparent transparent transparent;
         }
-        
+
         /* Toggle this class - hide and show the popup */
         .popup .show {
             visibility: visible;
             -webkit-animation: fadeIn 0s;
             animation: fadeIn 0s;
         }
-        
+
         /* Add animation (fade in the popup) */
         @-webkit-keyframes fadeIn {
-            from {opacity: 0;} 
-            to {opacity: 1;}
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
-        
+
         @keyframes fadeIn {
-            from {opacity: 0;}
-            to {opacity:1 ;}
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
     </style>
 </head>
@@ -149,7 +159,7 @@
                 <!-- Profile Picture -->
                 <div class="col-md-2">
                     <div class="profile-img-container position-relative text-center">
-                        <img src="<%= profile.profilePicture ? '/uploads/profile/'+profile.profilePicture : '/uploads/profile/blank_image.png' %>"
+                        <img src="<%= profile.profilePicture ? 'https://bak-counter-images.ams3.digitaloceanspaces.com/'+profile.profilePicture : '/uploads/profile/blank_image.png' %>"
                             alt="Profile Picture" class="img-fluid rounded-circle" style="width: 100px; height: 100px;
                         object-fit: cover; object-position: center;">
 
@@ -264,17 +274,20 @@
             <div class="card-body">
                 <h4>Statistics</h4>
                 <p>Bakken in x aantal uur: <%= profile.recordCounter %></p>
-                
+
                 <div class="row row-cols-3 row-cols-sm-4 row-cols-md-6">
                     <% profile.Trophies.forEach(trophy=> { %>
-                        <div class="col-md-auto" style="margin-bottom: 20px; padding: 0px 0px 0px 12px;">
-                            <div class="popup" onmouseover="trophyDetails('<%= trophy.name %>')" onmouseout="trophyDetails('<%= trophy.name %>')">
-                                <h5><%= trophy.name %></h5>
-                                <img src="<%= trophy.trophyImage %>" alt="<%= trophy.name %>" class="img-fluid rounded"
+                    <div class="col-md-auto" style="margin-bottom: 20px; padding: 0px 0px 0px 12px;">
+                        <div class="popup" onmouseover="trophyDetails('<%= trophy.name %>')"
+                            onmouseout="trophyDetails('<%= trophy.name %>')">
+                            <h5><%= trophy.name %></h5>
+                            <img src="<%= trophy.trophyImage %>" alt="<%= trophy.name %>" class="img-fluid rounded"
                                 style="width: 100px; height: 100px;">
-                                <span class="popuptext" id="<%= trophy.name %>"><p><%= trophy.description %></p></span>
-                            </div>
+                            <span class="popuptext" id="<%= trophy.name %>">
+                                <p><%= trophy.description %></p>
+                            </span>
                         </div>
+                    </div>
                     <% }); %>
                 </div>
                 <!-- Add more stats as needed -->
@@ -436,8 +449,8 @@
         }
     </script>
     <script>
-        
-        </script>
+
+    </script>
 
 </body>
 

@@ -55,7 +55,7 @@
 
                                 <td>
                                     <a href="/profile/<%= user.id %>" class="user-link" style="margin-right: -4px;">
-                                        <img src="<%= user.profilePicture ? '/uploads/profile/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
+                                        <img src="<%= user.profilePicture ? 'https://bak-counter-images.ams3.digitaloceanspaces.com/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
                                             alt="Foto" class="rounded-circle me-2"
                                             style="width: 30px; height: 30px; object-fit: cover;">
                                     </a>
@@ -98,9 +98,10 @@
                     <ul class="list-group list-group-flush">
                         <% topUsersByXp.forEach(user => { %>
                         <li class="list-group-item d-flex align-items-center">
-                            <a href="/profile/<%= user.id %>" class="user-link" style="inline-size: 49px; overflow-wrap: break-word; margin-right: 7px;">
-                                <img src="<%= user.profilePicture ? '/uploads/profile/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
-                                    alt="Profielfoto" class="rounded-circle me-3" 
+                            <a href="/profile/<%= user.id %>" class="user-link"
+                                style="inline-size: 49px; overflow-wrap: break-word; margin-right: 7px;">
+                                <img src="<%= user.profilePicture ? 'https://bak-counter-images.ams3.digitaloceanspaces.com/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
+                                    alt="Profielfoto" class="rounded-circle me-3"
                                     style="width: 40px; height: 40px; object-fit: cover;">
                             </a>
                             <div class="flex-grow-1">
@@ -131,9 +132,10 @@
                     <ul class="list-group list-group-flush">
                         <% topUsersByXp.forEach(user => { %>
                         <li class="list-group-item d-flex align-items-center">
-                            <a href="/profile/<%= user.id %>" class="user-link" style="inline-size: 49px; overflow-wrap: break-word; margin-right: 7px;">
-                                <img src="<%= user.profilePicture ? '/uploads/profile/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
-                                    alt="Profielfoto" class="rounded-circle me-3" 
+                            <a href="/profile/<%= user.id %>" class="user-link"
+                                style="inline-size: 49px; overflow-wrap: break-word; margin-right: 7px;">
+                                <img src="<%= user.profilePicture ? 'https://bak-counter-images.ams3.digitaloceanspaces.com/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
+                                    alt="Profielfoto" class="rounded-circle me-3"
                                     style="width: 40px; height: 40px; object-fit: cover;">
                             </a>
                             <div class="flex-grow-1">
@@ -165,9 +167,10 @@
                     <ul class="list-group list-group-flush">
                         <% topUsersByRep.forEach(user => { %>
                         <li class="list-group-item d-flex align-items-center">
-                            <a href="/profile/<%= user.id %>" class="user-link" style="inline-size: 49px; overflow-wrap: break-word; margin-right: 7px;">
-                                <img src="<%= user.profilePicture ? '/uploads/profile/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
-                                    alt="Profielfoto" class="rounded-circle me-3" 
+                            <a href="/profile/<%= user.id %>" class="user-link"
+                                style="inline-size: 49px; overflow-wrap: break-word; margin-right: 7px;">
+                                <img src="<%= user.profilePicture ? 'https://bak-counter-images.ams3.digitaloceanspaces.com/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
+                                    alt="Profielfoto" class="rounded-circle me-3"
                                     style="width: 40px; height: 40px; object-fit: cover;">
                             </a>
                             <div class="flex-grow-1">
