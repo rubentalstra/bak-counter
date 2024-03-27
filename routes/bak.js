@@ -14,6 +14,7 @@ router.get('/submit', async (req, res) => {
 
         // Fetch all users except the current user
         const users = await User.findAll({
+            attributes: ['id', 'name'],
             where: {
                 id: {
                     [Op.not]: req.user.id // Exclude current user's ID

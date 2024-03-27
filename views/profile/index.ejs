@@ -70,6 +70,63 @@
         .event-log li {
             margin-bottom: 10px;
         }
+
+        /* the CSS for the popups of the trophy descriptions */
+        .popup {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        /* The actual popup */
+        .popup .popuptext {
+            visibility: hidden;
+            width: 160px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px 0;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -80px;
+        }
+        
+        /* Popup arrow */
+        .popup .popuptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #555 transparent transparent transparent;
+        }
+        
+        /* Toggle this class - hide and show the popup */
+        .popup .show {
+            visibility: visible;
+            -webkit-animation: fadeIn 0s;
+            animation: fadeIn 0s;
+        }
+        
+        /* Add animation (fade in the popup) */
+        @-webkit-keyframes fadeIn {
+            from {opacity: 0;} 
+            to {opacity: 1;}
+        }
+        
+        @keyframes fadeIn {
+            from {opacity: 0;}
+            to {opacity:1 ;}
+        }
     </style>
 </head>
 
@@ -80,7 +137,7 @@
     <div class="container mt-5">
 
         <% if (errorMessage) { %>
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <div class="alert alert-<%= alertType %>  alert-dismissible fade show" role="alert">
             <%= errorMessage %>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
@@ -206,8 +263,20 @@
         <div class="card mb-3">
             <div class="card-body">
                 <h4>Statistics</h4>
-                <p>Bakken in x aantal uur: <%= profile.recordCounter %>
-                </p>
+                <p>Bakken in x aantal uur: <%= profile.recordCounter %></p>
+                
+                <div class="row row-cols-3 row-cols-sm-4 row-cols-md-6">
+                    <% profile.Trophies.forEach(trophy=> { %>
+                        <div class="col-md-auto" style="margin-bottom: 20px; padding: 0px 0px 0px 12px;">
+                            <div class="popup" onmouseover="trophyDetails('<%= trophy.name %>')" onmouseout="trophyDetails('<%= trophy.name %>')">
+                                <h5><%= trophy.name %></h5>
+                                <img src="<%= trophy.trophyImage %>" alt="<%= trophy.name %>" class="img-fluid rounded"
+                                style="width: 100px; height: 100px;">
+                                <span class="popuptext" id="<%= trophy.name %>"><p><%= trophy.description %></p></span>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
                 <!-- Add more stats as needed -->
             </div>
         </div>
@@ -306,13 +375,11 @@
                         xhr.setRequestHeader('X-CSRF-Token', $('input[name="_csrf"]').val());
                     },
                     success: function (response) {
-                        // Display success alert (you might need to adjust based on your page's HTML structure)
-                        window.location.href = `/profile/${parseInt(<%= user.id %>)}?errorMessage=${encodeURIComponent(response.message || 'Unknown Success')}`;
+                        window.location.href = `/profile/${parseInt(<%= user.id %>)}?errorMessage=${encodeURIComponent(response.message || 'Unknown Success')}&alertType=success`;
                     },
                     error: function (xhr) {
-                        // Parse the JSON response
                         var response = JSON.parse(xhr.responseText);
-                        window.location.href = `/profile/${parseInt(<%= user.id %>)}?errorMessage=${encodeURIComponent(response.message || 'Unknown error')}`;
+                        window.location.href = `/profile/${parseInt(<%= user.id %>)}?errorMessage=${encodeURIComponent(response.message || 'Unknown error')}&alertType=danger`;
                     }
                 });
             });
@@ -361,7 +428,16 @@
                 }
             }
         }
+
+        // When the user hovers over the trophy it opens the popup
+        function trophyDetails(popup_id) {
+            var popup = document.getElementById(popup_id);
+            popup.classList.toggle("show");
+        }
     </script>
+    <script>
+        
+        </script>
 
 </body>
 
