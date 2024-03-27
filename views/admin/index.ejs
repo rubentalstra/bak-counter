@@ -37,7 +37,7 @@
                 <tbody>
                     <% leden.forEach(lid => { %>
                     <tr>
-                        <td><img src="<%= lid.profilePicture ? '/uploads/profile/' + lid.profilePicture : '/uploads/profile/blank_image.png' %>"
+                        <td><img src="<%= lid.profilePicture ? 'https://bak-counter-images.ams3.digitaloceanspaces.com/' + lid.profilePicture : '/uploads/profile/blank_image.png' %>"
                                 alt="Profielfoto" class="rounded-circle me-2"
                                 style="width: 30px; height: 30px; object-fit: cover;">
                             <%= lid.name %>

@@ -38,7 +38,7 @@ const uploadImageToSpaces = async (req, res, next) => {
     if (!req.file) return next(); // Skip if no file is uploaded
 
     const randomHex = crypto.randomBytes(8).toString("hex");
-    const filename = `profile/${randomHex}${path.extname(req.file.originalname)}`;
+    const filename = `realtime/profile/${randomHex}${path.extname(req.file.originalname)}`;
     const mimeType = req.file.mimetype;
 
     try {
