@@ -112,6 +112,8 @@ Bet.belongsTo(User, {
 // Setup associations
 User.belongsToMany(Trophy, { through: UserTrophies, as: 'Trophies', foreignKey: 'userId' });
 Trophy.belongsToMany(User, { through: UserTrophies, as: 'Winners', foreignKey: 'trophyId' });
+Trophy.hasMany(UserTrophies, { foreignKey: 'trophyId', as: 'UserTrophies' });
+UserTrophies.belongsTo(Trophy, { foreignKey: 'trophyId', as: 'Trophy' });
 
 // Synchronize the models with the database
 sequelize.sync({ force: false }).then(() => {
