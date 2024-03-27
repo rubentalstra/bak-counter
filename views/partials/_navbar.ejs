@@ -50,7 +50,7 @@
                     <a class="nav-link dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
                         data-bs-toggle="dropdown" aria-expanded="false">
                         <%= user.name %> <img
-                            src="<%= user.profilePicture ? '/uploads/profile/'+user.profilePicture : '/uploads/profile/blank_image.png' %>"
+                            src="<%= user.profilePicture ? 'https://bak-counter-images.ams3.digitaloceanspaces.com/'+user.profilePicture : '/uploads/profile/blank_image.png' %>"
                             alt="Profiel" class="profile-icon rounded-circle">
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">

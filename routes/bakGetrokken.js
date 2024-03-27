@@ -3,96 +3,61 @@ const express = require('express');
 const multer = require('multer');
 const crypto = require('crypto');
 const path = require('path');
-const fs = require('fs');
-const sharp = require('sharp');
-const util = require('util');
-const unlinkAsync = util.promisify(fs.unlink);
+
+const { DeleteObjectCommand } = require("@aws-sdk/client-s3");
+const multerS3 = require("multer-s3");
 
 const { User, BakHasTakenRequest } = require('../models');
 const { Op } = require('sequelize');
 const { logEvent } = require('../utils/eventLogger');
-const { isAuthenticated } = require('../utils/isAuthenticated');
 const { adminEmails } = require('../config/isAdmin');
+const { s3Client } = require('../config/s3Client');
+const config = require('../config/config');
+
 const router = express.Router();
 
 
 
-
-// Configure multer for file storage
-const storageProve = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/temp/'); // Temporary directory for initial uploads
+const multerUpload = multer({
+    storage: multerS3({
+        s3: s3Client,
+        bucket: config.digitalOcean.bucket,
+        acl: "public-read",
+        key: function (req, file, cb) {
+            const randomHex = crypto.randomBytes(8).toString("hex");
+            const filename = `prove/${randomHex}${path.extname(file.originalname)}`;
+            cb(null, filename);
+        },
+    }),
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Alleen afbeeldingen of video\'s zijn toegestaan!'), false);
+        }
     },
-    filename: function (req, file, cb) {
-        let randomHex = crypto.randomBytes(8).toString('hex');
-        let extension = path.extname(file.originalname).toLowerCase();
-        cb(null, randomHex + extension); // Generate unique filename
-    }
+    limits: { fileSize: 30 * 1024 * 1024 }, // Limit file size to 30MB
 });
 
 
 
-// Only allow image or video files
-const fileFilter = (req, file, cb) => {
-    if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
-        cb(null, true);
-    } else {
-        cb(new Error('Alleen afbeeldingen of video\'s zijn toegestaan!'), false);
-    }
-};
-
-// Initialize multer with the storage configuration
-const uploadProve = multer({
-    storage: storageProve,
-    fileFilter: fileFilter,
-    limits: {
-        fileSize: 30 * 1024 * 1024 // Limit file size to 30MB
-    }
-});
-
-const processFile = async (req, res, next) => {
-    if (!req.file) return next(); // Skip if no file is uploaded
-
+const deleteImage = async (filePath) => {
+    const params = {
+        Bucket: config.digitalOcean.bucket,
+        Key: filePath,
+    };
     try {
-        const tempPath = req.file.path;
-        // Determine output directory based on file type
-
-        const outputPath = `public/uploads/prove/${req.file.filename}`;
-
-        // Process only if it's an image
-        if (req.file.mimetype.startsWith('image/')) {
-            // Use sharp to validate and rewrite the image, stripping non-image data
-            await sharp(tempPath).toFile(outputPath);
-        } else if (req.file.mimetype.startsWith('video/')) {
-            // Directly move video files without processing
-            await fs.promises.rename(tempPath, outputPath);
-        }
-
-        // Cleanup: Delete the temporary file if it's an image (videos are moved, not copied)
-        if (req.file.mimetype.startsWith('image/')) {
-            await unlinkAsync(tempPath);
-        }
-
-        // Update req.file.path to the new location for further use
-        req.file.path = outputPath;
-
-        next();
+        await s3Client.send(new DeleteObjectCommand(params));
+        console.log(`File deleted successfully: ${filePath}`);
     } catch (error) {
-        console.error('Error processing file:', error);
-
-        // Attempt to delete the temporary file in case of error
-        try {
-            await unlinkAsync(req.file.path);
-        } catch (cleanupError) {
-            console.error('Error cleaning up file:', cleanupError);
-        }
-
-        // Redirect with error message, customizing the message based on the file type
-        const fileType = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
-        const errorMessage = `Failed to process ${fileType}. Please try again with a valid file.`;
-        return res.status(400).json({ error: true, message: errorMessage });
+        console.error("Error deleting file:", error);
+        throw error;
     }
 };
+
+
+
+
 
 
 router.get('/', async (req, res) => {
@@ -175,13 +140,11 @@ router.get('/validate/approve/:id', async (req, res) => {
 
                 // Additional logic for handling evidence file deletion
                 if (request.evidenceUrl) {
-                    const filePath = `public/uploads/prove/${request.evidenceUrl}`;
                     try {
-                        await unlinkAsync(filePath);
+                        await deleteImage(request.evidenceUrl);
                         await request.update({ evidenceUrl: '' });
                     } catch (fileError) {
                         console.error('Error deleting evidence file:', fileError);
-                        // Consider how to handle file deletion errors, e.g., log or notify
                     }
                 }
             } else {
@@ -219,8 +182,8 @@ router.get('/validate/decline/:id', async (req, res) => {
         }
 
         // Delete the file from the filesystem
-        if (request.evidenceUrl) {
-            await unlinkAsync(`public/uploads/prove/${request.evidenceUrl}`);
+        if (request.request) {
+            await deleteImage(request.evidenceUrl);
         }
 
         // Update the status of the request to 'declined'
@@ -268,27 +231,11 @@ router.get('/create', async (req, res) => {
 });
 
 
-// Middleware for handling multer upload and potential errors, including file type restriction
-const uploadProveMiddleware = (req, res, next) => {
-    const upload = uploadProve.single('evidence');
-    upload(req, res, function (err) {
-        if (err instanceof multer.MulterError) {
-            // A Multer error occurred when uploading (e.g., file too large).
-            const errorMessage = `Er is een fout opgetreden bij het uploaden van het bewijs: ${err.message}`;
-            return res.status(400).json({ error: true, message: errorMessage });
-        } else if (err) {
-            // An error occurred due to the file filter (e.g., wrong file type).
-            return res.status(400).json({ error: true, message: err });
-        }
-        // If the file type and size are correct, proceed to the next middleware
-        next();
-    });
-};
 
 
 
 // Route to create a new BAK validation request with middleware for handling file upload
-router.post('/create', uploadProveMiddleware, processFile, async (req, res) => {
+router.post('/create', multerUpload.single('evidence'), async (req, res) => {
     try {
         // Extract data from the request body
         const { targetUserId } = req.body;
@@ -305,7 +252,7 @@ router.post('/create', uploadProveMiddleware, processFile, async (req, res) => {
         }
 
         // Get the file path of the uploaded evidence
-        const evidenceFilePath = req.file.path.replace('public/uploads/prove/', '');
+        const evidenceFilePath = req.file.key; // Use the key from the uploaded file
 
         // Create the BAK validation request
         await BakHasTakenRequest.create({
