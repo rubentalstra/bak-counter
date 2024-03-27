@@ -2,84 +2,59 @@ const express = require('express');
 const multer = require('multer');
 const crypto = require('crypto');
 const path = require('path');
-const fs = require('fs');
-const sharp = require('sharp');
-const util = require('util');
-const unlinkAsync = util.promisify(fs.unlink);
+
+const { DeleteObjectCommand } = require("@aws-sdk/client-s3");
+const multerS3 = require("multer-s3");
 
 const { User, EventLog, Trophy } = require('../models');
 const { Op } = require('sequelize');
 const { isAuthorized } = require('../utils/isAuthorized');
 const { getUserLevelDetails, getUserReputationDetails } = require('../utils/levelUtils');
+const config = require('../config/config');
+const { s3Client } = require('../config/s3Client');
 const router = express.Router();
 
 
 
 
-// Configure multer for file storage
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/temp/'); // Temporary directory for initial uploads
-    },
-    filename: function (req, file, cb) {
-        let randomHex = crypto.randomBytes(8).toString('hex');
-        cb(null, randomHex + path.extname(file.originalname)); // Construct file name with original extension
-    }
-});
-
-// Add a file filter
-const fileFilter = (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|gif/;
-    const isSupportedFile = allowedTypes.test(path.extname(file.originalname).toLowerCase()) && allowedTypes.test(file.mimetype);
-
-    if (isSupportedFile) {
-        cb(null, true);
-    } else {
-        cb('Only image files (JPEG, JPG, PNG, GIF) are allowed!');
-    }
-};
-
-const upload = multer({
-    storage: storage,
-    fileFilter: fileFilter,
-    limits: { fileSize: 10 * 1024 * 1024 } // for example, limit file size to 10MB
-});
-
-const processImage = async (req, res, next) => {
-    if (!req.file) return next(); // Skip if no file is uploaded
-
-    const tempPath = req.file.path;
-    const outputPath = `public/uploads/profile/${req.file.filename}`;
-    const isGif = req.file.mimetype === 'image/gif';
-
-    try {
-        if (!isGif) {
-            // Use sharp to process non-GIF images, stripping non-image data
-            await sharp(tempPath).toFile(outputPath);
+const multerUpload = multer({
+    storage: multerS3({
+        s3: s3Client,
+        bucket: config.digitalOcean.bucket,
+        acl: "public-read",
+        key: function (req, file, cb) {
+            const randomHex = crypto.randomBytes(8).toString("hex");
+            const filename = `profile/${randomHex}${path.extname(file.originalname)}`;
+            cb(null, filename);
+        },
+    }),
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = /jpeg|jpg|png|gif/;
+        const isSupportedFile =
+            allowedTypes.test(path.extname(file.originalname).toLowerCase()) &&
+            allowedTypes.test(file.mimetype);
+        if (isSupportedFile) {
+            cb(null, true);
         } else {
-            // For GIFs, just move them without processing
-            fs.copyFileSync(tempPath, outputPath);
+            cb(new Error("Only image files (JPEG, JPG, PNG, GIF) are allowed!"));
         }
+    },
+    limits: { fileSize: config.uploadLimits.fileSize }, // Example: limit file size to 10MB
+});
 
-        // Cleanup: Delete the temporary file
-        await unlinkAsync(tempPath);
 
-        // Update req.file.path to the new location for further use
-        req.file.path = outputPath;
 
-        next();
+const deleteImage = async (filePath) => {
+    const params = {
+        Bucket: config.digitalOcean.bucket,
+        Key: filePath,
+    };
+    try {
+        await s3Client.send(new DeleteObjectCommand(params));
+        console.log(`File deleted successfully: ${filePath}`);
     } catch (error) {
-        console.error('Error processing image:', error);
-
-        // Attempt to delete the temporary file in case of error
-        try {
-            await unlinkAsync(tempPath);
-        } catch (cleanupError) {
-            console.error('Error cleaning up image file:', cleanupError);
-        }
-
-        // Send JSON error message
-        return res.status(400).json({ error: true, message: 'Failed to process image. Please try again with a valid image file.' });
+        console.error("Error deleting file:", error);
+        throw error;
     }
 };
 
@@ -127,28 +102,8 @@ router.get('/:userId', async (req, res) => {
 
 
 
-// Middleware for handling multer upload and potential errors, including file type restriction
-const uploadMiddleware = (req, res, next) => {
-    const uploadWithMulter = upload.single('profilePicture');
-    uploadWithMulter(req, res, function (err) {
-        if (err instanceof multer.MulterError) {
-            // A Multer error occurred when uploading.
-            const errorMessage = `Er is een fout opgetreden bij het uploaden van het bestand: ${err.message}`;
-            return res.status(400).json({ error: true, message: errorMessage });
-        } else if (err) {
-            // A custom error from the fileFilter.
-            return res.status(400).json({ error: true, message: err });
-        }
-        // Everything went fine, proceed to the next middleware
-        next();
-    });
-};
 
-
-
-
-
-router.post('/updatePicture', isAuthorized, uploadMiddleware, processImage, async (req, res) => {
+router.post('/updatePicture', isAuthorized, multerUpload.single('profilePicture'), async (req, res) => {
     if (!req.file) {
         return res.status(400).json({
             success: false,
@@ -157,17 +112,13 @@ router.post('/updatePicture', isAuthorized, uploadMiddleware, processImage, asyn
     }
 
     const userId = req.user.id;
-    const filePath = req.file.path.replace('public/uploads/profile/', '');
+    const filePath = req.file.key; // Use the key from the uploaded file
 
     try {
         const user = await User.findByPk(userId);
         if (user.profilePicture) {
             // Attempt to delete the old picture, if it exists
-            try {
-                await unlinkAsync(`public/uploads/profile/${user.profilePicture}`);
-            } catch (err) {
-                console.log("Failed to delete old profile picture:", err.message);
-            }
+            await deleteImage(user.profilePicture);
         }
 
         await User.update({ profilePicture: filePath }, { where: { id: userId } });
@@ -184,12 +135,12 @@ router.post('/deletePicture', isAuthorized, async (req, res) => {
 
     try {
         const user = await User.findByPk(userId);
-        if (user.profilePicture) {
-            // Delete the file from the filesystem
-            await unlinkAsync(`public/uploads/profile/${user.profilePicture}`);
-        }
 
-        await User.update({ profilePicture: null }, { where: { id: userId } });
+        if (user.profilePicture) {
+            await deleteImage(user.profilePicture);
+            // Now update the user record to remove or update the profilePicture field
+            await User.update({ profilePicture: null }, { where: { id: userId } });
+        }
 
 
         if (Number.isInteger(req.user.id)) {
