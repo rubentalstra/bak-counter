@@ -27,7 +27,7 @@ const multerUpload = multer({
         if (isSupportedFile) {
             cb(null, true);
         } else {
-            cb(new Error("Only image files (JPEG, JPG, PNG, GIF) are allowed!"));
+            cb(new Error("Only image files (JPEG, JPG, PNG, GIF) are allowed!"), false); //! alart is not showing in the profile page
         }
     },
     limits: { fileSize: config.uploadLimits.fileSize },
