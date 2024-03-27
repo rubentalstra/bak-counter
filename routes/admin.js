@@ -113,7 +113,7 @@ router.get('/:userId/assign-award', async (req, res) => {
         }
 
         // Exclude trophy names that are already associated with the user or are in the excluded list
-        const excludedTrophyNames = ['Junior', 'Senior', 'Master', 'Alcoholist', 'Leverfalen'];
+        const excludedTrophyNames = ['Junior', 'Senior', 'Master', 'Alcoholist', 'Leverfalen', 'Strooier', 'Mormel', 'Schoft', 'Klootzak'];
 
         // Fetch only the trophies that are not yet assigned to the user and are not in the excluded list
         const defaultTrophies = await Trophy.findAll({
@@ -138,7 +138,7 @@ router.get('/:userId/assign-award', async (req, res) => {
 router.post('/:userId/assign-award', async (req, res) => {
     try {
         const { userId } = req.params;
-        const { award } = req.body;
+        const { award, reason } = req.body;
 
         // Find the user by ID
         const user = await User.findByPk(userId);
@@ -171,6 +171,19 @@ router.post('/:userId/assign-award', async (req, res) => {
         await UserTrophies.create({
             userId: userId,
             trophyId: award
+        });
+
+
+        // Logboeking voor de admin
+        await logEvent({
+            userId: req.user.id,
+            description: `Heeft award ${trophy.name} toegekend aan ${user.name}. Reden: ${reason}`
+        });
+
+        // Logboeking voor de betrokken gebruiker
+        await logEvent({
+            userId: user.id,
+            description: `Award ${trophy.name} ontvangen van admin ${req.user.name}. Reden: ${reason}`
         });
 
         // Redirect back to the assign award page with success message
@@ -218,7 +231,7 @@ router.get('/:userId/remove-award', async (req, res) => {
 router.post('/:userId/remove-award', async (req, res) => {
     try {
         const { userId } = req.params;
-        const { awardId } = req.body;
+        const { awardId, reason } = req.body;
 
         // Find the user by ID
         const user = await User.findByPk(userId);
@@ -232,7 +245,12 @@ router.post('/:userId/remove-award', async (req, res) => {
             where: {
                 userId: userId,
                 trophyId: awardId
-            }
+            },
+            include: [{
+                model: Trophy,
+                as: 'Trophy',
+                attributes: ['name']
+            }]
         });
 
         if (!userTrophy) {
@@ -242,6 +260,20 @@ router.post('/:userId/remove-award', async (req, res) => {
 
         // Remove the trophy from the user
         await userTrophy.destroy();
+
+        console.log(userTrophy.Trophy.name)
+
+        // Logboeking voor de admin
+        await logEvent({
+            userId: req.user.id,
+            description: `Heeft award ${userTrophy.Trophy.name} verwijderd van ${user.name}. Reden: ${reason}`
+        });
+
+        // Logboeking voor de betrokken gebruiker
+        await logEvent({
+            userId: user.id,
+            description: `Award ${userTrophy.Trophy.name} verwijderd door admin ${req.user.name}. Reden: ${reason}`
+        });
 
         // Redirect back to the assign award page with success message
         const errorMessage = 'De award is succesvol verwijderd.';
