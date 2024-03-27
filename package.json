@@ -20,15 +20,14 @@
     "express-rate-limit": "^7.2.0",
     "express-session": "^1.18.0",
     "lusca": "^1.7.0",
-    "mssql": "^10.0.2",
     "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.9.3",
     "node-cron": "^3.0.3",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "sequelize": "^6.37.1",
     "sharp": "^0.33.3",
-    "sqlite3": "^5.1.7",
-    "tedious": "^18.1.0"
+    "sqlite3": "^5.1.7"
   },
   "engines": {
     "node": "20.x"

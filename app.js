@@ -20,7 +20,7 @@ const { isAdmin } = require('./utils/isAdmin');
 const { isAuthenticated } = require('./utils/isAuthenticated');
 
 
-cron.schedule('0 */1 * * *', async () => {
+cron.schedule('*/30 * * * *', async () => {
     try {
         // Replace with a lightweight query suitable for your database
         await sequelize.query('SELECT 1');
