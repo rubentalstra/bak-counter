@@ -25,7 +25,7 @@ const multerUpload = multer({
         acl: "public-read",
         key: function (req, file, cb) {
             const randomHex = crypto.randomBytes(8).toString("hex");
-            const filename = `prove/${randomHex}${path.extname(file.originalname)}`;
+            const filename = `realtime/prove/${randomHex}${path.extname(file.originalname)}`;
             cb(null, filename);
         },
     }),
