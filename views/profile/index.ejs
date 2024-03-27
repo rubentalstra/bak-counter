@@ -70,6 +70,63 @@
         .event-log li {
             margin-bottom: 10px;
         }
+
+        /* the CSS for the popups of the trophy descriptions */
+        .popup {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        /* The actual popup */
+        .popup .popuptext {
+            visibility: hidden;
+            width: 160px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px 0;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -80px;
+        }
+        
+        /* Popup arrow */
+        .popup .popuptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #555 transparent transparent transparent;
+        }
+        
+        /* Toggle this class - hide and show the popup */
+        .popup .show {
+            visibility: visible;
+            -webkit-animation: fadeIn 0s;
+            animation: fadeIn 0s;
+        }
+        
+        /* Add animation (fade in the popup) */
+        @-webkit-keyframes fadeIn {
+            from {opacity: 0;} 
+            to {opacity: 1;}
+        }
+        
+        @keyframes fadeIn {
+            from {opacity: 0;}
+            to {opacity:1 ;}
+        }
     </style>
 </head>
 
@@ -206,21 +263,20 @@
         <div class="card mb-3">
             <div class="card-body">
                 <h4>Statistics</h4>
-                <p>Bakken in x aantal uur: <%= profile.recordCounter %>
-                </p>
-
-                <% profile.Trophies.forEach(trophy=> { %>
-                <div class="row">
-                    <div class="col-2">
-                        <img src="<%= trophy.trophyImage %>" alt="<%= trophy.name %>" class="img-fluid"
-                            style="width: 50px; height: 50px;">
-                    </div>
-                    <div class="col-10">
-                        <h5><%= trophy.name %></h5>
-                        <p><%= trophy.description %></p>
-                    </div>
+                <p>Bakken in x aantal uur: <%= profile.recordCounter %></p>
+                
+                <div class="row row-cols-3 row-cols-sm-4 row-cols-md-6">
+                    <% profile.Trophies.forEach(trophy=> { %>
+                        <div class="col-md-auto" style="margin-bottom: 20px; padding: 0px 0px 0px 12px;">
+                            <div class="popup" onmouseover="trophyDetails('<%= trophy.name %>')" onmouseout="trophyDetails('<%= trophy.name %>')">
+                                <h5><%= trophy.name %></h5>
+                                <img src="<%= trophy.trophyImage %>" alt="<%= trophy.name %>" class="img-fluid rounded"
+                                style="width: 100px; height: 100px;">
+                                <span class="popuptext" id="<%= trophy.name %>"><p><%= trophy.description %></p></span>
+                            </div>
+                        </div>
+                    <% }); %>
                 </div>
-                <% }); %>
                 <!-- Add more stats as needed -->
             </div>
         </div>
@@ -372,7 +428,16 @@
                 }
             }
         }
+
+        // When the user hovers over the trophy it opens the popup
+        function trophyDetails(popup_id) {
+            var popup = document.getElementById(popup_id);
+            popup.classList.toggle("show");
+        }
     </script>
+    <script>
+        
+        </script>
 
 </body>
 

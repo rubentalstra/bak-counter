@@ -131,6 +131,7 @@ dist
 
 # SQLite database file
 *.sqlite
+*.sqlite-journal
 
 # Test files
 public/uploads/profile/*
