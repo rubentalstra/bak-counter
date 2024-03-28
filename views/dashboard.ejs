@@ -44,15 +44,12 @@
                                 <th scope="col">Naam</th>
                                 <th scope="col">Openstaande BAKKEN</th>
                                 <th scope="col">Getrokken BAKKEN</th>
-                                <th scope="col">In behandeling BAK Ontvangen</th>
-                                <th scope="col">In behandeling BAK Getrokken</th>
                             </tr>
                         </thead>
 
                         <tbody>
-                            <% users.sort((a, b)=> b.bak - a.bak).forEach(user => { %>
+                            <% users.sort((a, b) => b.bak - a.bak).forEach(user => { %>
                             <tr>
-
                                 <td>
                                     <a href="/profile/<%= user.id %>" class="user-link" style="margin-right: -4px;">
                                         <img src="<%= user.profilePicture ? 'https://bak-counter-images.ams3.digitaloceanspaces.com/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
@@ -63,22 +60,20 @@
                                         <%= user.name %>
                                     </a>
                                 </td>
-
                                 <td>
                                     <%= user.bak %>
+                                    <% if (user.BakRequests.length > 0) { %><span
+                                        style="color: red;">+<%= user.BakRequests.length %></span>
+                                    <% } %>
                                 </td>
                                 <td>
                                     <%= user.xp %>
-                                </td>
-                                <td>
-                                    <%= user.BakRequests.length %>
-                                </td>
-                                <td>
-                                    <%= user.ReceivedProposals.length %>
+                                    <% if (user.ReceivedProposals.length > 0) { %><span
+                                        style="color: green;">+<%= user.ReceivedProposals.length %></span>
+                                    <% } %>
                                 </td>
                             </tr>
                             <% }) %>
-
                         </tbody>
                     </table>
                 </div>
