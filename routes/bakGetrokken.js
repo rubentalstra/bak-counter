@@ -62,19 +62,7 @@ const deleteImage = async (filePath) => {
 
 router.get('/', async (req, res) => {
     try {
-        const openRequests = await BakHasTakenRequest.findAll({
-            where: { status: 'pending' },
-            include: [
-                { model: User, as: 'Requester', attributes: ['id', 'name'] },
-                { model: User, as: 'Target', attributes: ['id', 'name'] },
-                { model: User, as: 'FirstApprover', attributes: ['id', 'name'] },
-                { model: User, as: 'SecondApprover', attributes: ['id', 'name'] }
-            ],
-            order: [['createdAt', 'DESC']],
-        });
-
-        const closedRequests = await BakHasTakenRequest.findAll({
-            where: { status: ['declined', 'approved'] },
+        const allRequests = await BakHasTakenRequest.findAll({
             include: [
                 { model: User, as: 'Requester', attributes: ['id', 'name'] },
                 { model: User, as: 'Target', attributes: ['id', 'name'] },
@@ -85,12 +73,22 @@ router.get('/', async (req, res) => {
             order: [['createdAt', 'DESC']],
         });
 
-        res.render('bak-getrokken/index', { csrfToken: req.csrfToken(), user: req.user, openRequests, closedRequests });
+        // Separating the requests into open and closed based on their status
+        const openRequests = allRequests.filter(req => req.status === 'pending');
+        const closedRequests = allRequests.filter(req => ['declined', 'approved'].includes(req.status));
+
+        res.render('bak-getrokken/index', {
+            csrfToken: req.csrfToken(),
+            user: req.user,
+            openRequests,
+            closedRequests
+        });
     } catch (error) {
-        console.error('Error fetching open BAK validation requests:', error);
+        console.error('Error fetching BAK validation requests:', error);
         res.status(500).send('Error fetching data');
     }
 });
+
 
 
 
@@ -130,15 +128,44 @@ router.get('/validate/approve/:id', async (req, res) => {
         }
 
         if (!request.firstApproverId) {
-            // This is the first approval
             await request.update({ firstApproverId: userId });
+
+            // Log event for the first approval action
+            await logEvent({
+                userId: userId,
+                description: `Heeft de BAK-verzoek als eerste goedkeurder goedgekeurd. Verzoek ID: ${requestId}.`
+            });
         } else if (!request.secondApproverId && request.firstApproverId !== userId) {
-            // This is the second approval, and it's not the same user
             if (userIsAdmin || firstApproverIsAdmin) {
-                // At least one admin must approve, proceed with second approval
                 await request.update({ secondApproverId: userId, status: 'approved' });
 
-                // Additional logic for handling evidence file deletion
+                // Increment XP for the target user
+                await User.increment({ xp: 1 }, { where: { id: request.targetId } });
+
+                // Check and decrement bak count if necessary
+                const targetUser = await User.findByPk(request.targetId);
+                if (targetUser.bak > 0) {
+                    await targetUser.decrement('bak');
+                }
+
+                // Log event for the second approval action
+                await logEvent({
+                    userId: userId,
+                    description: `Heeft de BAK-verzoek als tweede goedkeurder goedgekeurd. Verzoek ID: ${requestId}.`
+                });
+
+                // Notify requester and target about the approval
+                await logEvent({
+                    userId: request.requesterId,
+                    description: `Het BAK-verzoek is goedgekeurd. Verzoek ID: ${requestId}.`
+                });
+
+                await logEvent({
+                    userId: request.targetId,
+                    description: `Een BAK-verzoek gericht aan jou is goedgekeurd. Verzoek ID: ${requestId}.`
+                });
+
+                // Handle evidence file deletion and other logic as before
                 if (request.evidenceUrl) {
                     try {
                         await deleteImage(request.evidenceUrl);
@@ -151,7 +178,6 @@ router.get('/validate/approve/:id', async (req, res) => {
                 return res.status(403).send('An admin must approve this request.');
             }
         } else {
-            // Request already fully approved or user attempting to approve again
             return res.status(403).send('Request already approved or cannot be approved by this user.');
         }
 
@@ -166,47 +192,51 @@ router.get('/validate/approve/:id', async (req, res) => {
 
 router.get('/validate/decline/:id', async (req, res) => {
     try {
-        const requestId = req.params.id;
-
-        // Ensure only admins can decline requests
         if (!req.user.isAdmin) {
             return res.status(403).send('Only admins can decline requests.');
         }
 
-        // Find the request by its ID
-        const request = await BakHasTakenRequest.findByPk(requestId);
+        const request = await BakHasTakenRequest.findByPk(req.params.id, {
+            include: [
+                { model: User, as: 'Requester', attributes: ['id', 'name'] },
+                { model: User, as: 'Target', attributes: ['id', 'name'] }
+            ]
+        });
 
-        // Ensure the request exists
         if (!request) {
             return res.status(404).send('Request not found.');
         }
 
-        // Delete the file from the filesystem
-        if (request.request) {
+        if (request.evidenceUrl) {
             await deleteImage(request.evidenceUrl);
         }
 
-        // Update the status of the request to 'declined'
-        await request.update({ status: 'declined', evidenceUrl: '', declinedId: req.user.id });
-
-        // Add a BAK to the requester of the request
-        await User.increment({ bak: 1 }, { where: { id: request.requesterId } });
-
-
-        // Log the declined request
-        const senderUser = await User.findByPk(request.requesterId);
-        await logEvent({
-            userId: senderUser.id,
-            description: `${req.user.name} heeft het BAK-verzoek van ${senderUser.name} afgewezen.`,
+        await request.update({
+            status: 'declined',
+            evidenceUrl: '',
+            declinedId: req.user.id
         });
 
-        // Redirect or respond based on your application's needs
+        await User.increment({ bak: 1 }, { where: { id: request.Requester.id } });
+
+        // Logging the event with the requester information already retrieved
+        await logEvent({
+            userId: request.Requester.id,
+            description: `${req.user.name} heeft het BAK-verzoek van ${request.Requester.name} afgewezen.`,
+        });
+
+        await logEvent({
+            userId: request.Target.id,
+            description: `Heeft vals BAK-verzoek van ${request.Requester.name} afgewezen, door ${req.user.name}.`,
+        });
+
         res.redirect('/bak-getrokken');
     } catch (error) {
         console.error('Error declining BAK validation request:', error);
-        res.status(500).send('Error processing request');
+        res.status(500).send('An unexpected error occurred.');
     }
 });
+
 
 
 
