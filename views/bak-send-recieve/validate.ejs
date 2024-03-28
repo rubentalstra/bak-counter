@@ -50,6 +50,7 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'X-CSRF-Token': '<%= csrfToken %>'
                     // Voeg CSRF-token toe indien nodig
                 },
                 body: JSON.stringify({ status: status })
