@@ -199,8 +199,10 @@ router.get('/validate/decline/:id', async (req, res) => {
         }
 
         const request = await BakHasTakenRequest.findByPk(req.params.id, {
-            include: [{ model: User, as: 'Requester', attributes: ['id', 'name'] },
-            { model: User, as: 'Target', attributes: ['id', 'name'] }]
+            include: [
+                { model: User, as: 'Requester', attributes: ['id', 'name'] },
+                { model: User, as: 'Target', attributes: ['id', 'name'] }
+            ]
         });
 
         if (!request) {
