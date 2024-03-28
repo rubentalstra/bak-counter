@@ -62,19 +62,7 @@ const deleteImage = async (filePath) => {
 
 router.get('/', async (req, res) => {
     try {
-        const openRequests = await BakHasTakenRequest.findAll({
-            where: { status: 'pending' },
-            include: [
-                { model: User, as: 'Requester', attributes: ['id', 'name'] },
-                { model: User, as: 'Target', attributes: ['id', 'name'] },
-                { model: User, as: 'FirstApprover', attributes: ['id', 'name'] },
-                { model: User, as: 'SecondApprover', attributes: ['id', 'name'] }
-            ],
-            order: [['createdAt', 'DESC']],
-        });
-
-        const closedRequests = await BakHasTakenRequest.findAll({
-            where: { status: ['declined', 'approved'] },
+        const allRequests = await BakHasTakenRequest.findAll({
             include: [
                 { model: User, as: 'Requester', attributes: ['id', 'name'] },
                 { model: User, as: 'Target', attributes: ['id', 'name'] },
@@ -85,12 +73,22 @@ router.get('/', async (req, res) => {
             order: [['createdAt', 'DESC']],
         });
 
-        res.render('bak-getrokken/index', { csrfToken: req.csrfToken(), user: req.user, openRequests, closedRequests });
+        // Separating the requests into open and closed based on their status
+        const openRequests = allRequests.filter(req => req.status === 'pending');
+        const closedRequests = allRequests.filter(req => ['declined', 'approved'].includes(req.status));
+
+        res.render('bak-getrokken/index', {
+            csrfToken: req.csrfToken(),
+            user: req.user,
+            openRequests,
+            closedRequests
+        });
     } catch (error) {
-        console.error('Error fetching open BAK validation requests:', error);
+        console.error('Error fetching BAK validation requests:', error);
         res.status(500).send('Error fetching data');
     }
 });
+
 
 
 
