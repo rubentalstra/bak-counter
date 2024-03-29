@@ -71,7 +71,7 @@ if (process.env.LOCAL_DB == 'true') {
 
 app.use(csrf());
 
-app.set('trust proxy', true);
+app.set('trust proxy', 1); // Trust first proxy
 app.use(passport.initialize());
 app.use(passport.session());
 

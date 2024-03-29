@@ -264,7 +264,7 @@ router.post('/:userId/remove-award', async (req, res) => {
         // Remove the trophy from the user
         await userTrophy.destroy();
 
-        console.log(userTrophy.Trophy.name)
+        // console.log(userTrophy.Trophy.name)
 
         // Logboeking voor de admin
         await logEvent({

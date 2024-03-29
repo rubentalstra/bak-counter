@@ -90,7 +90,6 @@ router.get('/validate', rateLimiter, async (req, res) => {
             include: [{ model: User, as: 'Requester', attributes: ['name'] }]
         });
 
-        console.log(bakRequests)
         res.render('bak-send-recieve/validate', { csrfToken: req.csrfToken(), user: req.user, bakRequests });
     } catch (error) {
         console.error(error);
