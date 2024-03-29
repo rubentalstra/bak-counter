@@ -1,12 +1,16 @@
 const express = require('express');
+
 const passport = require('passport');
+const rateLimiter = require('../middleware/rateLimiter');
+
 const router = express.Router();
 
+
 // Route to initiate Google OAuth
-router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/auth/google', rateLimiter, passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 // Callback route after Google OAuth
-router.get('/auth/google/callback',
+router.get('/auth/google/callback', rateLimiter,
     passport.authenticate('google', { failureRedirect: '/login' }),
     (req, res) => {
         res.redirect('/dashboard');

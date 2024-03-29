@@ -3,17 +3,17 @@ const multer = require('multer');
 const crypto = require('crypto');
 const path = require('path');
 
-const { S3Client, DeleteObjectCommand, PutObjectCommand } = require("@aws-sdk/client-s3");
-const multerS3 = require("multer-s3");
+const { DeleteObjectCommand, PutObjectCommand } = require("@aws-sdk/client-s3");
 
 const { User, EventLog, Trophy } = require('../models');
-const { Op } = require('sequelize');
 const { isAuthorized } = require('../utils/isAuthorized');
 const { getUserLevelDetails, getUserReputationDetails } = require('../utils/levelUtils');
 const config = require('../config/config');
 const { s3Client } = require('../config/s3Client');
 const router = express.Router();
 const sharp = require('sharp');
+const rateLimiter = require('../middleware/rateLimiter');
+
 
 
 
@@ -88,7 +88,7 @@ const deleteImage = async (filePath) => {
 
 
 
-router.get('/:userId', async (req, res) => {
+router.get('/:userId', rateLimiter, async (req, res) => {
     try {
         const errorMessage = req.query.errorMessage;
         const alertType = req.query.alertType || 'danger';

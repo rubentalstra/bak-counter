@@ -2,13 +2,12 @@ const express = require('express');
 
 const { User, BakRequest } = require('../models');
 const { Op } = require('sequelize');
-const { isAuthenticated } = require('../utils/isAuthenticated');
 const { logEvent } = require('../utils/eventLogger');
+const rateLimiter = require('../middleware/rateLimiter');
 const router = express.Router();
 
 
-
-router.get('/submit', async (req, res) => {
+router.get('/submit', rateLimiter, async (req, res) => {
     try {
         const errorMessage = req.query.errorMessage;
 
@@ -24,7 +23,8 @@ router.get('/submit', async (req, res) => {
 
         res.render('bak-send-recieve/submit', { csrfToken: req.csrfToken(), user: req.user, users, errorMessage: errorMessage ?? null });
     } catch (error) {
-        res.status(500).send(error.message);
+        console.error("Error Get BAK:", error);
+        res.status(500).send('Internal Server Error');
     }
 });
 
@@ -81,7 +81,7 @@ router.post('/submit', async (req, res) => {
 
 
 
-router.get('/validate', async (req, res) => {
+router.get('/validate', rateLimiter, async (req, res) => {
     const requesterId = req.user.id;
 
     try {

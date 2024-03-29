@@ -13,8 +13,11 @@ const { logEvent } = require('../utils/eventLogger');
 const { adminEmails } = require('../config/isAdmin');
 const { s3Client } = require('../config/s3Client');
 const config = require('../config/config');
+const rateLimiter = require('../middleware/rateLimiter');
 
 const router = express.Router();
+
+
 
 
 
@@ -60,7 +63,7 @@ const deleteImage = async (filePath) => {
 
 
 
-router.get('/', async (req, res) => {
+router.get('/', rateLimiter, async (req, res) => {
     try {
         const allRequests = await BakHasTakenRequest.findAll({
             include: [
@@ -243,7 +246,7 @@ router.get('/validate/decline/:id', async (req, res) => {
 
 
 // Route to show the page for creating a new BAK validation request
-router.get('/create', async (req, res) => {
+router.get('/create', rateLimiter, async (req, res) => {
     try {
         const errorMessage = req.query.errorMessage;
         // Fetch all users from the database to populate the select dropdown

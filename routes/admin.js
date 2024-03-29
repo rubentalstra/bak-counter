@@ -2,10 +2,13 @@ const express = require('express');
 const { Op } = require('sequelize');
 const { User, Trophy, UserTrophies } = require('../models');
 const { logEvent } = require('../utils/eventLogger');
+const rateLimiter = require('../middleware/rateLimiter');
+
 const router = express.Router();
 
+
 // Admin dashboard route
-router.get('/', async (req, res) => {
+router.get('/', rateLimiter, async (req, res) => {
     try {
         const errorMessage = req.query.errorMessage;
         const alertType = req.query.alertType || 'danger';
@@ -19,7 +22,7 @@ router.get('/', async (req, res) => {
 });
 
 // Route to render the "Bewerk of Toeken Award" page
-router.get('/:userId', async (req, res) => {
+router.get('/:userId', rateLimiter, async (req, res) => {
     try {
         const { userId } = req.params;
         const lid = await User.findByPk(userId);
@@ -36,7 +39,7 @@ router.get('/:userId', async (req, res) => {
 });
 
 // Route to display the BAK update form for a specific user
-router.get('/:userId/edit-bak', async (req, res) => {
+router.get('/:userId/edit-bak', rateLimiter, async (req, res) => {
     const errorMessage = req.query.errorMessage;
 
     const { userId } = req.params;
@@ -99,7 +102,7 @@ router.post('/:userId/edit-bak', async (req, res) => {
 
 
 // Route to render the page for assigning an award
-router.get('/:userId/assign-award', async (req, res) => {
+router.get('/:userId/assign-award', rateLimiter, async (req, res) => {
     try {
         const { userId } = req.params;
         const errorMessage = req.query.errorMessage;
@@ -197,7 +200,7 @@ router.post('/:userId/assign-award', async (req, res) => {
 
 
 // Route to render the page for removing an award
-router.get('/:userId/remove-award', async (req, res) => {
+router.get('/:userId/remove-award', rateLimiter, async (req, res) => {
     try {
         const { userId } = req.params;
         const errorMessage = req.query.errorMessage;
