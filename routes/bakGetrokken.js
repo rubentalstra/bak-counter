@@ -276,12 +276,12 @@ router.post('/create', multerUpload.single('evidence'), async (req, res) => {
 
         // Ensure that the requester and target are different users
         if (parseInt(requesterId) === parseInt(targetUserId)) {
-            res.status(500).json({ success: false, message: 'Aanvrager en Ontvanger kunnen niet dezelfde gebruiker zijn' });
+            return res.status(400).json({ success: false, message: 'Aanvrager en Ontvanger kunnen niet dezelfde gebruiker zijn.' });
         }
 
         if (!req.file) {
             // Handle the case where the file is not uploaded
-            res.status(500).json({ success: false, message: 'Bewijs is vereist' });
+            return res.status(400).json({ success: false, message: 'Bewijs is vereist' });
         }
 
         // Get the file path of the uploaded evidence
