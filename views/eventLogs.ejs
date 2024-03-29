@@ -47,7 +47,7 @@
                 <% } %>
                 <% let startPage = Math.max(currentPage - 2, 1); %>
                 <% let endPage = Math.min(startPage + 4, totalPages); %>
-                <% startPage = Math.max(Math.min(startPage, totalPages - 4), 1); %><!-- Adjust startPage if we're at the end -->
+                <% startPage = Math.max(Math.min(startPage, totalPages - 4), 1); %>
 
                 <% for(let i = startPage; i <= endPage; i++) { %>
                 <li class="page-item <%= i === currentPage ? 'active' : '' %>">
