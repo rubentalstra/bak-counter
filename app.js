@@ -22,6 +22,13 @@ const csrf = require('lusca').csrf;
 // Disable X-Powered-By header
 app.disable('x-powered-by');
 
+app.use((req, res, next) => {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    next();
+});
+
+
 
 const attachPendingRequestCount = require('./middleware/pendingRequests');
 const attachPendingBetsCount = require('./middleware/pendingBets');
