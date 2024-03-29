@@ -1,7 +1,19 @@
 /* main.css */
 
+body,
+html {
+    height: 100%;
+}
+
 body {
+    display: flex;
+    flex-direction: column;
     background-color: rgb(255, 253, 241);
+}
+
+main {
+    flex: 1 0 auto;
+    /* This line will push the footer down */
 }
 
 h1 {
@@ -55,6 +67,11 @@ h1 {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
 
+.footer {
+
+    flex-shrink: 0;
+    width: 100%;
+}
 
 .profile-icon {
     width: 40px;
