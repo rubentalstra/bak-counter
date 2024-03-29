@@ -70,7 +70,7 @@ if (process.env.LOCAL_DB == 'true') {
             secure: true,
             httpOnly: true,
             sameSite: 'lax',
-            domain: 'bak-counter-app-grn3x.ondigitalocean.app',
+            domain: 'bak.sv-realtime.nl',
             path: '/',
             maxAge: 24 * 60 * 60 * 1000 // 1 day
         }
