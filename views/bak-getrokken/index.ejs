@@ -22,120 +22,158 @@
         <!-- Nav tabs -->
         <ul class="nav nav-tabs" id="validationRequestTabs" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="active-requests-tab" data-bs-toggle="tab"
-                    data-bs-target="#active-requests" type="button" role="tab" aria-controls="active-requests"
-                    aria-selected="true">Actieve</button>
+                <a class="nav-link <%= activeTab === 'active' ? 'active' : '' %>"
+                    href="?activePage=<%= activePage %>&closedPage=<%= closedPage %>&tab=active">Actieve</a>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="closed-requests-tab" data-bs-toggle="tab" data-bs-target="#closed-requests"
-                    type="button" role="tab" aria-controls="closed-requests" aria-selected="false">Gesloten</button>
+                <a class="nav-link <%= activeTab === 'closed' ? 'active' : '' %>"
+                    href="?activePage=<%= activePage %>&closedPage=<%= closedPage %>&tab=closed">Gesloten</a>
             </li>
         </ul>
 
         <!-- Tab panes -->
         <div class="tab-content mt-3" id="validationRequestTabsContent">
-            <div class="tab-pane fade show active" id="active-requests" role="tabpanel"
-                aria-labelledby="active-requests-tab">
-                <% openRequests.forEach(request=> { %>
+            <div class="tab-pane fade <%= activeTab === 'active' ? 'show active' : '' %>" id="active-requests"
+                role="tabpanel" aria-labelledby="active-requests-tab">
+                <% activeRequests.forEach(request=> { %>
                 <div class="card-custom">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Requested by <a
-                                    href="/profile/<%= request.Requester.id %>"><%= request.Requester.name %></a> for <a
-                                    href="/profile/<%= request.Target.id %>"><%= request.Target.name %></a>
+                            <h5 class="card-title">Aangevraagd door <a
+                                    href="/profile/<%= request.Requester.id %>"><%= request.Requester.name %></a> voor
+                                <a href="/profile/<%= request.Target.id %>"><%= request.Target.name %></a>
                             </h5>
-                            <p class="card-text">Evidence: <a href="/uploads/prove/<%= request.evidenceUrl %>"
-                                    target="_blank">View</a></p>
-                            <p class="card-text">Status: <%= request.status %>
-                            </p>
-                            <p class="card-text">Approvers:
+                            <p class="card-text">Bewijs: <a href="/uploads/prove/<%= request.evidenceUrl %>"
+                                    target="_blank">Bekijken</a></p>
+                            <p class="card-text">Status: <%= request.status %></p>
+                            <p class="card-text">Goedkeurders:
                                 <% if (request.FirstApprover) { %>
-                                <span>First Approver: <a href="/profile/<%= request.FirstApprover.id %>">
+                                <span>Eerste Goedkeurder: <a href="/profile/<%= request.FirstApprover.id %>">
                                         <%= request.FirstApprover.name %>
                                     </a>,</span>
                                 <% } %>
                                 <% if (request.SecondApprover) { %>
-                                <span>Second Approver: <a href="/profile/<%= request.SecondApprover.id %>">
+                                <span>Tweede Goedkeurder: <a href="/profile/<%= request.SecondApprover.id %>">
                                         <%= request.SecondApprover.name %>
                                     </a></span>
                                 <% } %>
                                 <% if (!request.FirstApprover && !request.SecondApprover) { %>
-                                <span>No approvers yet.</span>
+                                <span>Nog geen goedkeurders.</span>
                                 <% } %>
                             </p>
                             <% if (user.id !== request.requesterId && user.id !== request.targetId) { %>
                             <% if (!request.FirstApprover) { %>
-                            <!-- No first approver yet, non-admins can approve if they are not the requester or the target -->
+                            <!-- Nog geen eerste goedkeurder, niet-admins kunnen goedkeuren als ze niet de aanvrager of het doelwit zijn -->
                             <button onclick="location.href='/bak-getrokken/validate/approve/<%= request.id %>'"
-                                class="btn btn-success">Approve</button>
+                                class="btn btn-success">Goedkeuren</button>
                             <% } else if (request.FirstApprover.isAdmin && !user.isAdmin) { %>
-                            <!-- First approver is an admin, current non-admin user can approve as the second approver -->
+                            <!-- Eerste goedkeurder is een admin, huidige niet-admin gebruiker kan goedkeuren als de tweede goedkeurder -->
                             <button onclick="location.href='/bak-getrokken/validate/approve/<%= request.id %>'"
-                                class="btn btn-success">Approve</button>
+                                class="btn btn-success">Goedkeuren</button>
                             <% } else if (!request.FirstApprover.isAdmin && user.isAdmin) { %>
-                            <!-- First approver is not an admin, only admin can approve as the second approver -->
+                            <!-- Eerste goedkeurder is geen admin, alleen admin kan goedkeuren als de tweede goedkeurder -->
                             <button onclick="location.href='/bak-getrokken/validate/approve/<%= request.id %>'"
-                                class="btn btn-success">Approve</button>
+                                class="btn btn-success">Goedkeuren</button>
                             <% } %>
                             <% if (user.isAdmin) { %>
-                            <!-- If the user is an admin, they can always approve, even if the first approver was an admin -->
+                            <!-- Als de gebruiker een admin is, kunnen ze altijd goedkeuren, zelfs als de eerste goedkeurder een admin was -->
                             <button onclick="location.href='/bak-getrokken/validate/approve/<%= request.id %>'"
-                                class="btn btn-success">Approve</button>
+                                class="btn btn-success">Goedkeuren</button>
                             <% } %>
                             <% } %>
 
                             <% if (user.isAdmin) { %>
-                            <!-- Decline button visible only to admins -->
+                            <!-- Afwijzen knop alleen zichtbaar voor admins -->
                             <button onclick="location.href='/bak-getrokken/validate/decline/<%= request.id %>'"
-                                class="btn btn-danger">Decline</button>
+                                class="btn btn-danger">Afwijzen</button>
                             <% } %>
                         </div>
                     </div>
                 </div>
                 <% }) %>
+                <!-- Pagination for Active Requests -->
+                <nav aria-label="Active Requests Page navigation" class="mt-4">
+                    <ul class="pagination">
+                        <% if(activePage > 1) { %>
+                        <li class="page-item">
+                            <a class="page-link"
+                                href="/bak-getrokken?activePage=<%= activePage - 1 %>&closedPage=<%= closedPage %>&tab=active"
+                                aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <% } %>
+
+                        <% let startPageActive = Math.max(activePage - 2, 1); %>
+                        <% let endPageActive = Math.min(startPageActive + 4, totalPagesActive); %>
+                        <% startPageActive = Math.max(Math.min(startPageActive, totalPagesActive - 4), 1); %>
+
+                        <% for(let i = startPageActive; i <= endPageActive; i++) { %>
+                        <li class="page-item <%= i === activePage ? 'active' : '' %>">
+                            <a class="page-link"
+                                href="/bak-getrokken?activePage=<%= i %>&closedPage=<%= closedPage %>&tab=active">
+                                <%= i %>
+                            </a>
+                        </li>
+                        <% } %>
+
+                        <% if(activePage < totalPagesActive) { %>
+                        <li class="page-item">
+                            <a class="page-link"
+                                href="/bak-getrokken?activePage=<%= activePage + 1 %>&closedPage=<%= closedPage %>&tab=active"
+                                aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        <% } %>
+                    </ul>
+                </nav>
+
+
             </div>
-            <div class="tab-pane fade" id="closed-requests" role="tabpanel" aria-labelledby="closed-requests-tab">
+            <div class="tab-pane fade <%= activeTab === 'closed' ? 'show active' : '' %>" id="closed-requests"
+                role="tabpanel" aria-labelledby="closed-requests-tab">
 
                 <% closedRequests.forEach(request=> { %>
                 <div class="card-custom ">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Requested by <a href="/profile/<%= request.Requester.id %>">
+                            <h5 class="card-title">Aangevraagd door <a href="/profile/<%= request.Requester.id %>">
                                     <%= request.Requester.name %>
-                                </a> for <a href="/profile/<%= request.Target.id %>">
+                                </a> voor <a href="/profile/<%= request.Target.id %>">
                                     <%= request.Target.name %>
                                 </a></h5>
                             <p class="card-text">Status: <%= request.status %>
                             </p>
                             <% if (request.status==='declined' ) { %>
-                            <p class="card-text">Declined: <a href="/profile/<%= request.DeclinedBy.id %>">
+                            <p class="card-text">Afgewezen: <a href="/profile/<%= request.DeclinedBy.id %>">
                                     <%= request.DeclinedBy.name %>
                                 </a></p>
                             <% } else { %>
                             <div class="card-text">
-                                <h6 class="fw-bold">Approvers:</h6>
+                                <h6 class="fw-bold">Goedkeurders:</h6>
                                 <ul class="list-unstyled">
                                     <% if (request.FirstApprover) { %>
-                                    <li><span>First Approver: <a
+                                    <li><span>Eerste Goedkeurder: <a
                                                 href="/profile/<%= request.FirstApprover.id %>"><%= request.FirstApprover.name %></a></span>
                                     </li>
                                     <% } %>
                                     <% if (request.SecondApprover) { %>
                                     <li>
-                                        <span>Second Approver: <a
+                                        <span>Tweede Goedkeurder: <a
                                                 href="/profile/<%= request.SecondApprover.id %>"><%= request.SecondApprover.name %></a>
                                         </span>
                                     </li>
                                     <% } %>
                                     <% if (!request.FirstApprover && !request.SecondApprover) { %>
                                     <li>
-                                        <span>No approvers yet.</span>
+                                        <span>Nog geen goedkeurders.</span>
                                     </li>
                                     <% } %>
                                 </ul>
                             </div>
                             <% } %>
-                            <p class="card-text">Created at:
+                            <p class="card-text">Aangemaakt op:
                                 <%= new Date(request.createdAt).toLocaleString('nl-NL', { timeZone: 'Europe/Amsterdam' }); %>
                             </p>
                         </div>
@@ -143,6 +181,43 @@
                 </div>
                 <% }) %>
 
+                <!-- Pagination for Closed Requests -->
+                <nav aria-label="Closed Requests Page navigation" class="mt-4">
+                    <ul class="pagination">
+                        <% if(closedPage > 1) { %>
+                        <li class="page-item">
+                            <a class="page-link"
+                                href="/bak-getrokken?activePage=<%= activePage %>&closedPage=<%= closedPage - 1 %>&tab=closed"
+                                aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <% } %>
+
+                        <% let startPageClosed = Math.max(closedPage - 2, 1); %>
+                        <% let endPageClosed = Math.min(startPageClosed + 4, totalPagesClosed); %>
+                        <% startPageClosed = Math.max(Math.min(startPageClosed, totalPagesClosed - 4), 1); %>
+
+                        <% for(let i = startPageClosed; i <= endPageClosed; i++) { %>
+                        <li class="page-item <%= i === closedPage ? 'active' : '' %>">
+                            <a class="page-link"
+                                href="/bak-getrokken?activePage=<%= activePage %>&closedPage=<%= i %>&tab=closed">
+                                <%= i %>
+                            </a>
+                        </li>
+                        <% } %>
+
+                        <% if(closedPage < totalPagesClosed) { %>
+                        <li class="page-item">
+                            <a class="page-link"
+                                href="/bak-getrokken?activePage=<%= activePage %>&closedPage=<%= closedPage + 1 %>&tab=closed"
+                                aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        <% } %>
+                    </ul>
+                </nav>
 
 
             </div>
@@ -151,6 +226,24 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let hash = window.location.hash;
+            if (hash) {
+                let tab = new bootstrap.Tab(document.querySelector('button[data-bs-target="' + hash + '"]'));
+                tab.show();
+            }
+        });
+
+        // Update hash in URL when tab changes
+        document.querySelectorAll('.nav-link').forEach(tab => {
+            tab.addEventListener('click', function () {
+                window.location.hash = this.getAttribute('data-bs-target');
+            });
+        });
+    </script>
+
 </body>
 
 </html>

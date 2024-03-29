@@ -64,7 +64,12 @@ const deleteImage = async (filePath) => {
 
 
 router.get('/', rateLimiter, async (req, res) => {
+    const pageSize = 5; // Or any other number
+    const activePage = parseInt(req.query.activePage) || 1;
+    const closedPage = parseInt(req.query.closedPage) || 1;
+    const activeTab = req.query.tab || 'active'; // Default to showing active requests
     try {
+
         const allRequests = await BakHasTakenRequest.findAll({
             include: [
                 { model: User, as: 'Requester', attributes: ['id', 'name'] },
@@ -76,15 +81,24 @@ router.get('/', rateLimiter, async (req, res) => {
             order: [['createdAt', 'DESC']],
         });
 
-        // Separating the requests into open and closed based on their status
+        // Filter requests based on status
         const openRequests = allRequests.filter(req => req.status === 'pending');
         const closedRequests = allRequests.filter(req => ['declined', 'approved'].includes(req.status));
+
+        // Calculate pagination for each
+        const paginatedOpenRequests = openRequests.slice((activePage - 1) * pageSize, activePage * pageSize);
+        const paginatedClosedRequests = closedRequests.slice((closedPage - 1) * pageSize, closedPage * pageSize);
 
         res.render('bak-getrokken/index', {
             csrfToken: req.csrfToken(),
             user: req.user,
-            openRequests,
-            closedRequests
+            activeRequests: paginatedOpenRequests,
+            closedRequests: paginatedClosedRequests,
+            activePage,
+            closedPage,
+            totalPagesActive: Math.ceil(openRequests.length / pageSize),
+            totalPagesClosed: Math.ceil(closedRequests.length / pageSize),
+            activeTab,
         });
     } catch (error) {
         console.error('Error fetching BAK validation requests:', error);
