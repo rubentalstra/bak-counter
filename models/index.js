@@ -118,6 +118,8 @@ UserTrophies.belongsTo(Trophy, { foreignKey: 'trophyId', as: 'Trophy' });
 // Synchronize the models with the database
 sequelize.sync({ force: false }).then(() => {
     console.log('Database & tables created!');
+}).catch((error) => {
+    console.error('Error synchronizing the database:', error);
 });
 
 module.exports = {

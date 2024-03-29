@@ -1,14 +1,16 @@
 const express = require('express');
-
+const RateLimit = require('express-rate-limit');
 const { BakRequest, User, BakHasTakenRequest, EventLog } = require('../models');
 const { getUserReputationDetails, getUserLevelDetails } = require('../utils/levelUtils');
-
 const router = express.Router();
 
+const limiter = RateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 250, // max 100 requests per windowMs
+});
 
 
-
-router.get('/dashboard', async (req, res) => {
+router.get('/dashboard', limiter, async (req, res) => {
     try {
         const users = await User.findAll({
             attributes: ['id', 'name', 'bak', 'xp', 'profilePicture'],

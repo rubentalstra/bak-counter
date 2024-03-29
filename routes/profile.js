@@ -1,13 +1,12 @@
 const express = require('express');
+const RateLimit = require('express-rate-limit');
 const multer = require('multer');
 const crypto = require('crypto');
 const path = require('path');
 
-const { S3Client, DeleteObjectCommand, PutObjectCommand } = require("@aws-sdk/client-s3");
-const multerS3 = require("multer-s3");
+const { DeleteObjectCommand, PutObjectCommand } = require("@aws-sdk/client-s3");
 
 const { User, EventLog, Trophy } = require('../models');
-const { Op } = require('sequelize');
 const { isAuthorized } = require('../utils/isAuthorized');
 const { getUserLevelDetails, getUserReputationDetails } = require('../utils/levelUtils');
 const config = require('../config/config');
@@ -16,6 +15,11 @@ const router = express.Router();
 const sharp = require('sharp');
 
 
+
+const limiter = RateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 250, // max 100 requests per windowMs
+});
 
 
 const multerUpload = multer({
@@ -88,7 +92,7 @@ const deleteImage = async (filePath) => {
 
 
 
-router.get('/:userId', async (req, res) => {
+router.get('/:userId', limiter, async (req, res) => {
     try {
         const errorMessage = req.query.errorMessage;
         const alertType = req.query.alertType || 'danger';

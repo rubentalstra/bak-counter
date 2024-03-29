@@ -1,5 +1,6 @@
 
 const express = require('express');
+const RateLimit = require('express-rate-limit');
 const multer = require('multer');
 const crypto = require('crypto');
 const path = require('path');
@@ -16,6 +17,11 @@ const config = require('../config/config');
 
 const router = express.Router();
 
+
+const limiter = RateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 250, // max 100 requests per windowMs
+});
 
 
 const multerUpload = multer({
@@ -60,7 +66,7 @@ const deleteImage = async (filePath) => {
 
 
 
-router.get('/', async (req, res) => {
+router.get('/', limiter, async (req, res) => {
     try {
         const allRequests = await BakHasTakenRequest.findAll({
             include: [
@@ -243,7 +249,7 @@ router.get('/validate/decline/:id', async (req, res) => {
 
 
 // Route to show the page for creating a new BAK validation request
-router.get('/create', async (req, res) => {
+router.get('/create', limiter, async (req, res) => {
     try {
         const errorMessage = req.query.errorMessage;
         // Fetch all users from the database to populate the select dropdown
