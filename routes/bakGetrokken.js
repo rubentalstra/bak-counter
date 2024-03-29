@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const path = require('path');
 
 const { DeleteObjectCommand } = require("@aws-sdk/client-s3");
+const ApplicationError = require('../utils/ApplicationError');
 const multerS3 = require("multer-s3");
 
 const { User, BakHasTakenRequest } = require('../models');
@@ -63,7 +64,7 @@ const deleteImage = async (filePath) => {
 
 
 
-router.get('/', rateLimiter, async (req, res) => {
+router.get('/', rateLimiter, async (req, res, next) => {
     const pageSize = 5; // Or any other number
     const activePage = parseInt(req.query.activePage) || 1;
     const closedPage = parseInt(req.query.closedPage) || 1;
@@ -102,7 +103,7 @@ router.get('/', rateLimiter, async (req, res) => {
         });
     } catch (error) {
         console.error('Error fetching BAK validation requests:', error);
-        res.status(500).send('Error fetching data');
+        next(new ApplicationError('Error fetching data', 500));
     }
 });
 
@@ -110,7 +111,7 @@ router.get('/', rateLimiter, async (req, res) => {
 
 
 
-router.get('/validate/approve/:id', async (req, res) => {
+router.get('/validate/approve/:id', async (req, res, next) => {
     const requestId = req.params.id;
     const userId = req.user.id;
     const userIsAdmin = adminEmails.includes(req.user.email);
@@ -124,12 +125,12 @@ router.get('/validate/approve/:id', async (req, res) => {
         });
 
         if (!request) {
-            return res.status(404).send('Request not found');
+            throw new ApplicationError('Request not found', 404);
         }
 
         if (userId === request.requesterId || userId === request.targetId) {
             // Prevent requester or target from approving
-            return res.status(403).send('Requester or target cannot approve the request.');
+            throw new ApplicationError('Requester or target cannot approve the request.', 403);
         }
 
         const augmentUserWithAdminFlag = (user) => ({
@@ -196,25 +197,25 @@ router.get('/validate/approve/:id', async (req, res) => {
                     }
                 }
             } else {
-                return res.status(403).send('An admin must approve this request.');
+                throw new ApplicationError('An admin must approve this request.', 403);
             }
         } else {
-            return res.status(403).send('Request already approved or cannot be approved by this user.');
+            throw new ApplicationError('Request already approved or cannot be approved by this user.', 403);
         }
 
         res.redirect('/bak-getrokken');
     } catch (error) {
         console.error('Error approving BAK validation request:', error);
-        res.status(500).send('Error processing request');
+        next(error);
     }
 });
 
 
 
-router.get('/validate/decline/:id', async (req, res) => {
+router.get('/validate/decline/:id', async (req, res, next) => {
     try {
         if (!req.user.isAdmin) {
-            return res.status(403).send('Only admins can decline requests.');
+            throw new ApplicationError('Only admins can decline requests.', 403);
         }
 
         const request = await BakHasTakenRequest.findByPk(req.params.id, {
@@ -225,7 +226,7 @@ router.get('/validate/decline/:id', async (req, res) => {
         });
 
         if (!request) {
-            return res.status(404).send('Request not found.');
+            throw new ApplicationError('Request not found', 404);
         }
 
         if (request.evidenceUrl) {
@@ -254,7 +255,7 @@ router.get('/validate/decline/:id', async (req, res) => {
         res.redirect('/bak-getrokken');
     } catch (error) {
         console.error('Error declining BAK validation request:', error);
-        res.status(500).send('An unexpected error occurred.');
+        next(error);
     }
 });
 
@@ -264,7 +265,7 @@ router.get('/validate/decline/:id', async (req, res) => {
 
 
 // Route to show the page for creating a new BAK validation request
-router.get('/create', rateLimiter, async (req, res) => {
+router.get('/create', rateLimiter, async (req, res, next) => {
     try {
         const errorMessage = req.query.errorMessage;
         // Fetch all users from the database to populate the select dropdown
@@ -277,7 +278,7 @@ router.get('/create', rateLimiter, async (req, res) => {
         res.render('bak-getrokken/create', { csrfToken: req.csrfToken(), user: req.user, users, errorMessage: errorMessage ?? null });
     } catch (error) {
         console.error('Error fetching users for BAK validation request:', error);
-        res.status(500).send('Error fetching data');
+        next(new ApplicationError('Error fetching users for BAK validation request', 500));
     }
 });
 
@@ -320,7 +321,6 @@ router.post('/create', multerUpload.single('evidence'), async (req, res) => {
         res.status(500).json({ success: false, message: 'Fout bij het maken van een Getrokken BAK request.' });
     }
 });
-
 
 
 

@@ -35,6 +35,7 @@ const attachPendingBetsCount = require('./middleware/pendingBets');
 const setAdminStatus = require('./middleware/setAdminStatus');
 const { isAdmin } = require('./utils/isAdmin');
 const { isAuthenticated } = require('./utils/isAuthenticated');
+const ApplicationError = require('./utils/ApplicationError');
 
 
 
@@ -104,11 +105,19 @@ app.use('/bak', isAuthenticated, require('./routes/bak'));
 app.use('/bak-getrokken', isAuthenticated, require('./routes/bakGetrokken'));
 app.use('/admin', isAuthenticated, isAdmin, require('./routes/admin'));
 
-
-
-app.use(function (req, res, next) {
-    res.status(404).render('error/404');
+app.use((req, res, next) => {
+    const err = new ApplicationError('Page Not Found', 404);
+    next(err);
 });
+
+// Global error handler
+app.use((error, req, res, next) => {
+    const status = error instanceof ApplicationError ? error.status : 500;
+    const message = error instanceof ApplicationError ? error.message : 'Internal Server Error';
+    console.error(error);
+    return res.status(status).render('error/error', { errorCode: status, errorMessage: message });
+});
+
 
 myStore.sync();
 

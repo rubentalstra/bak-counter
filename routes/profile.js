@@ -6,6 +6,8 @@ const path = require('path');
 const { DeleteObjectCommand, PutObjectCommand } = require("@aws-sdk/client-s3");
 
 const { User, EventLog, Trophy } = require('../models');
+const ApplicationError = require('../utils/ApplicationError');
+
 const { isAuthorized } = require('../utils/isAuthorized');
 const { getUserLevelDetails, getUserReputationDetails } = require('../utils/levelUtils');
 const config = require('../config/config');
@@ -88,7 +90,7 @@ const deleteImage = async (filePath) => {
 
 
 
-router.get('/:userId', rateLimiter, async (req, res) => {
+router.get('/:userId', rateLimiter, async (req, res, next) => {
     try {
         const errorMessage = req.query.errorMessage;
         const alertType = req.query.alertType || 'danger';
@@ -105,10 +107,14 @@ router.get('/:userId', rateLimiter, async (req, res) => {
             order: [[{ model: EventLog, as: 'eventLogs' }, 'createdAt', 'DESC']]
         });
 
+        if (!profile) {
+            throw new ApplicationError('User not found', 404);
+        }
+
         const levelDetails = getUserLevelDetails(profile.xp);
         const reputationDetails = getUserReputationDetails(profile.rep);
 
-        res.render('profile/index', {
+        return res.render('profile/index', {
             csrfToken: req.csrfToken(),
             user: req.user,
             profile,
@@ -123,7 +129,7 @@ router.get('/:userId', rateLimiter, async (req, res) => {
         });
     } catch (error) {
         console.error('Error fetching user profile:', error);
-        res.status(500).send('Error fetching user profile');
+        next(error);
     }
 });
 
@@ -157,7 +163,7 @@ router.post('/updatePicture', isAuthorized, multerUpload.single('profilePicture'
 });
 
 
-router.post('/deletePicture', isAuthorized, async (req, res) => {
+router.post('/deletePicture', isAuthorized, async (req, res, next) => {
     const userId = req.user.id;
 
     try {
@@ -177,22 +183,23 @@ router.post('/deletePicture', isAuthorized, async (req, res) => {
         }
     } catch (error) {
         console.error('Error deleting profile picture:', error);
-        res.status(500).send('Error updating profile.');
+        next(new ApplicationError('Error deleting profile picture.', 500));
     }
 });
 
 
 // Route for updating profile description
-router.post('/updateDescription', isAuthorized, async (req, res) => {
+router.post('/updateDescription', isAuthorized, async (req, res, next) => {
     const { profileDescription } = req.body;
     const userId = req.user.id; // Adjust based on your session management
 
     try {
         await User.update({ profileDescription }, { where: { id: userId } });
         res.redirect(`/profile/${req.user.id}`);
+
     } catch (error) {
         console.error('Error updating profile description:', error);
-        res.status(500).send('Error updating profile.');
+        next(new ApplicationError('Error updating profile description.', 500));
     }
 });
 
