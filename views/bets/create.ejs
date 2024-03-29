@@ -21,7 +21,7 @@
 
             <div class="mb-3">
                 <label for="opponentUserId" class="form-label">Opponent:</label>
-                <select id="opponentUserId" name="opponentUserId" class="form-select">
+                <select id="opponentUserId" name="opponentUserId" class="form-select" required>
                     <option value="" selected disabled>Select Opponent</option>
                     <% users.forEach(user=> { %>
                     <option value="<%= user.id %>">
@@ -33,7 +33,7 @@
 
             <div class="mb-3">
                 <label for="judgeUserId" class="form-label">Judge:</label>
-                <select id="judgeUserId" name="judgeUserId" class="form-select">
+                <select id="judgeUserId" name="judgeUserId" class="form-select" required>
                     <option value="" selected disabled>Select Judge</option>
                     <% users.forEach(user=> { %>
                     <option value="<%= user.id %>">
