@@ -1,5 +1,4 @@
 const express = require('express');
-const RateLimit = require('express-rate-limit');
 const multer = require('multer');
 const crypto = require('crypto');
 const path = require('path');
@@ -13,13 +12,10 @@ const config = require('../config/config');
 const { s3Client } = require('../config/s3Client');
 const router = express.Router();
 const sharp = require('sharp');
+const rateLimiter = require('../middleware/rateLimiter');
 
 
 
-const limiter = RateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 250, // max 100 requests per windowMs
-});
 
 
 const multerUpload = multer({
@@ -92,7 +88,7 @@ const deleteImage = async (filePath) => {
 
 
 
-router.get('/:userId', limiter, async (req, res) => {
+router.get('/:userId', rateLimiter, async (req, res) => {
     try {
         const errorMessage = req.query.errorMessage;
         const alertType = req.query.alertType || 'danger';

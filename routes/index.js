@@ -12,7 +12,7 @@ router.get('/', limiter, (req, res) => {
     res.render('index', { user: req.user });
 });
 
-// Login page route (assuming you have a separate login page or strategy)
+// Login page route
 router.get('/login', limiter, (req, res) => {
     res.render('login');
 });

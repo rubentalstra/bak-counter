@@ -1,16 +1,13 @@
 const express = require('express');
-const RateLimit = require('express-rate-limit');
+
 const { User, BakRequest } = require('../models');
 const { Op } = require('sequelize');
 const { logEvent } = require('../utils/eventLogger');
+const rateLimiter = require('../middleware/rateLimiter');
 const router = express.Router();
 
-const limiter = RateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 250, // max 100 requests per windowMs
-});
 
-router.get('/submit', limiter, async (req, res) => {
+router.get('/submit', rateLimiter, async (req, res) => {
     try {
         const errorMessage = req.query.errorMessage;
 
@@ -84,7 +81,7 @@ router.post('/submit', async (req, res) => {
 
 
 
-router.get('/validate', limiter, async (req, res) => {
+router.get('/validate', rateLimiter, async (req, res) => {
     const requesterId = req.user.id;
 
     try {

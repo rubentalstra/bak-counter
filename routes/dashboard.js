@@ -1,69 +1,36 @@
 const express = require('express');
-const RateLimit = require('express-rate-limit');
 const { BakRequest, User, BakHasTakenRequest, EventLog } = require('../models');
 const { getUserReputationDetails, getUserLevelDetails } = require('../utils/levelUtils');
+const rateLimiter = require('../middleware/rateLimiter');
 const router = express.Router();
 
-const limiter = RateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 250, // max 100 requests per windowMs
-});
 
 
-router.get('/dashboard', limiter, async (req, res) => {
+router.get('/dashboard', rateLimiter, async (req, res) => {
     try {
-        const users = await User.findAll({
-            attributes: ['id', 'name', 'bak', 'xp', 'profilePicture'],
-            include: [
-                {
-                    model: BakRequest,
-                    as: 'BakRequests',
-                    where: { status: 'pending' },
-                    required: false
-                },
-                {
-                    model: BakHasTakenRequest,
-                    as: 'ReceivedProposals',
-                    where: { status: 'pending' },
-                    required: false
-                }
-            ]
-        });
-
-
-        const [topUsersByXp, topUsersByRep] = await Promise.all([
+        const [users, topUsersByXp, topUsersByRep] = await Promise.all([
             User.findAll({
-                attributes: ['id', 'name', 'profilePicture', 'xp'],
-                order: [['xp', 'DESC']],
-                limit: 5
+                attributes: ['id', 'name', 'bak', 'xp', 'profilePicture'],
+                include: [
+                    {
+                        model: BakRequest,
+                        as: 'BakRequests',
+                        where: { status: 'pending' },
+                        required: false
+                    },
+                    {
+                        model: BakHasTakenRequest,
+                        as: 'ReceivedProposals',
+                        where: { status: 'pending' },
+                        required: false
+                    }
+                ]
             }),
-            User.findAll({
-                attributes: ['id', 'name', 'profilePicture', 'rep'],
-                order: [['rep', 'DESC']],
-                limit: 5
-            })
+            fetchTopUsers('xp'),
+            fetchTopUsers('rep'),
         ]);
 
-
-        topUsersByXp.forEach(user => {
-            const levelDetails = getUserLevelDetails(user.xp);
-            user.level = levelDetails.level;
-            user.xpPercentage = levelDetails.xpPercentage;
-        });
-
-        topUsersByRep.forEach(user => {
-            const reputationDetails = getUserReputationDetails(user.rep);
-            user.reputation = reputationDetails.reputation;
-            user.repPercentage = reputationDetails.repPercentage;
-        });
-
-
-        // Render the dashboard view with the fetched data
-        res.render('dashboard', {
-            user: req.user, users,
-            topUsersByXp,
-            topUsersByRep
-        });
+        res.render('dashboard', { user: req.user, users, topUsersByXp, topUsersByRep });
     } catch (error) {
         console.error(error);
         res.status(500).send('Internal Server Error');
@@ -71,39 +38,38 @@ router.get('/dashboard', limiter, async (req, res) => {
 });
 
 
-
-
 router.get('/eventLogs', async (req, res) => {
-    const page = parseInt(req.query.page, 10) || 1; // Default to first page
-    const limit = parseInt(req.query.limit, 10) || 10; // Default to 10 logs per page
-    const offset = (page - 1) * limit;
-
     try {
-        const { count, rows } = await EventLog.findAndCountAll({
-            include: [{
-                model: User,
-                as: 'User',
-                attributes: ['id', 'name']
-            }],
+        const page = parseInt(req.query.page, 10) || 1;
+        const limit = parseInt(req.query.limit, 10) || 10;
+        const offset = (page - 1) * limit;
+        const { count, rows: eventLogs } = await EventLog.findAndCountAll({
+            include: [{ model: User, as: 'User', attributes: ['id', 'name'] }],
             order: [['createdAt', 'DESC']],
             limit,
             offset
         });
-        const totalPages = Math.ceil(count / limit);
 
-        res.render('eventLogs', {
-            user: req.user,
-            eventLogs: rows,
-            currentPage: page,
-            totalPages: totalPages
-        });
+        res.render('eventLogs', { user: req.user, eventLogs, currentPage: page, totalPages: Math.ceil(count / limit) });
     } catch (error) {
-        console.error('Error fetching event logs:', error);
-        res.status(500).send('Error fetching event logs');
+        console.error(error);
+        res.status(500).send('Internal Server Error');
     }
 });
 
 
+async function fetchTopUsers(attribute) {
+    const users = await User.findAll({
+        attributes: ['id', 'name', 'profilePicture', attribute],
+        order: [[attribute, 'DESC']],
+        limit: 5
+    });
+
+    return users.map(user => ({
+        ...user.get({ plain: true }),
+        ...attribute === 'xp' ? getUserLevelDetails(user.xp) : getUserReputationDetails(user.rep),
+    }));
+}
 
 
 

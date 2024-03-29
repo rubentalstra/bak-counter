@@ -1,21 +1,15 @@
 const express = require('express');
-const RateLimit = require('express-rate-limit');
 
 const router = express.Router();
 const { Op } = require('sequelize');
 const { Bet, User } = require('../models'); // Adjust the path as necessary
 const { logEvent } = require('../utils/eventLogger');
+const rateLimiter = require('../middleware/rateLimiter');
 
-
-
-const limiter = RateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 250, // max 100 requests per windowMs
-});
 
 
 // Route to view all bets
-router.get('/', limiter, async (req, res) => {
+router.get('/', rateLimiter, async (req, res) => {
     const bets = await Bet.findAll({
         include: ['Initiator', 'Opponent', 'Judge'],
         order: [['createdAt', 'DESC']],
@@ -74,7 +68,7 @@ router.post('/decline/:betId', async (req, res) => {
 
 
 // Route to display form to create a new bet
-router.get('/create', limiter, async (req, res) => {
+router.get('/create', rateLimiter, async (req, res) => {
     try {
         const errorMessage = req.query.errorMessage;
 
