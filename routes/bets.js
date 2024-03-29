@@ -4,54 +4,63 @@ const { Op } = require('sequelize');
 const { Bet, User } = require('../models'); // Adjust the path as necessary
 const { logEvent } = require('../utils/eventLogger');
 const rateLimiter = require('../middleware/rateLimiter');
+const ApplicationError = require('../utils/ApplicationError');
+
 
 const router = express.Router();
 
 
 // Route to view all bets
-router.get('/', rateLimiter, async (req, res) => {
-    const bets = await Bet.findAll({
-        include: ['Initiator', 'Opponent', 'Judge'],
-        order: [['createdAt', 'DESC']],
-    });
-    res.render('bets/view', { csrfToken: req.csrfToken(), user: req.user, bets });
+router.get('/', rateLimiter, async (req, res, next) => {
+    try {
+        const bets = await Bet.findAll({
+            include: ['Initiator', 'Opponent', 'Judge'],
+            order: [['createdAt', 'DESC']],
+        });
+
+        res.render('bets/view', { csrfToken: req.csrfToken(), user: req.user, bets });
+    } catch (error) {
+        console.error('Error fetching bets:', error);
+        next(new ApplicationError('Error fetching bets', 500));
+    }
 });
 
 
-router.post('/approve/:betId', async (req, res) => {
+router.post('/approve/:betId', async (req, res, next) => {
     const { betId } = req.params;
 
     try {
         const bet = await Bet.findOne({ where: { betId } });
 
         if (!bet) {
-            return res.status(404).send('Bet not found');
+            throw new ApplicationError('Bet not found', 404);
         }
 
         if (parseInt(req.user.id) !== parseInt(bet.opponentUserId)) {
-            return res.status(403).send('You are not authorized to approve this bet');
+            throw new ApplicationError('You are not authorized to approve this bet', 403);
         }
 
         await bet.update({ opponentApproval: true });
         res.redirect('/bets');
     } catch (error) {
         console.error("Error approving the bet:", error);
-        res.status(500).send("An error occurred while processing your request.");
+        next(error);
     }
+
 });
 
-router.post('/decline/:betId', async (req, res) => {
+router.post('/decline/:betId', async (req, res, next) => {
     const { betId } = req.params;
 
     try {
         const bet = await Bet.findOne({ where: { betId } });
 
         if (!bet) {
-            return res.status(404).send('Bet not found');
+            throw new ApplicationError('Bet not found', 404);
         }
 
         if (parseInt(req.user.id) !== parseInt(bet.opponentUserId)) {
-            return res.status(403).send('You are not authorized to decline this bet');
+            throw new ApplicationError('You are not authorized to decline this bet', 403);
         }
 
         // Update the bet status to 'declined'
@@ -61,14 +70,14 @@ router.post('/decline/:betId', async (req, res) => {
         res.redirect('/bets');
     } catch (error) {
         console.error("Error declining the bet:", error);
-        res.status(500).send("An error occurred while processing your request.");
+        next(error); // Pass the ApplicationError or any other error to the global error handler
     }
 });
 
 
 
 // Route to display form to create a new bet
-router.get('/create', rateLimiter, async (req, res) => {
+router.get('/create', rateLimiter, async (req, res, next) => {
     try {
         const errorMessage = req.query.errorMessage;
 
@@ -85,13 +94,12 @@ router.get('/create', rateLimiter, async (req, res) => {
         res.render('bets/create', { csrfToken: req.csrfToken(), user: req.user, users, errorMessage: errorMessage ?? null });
     } catch (error) {
         console.error('Error fetching users for Create new Bet request:', error);
-        res.status(500).send('Error fetching data');
+        next(new ApplicationError('Error fetching data for creating a new bet', 500));
     }
-
 });
 
 // Route to post a new bet
-router.post('/create', async (req, res) => {
+router.post('/create', async (req, res, next) => {
     const { opponentUserId, judgeUserId, betTitle, betDescription, stake } = req.body;
 
     const loggedInUserId = parseInt(req.user.id, 10); // Zet naar integer
@@ -147,9 +155,8 @@ router.post('/create', async (req, res) => {
 
         res.redirect('/bets');
     } catch (error) {
-        // Vang eventuele fouten op die optreden tijdens het aanmaken van de weddenschap en stuur een foutbericht terug
         console.error("Fout bij het aanmaken van de weddenschap:", error);
-        res.status(500).send("Er is een fout opgetreden bij het verwerken van uw verzoek.");
+        next(new ApplicationError('Er is een fout opgetreden bij het verwerken van uw verzoek.', 500));
     }
 });
 
@@ -158,23 +165,23 @@ router.post('/create', async (req, res) => {
 
 
 // Route for the judge to declare a winner
-router.post('/judge/:betId', async (req, res) => {
+router.post('/judge/:betId', async (req, res, next) => {
     const { betId } = req.params;
     const { winnerUserId } = req.body;
 
     try {
         const bet = await Bet.findOne({ where: { betId }, include: ['Initiator', 'Opponent', 'Judge'] });
         if (!bet) {
-            return res.status(404).send('Bet not found');
+            throw new ApplicationError('Bet not found', 404);
         }
 
         if (parseInt(req.user.id) !== parseInt(bet.judgeUserId)) {
-            return res.status(403).send('You are not authorized to judge this bet');
+            throw new ApplicationError('You are not authorized to judge this bet', 403);
         }
 
         // Check if the opponent has approved the bet
         if (!bet.opponentApproval) {
-            return res.status(403).send('The opponent has not approved this bet yet.');
+            throw new ApplicationError('The opponent has not approved this bet yet.', 403);
         }
 
 
@@ -213,7 +220,7 @@ router.post('/judge/:betId', async (req, res) => {
         res.redirect('/bets');
     } catch (error) {
         console.error('Error updating the bet:', error);
-        res.status(500).send('Internal Server Error');
+        next(error);
     }
 });
 

@@ -1,12 +1,13 @@
 const express = require('express');
 const { BakRequest, User, BakHasTakenRequest, EventLog } = require('../models');
 const { getUserReputationDetails, getUserLevelDetails } = require('../utils/levelUtils');
+const ApplicationError = require('../utils/ApplicationError');
 const rateLimiter = require('../middleware/rateLimiter');
 const router = express.Router();
 
 
 
-router.get('/dashboard', rateLimiter, async (req, res) => {
+router.get('/dashboard', rateLimiter, async (req, res, next) => {
     try {
         const [users, topUsersByXp, topUsersByRep] = await Promise.all([
             User.findAll({
@@ -33,12 +34,12 @@ router.get('/dashboard', rateLimiter, async (req, res) => {
         res.render('dashboard', { user: req.user, users, topUsersByXp, topUsersByRep });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Internal Server Error');
+        next(new ApplicationError('Failed to load dashboard. Please try again later.', 500));
     }
 });
 
 
-router.get('/eventLogs', async (req, res) => {
+router.get('/eventLogs', async (req, res, next) => {
     try {
         const page = parseInt(req.query.page, 10) || 1;
         const limit = parseInt(req.query.limit, 10) || 10;
@@ -53,7 +54,7 @@ router.get('/eventLogs', async (req, res) => {
         res.render('eventLogs', { user: req.user, eventLogs, currentPage: page, totalPages: Math.ceil(count / limit) });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Internal Server Error');
+        next(new ApplicationError('There was a problem retrieving event logs.', 500));
     }
 });
 
@@ -70,7 +71,6 @@ async function fetchTopUsers(attribute) {
         ...attribute === 'xp' ? getUserLevelDetails(user.xp) : getUserReputationDetails(user.rep),
     }));
 }
-
 
 
 

@@ -1,6 +1,7 @@
 const express = require('express');
 const { Op } = require('sequelize');
 const { User, Trophy, UserTrophies } = require('../models');
+const ApplicationError = require('../utils/ApplicationError');
 const { logEvent } = require('../utils/eventLogger');
 const rateLimiter = require('../middleware/rateLimiter');
 
@@ -8,7 +9,7 @@ const router = express.Router();
 
 
 // Admin dashboard route
-router.get('/', rateLimiter, async (req, res) => {
+router.get('/', rateLimiter, async (req, res, next) => {
     try {
         const errorMessage = req.query.errorMessage;
         const alertType = req.query.alertType || 'danger';
@@ -17,29 +18,29 @@ router.get('/', rateLimiter, async (req, res) => {
         res.render('admin/index', { csrfToken: req.csrfToken(), user: req.user, leden, errorMessage: errorMessage ?? null, alertType: alertType });
     } catch (error) {
         console.error("Fout bij het ophalen van gebruikers:", error);
-        res.status(500).send("Interne Server Fout");
+        next(new ApplicationError("Interne Server Fout", 500));
     }
 });
 
 // Route to render the "Bewerk of Toeken Award" page
-router.get('/:userId', rateLimiter, async (req, res) => {
+router.get('/:userId', rateLimiter, async (req, res, next) => {
     try {
         const { userId } = req.params;
         const lid = await User.findByPk(userId);
 
         if (!lid) {
-            return res.status(404).send("Gebruiker niet gevonden");
+            throw new ApplicationError('Gebruiker niet gevonden', 404);
         }
 
         res.render('admin/edit', { user: req.user, lid });
     } catch (error) {
-        console.error("Fout bij het ophalen van gebruiker voor bewerken of toekennen award:", error);
-        res.status(500).send("Interne Server Fout");
+        console.error('Fout bij het ophalen van gebruiker voor bewerken of toekennen award:', error);
+        next(error);
     }
 });
 
 // Route to display the BAK update form for a specific user
-router.get('/:userId/edit-bak', rateLimiter, async (req, res) => {
+router.get('/:userId/edit-bak', rateLimiter, async (req, res, next) => {
     const errorMessage = req.query.errorMessage;
 
     const { userId } = req.params;
@@ -52,17 +53,17 @@ router.get('/:userId/edit-bak', rateLimiter, async (req, res) => {
     try {
         const lid = await User.findByPk(userId);
         if (!lid) {
-            return res.status(404).send("lid niet gevonden");
+            throw new ApplicationError('Gebruiker niet gevonden', 404);
         }
         res.render('admin/edit/edit_bak', { csrfToken: req.csrfToken(), user: req.user, lid, errorMessage: errorMessage ?? null });
     } catch (error) {
         console.error("Fout bij het ophalen van de gebruiker:", error);
-        res.status(500).send("Interne Server Fout");
+        next(error);
     }
 });
 
 // Route to update BAK and log the event
-router.post('/:userId/edit-bak', async (req, res) => {
+router.post('/:userId/edit-bak', async (req, res, next) => {
     const { userId } = req.params;
     const { bakAmount, reason } = req.body;
 
@@ -74,7 +75,7 @@ router.post('/:userId/edit-bak', async (req, res) => {
     try {
         const user = await User.findByPk(userId);
         if (!user) {
-            return res.status(404).send("Gebruiker niet gevonden");
+            throw new ApplicationError('Gebruiker niet gevonden', 404);
         }
 
         const oldBakAmount = user.bak;
@@ -96,13 +97,13 @@ router.post('/:userId/edit-bak', async (req, res) => {
         res.redirect('/admin');
     } catch (error) {
         console.error("Fout bij het bijwerken van BAK-telling:", error);
-        res.status(500).send("Interne Server Fout");
+        next(error);
     }
 });
 
 
 // Route to render the page for assigning an award
-router.get('/:userId/assign-award', rateLimiter, async (req, res) => {
+router.get('/:userId/assign-award', rateLimiter, async (req, res, next) => {
     try {
         const { userId } = req.params;
         const errorMessage = req.query.errorMessage;
@@ -133,12 +134,12 @@ router.get('/:userId/assign-award', rateLimiter, async (req, res) => {
         res.render('admin/edit/assign_award', { csrfToken: req.csrfToken(), user: req.user, lid, defaultTrophies, errorMessage: errorMessage ?? null, alertType: alertType });
     } catch (error) {
         console.error("Fout bij het ophalen van gebruiker voor toekennen award:", error);
-        res.status(500).send("Interne Server Fout");
+        next(new ApplicationError("Fout bij het ophalen van gebruiker voor toekennen award", 500));
     }
 });
 
 // Route to handle the submission of the award assignment
-router.post('/:userId/assign-award', async (req, res) => {
+router.post('/:userId/assign-award', async (req, res, next) => {
     try {
         const { userId } = req.params;
         const { award, reason } = req.body;
@@ -194,13 +195,13 @@ router.post('/:userId/assign-award', async (req, res) => {
         return res.redirect(`/admin?errorMessage=${encodeURIComponent(errorMessage)}&alertType=success`);
     } catch (error) {
         console.error("Fout bij het toekennen van award aan gebruiker:", error);
-        res.status(500).send("Interne Server Fout");
+        next(new ApplicationError("Fout bij het toekennen van award aan gebruiker", 500));
     }
 });
 
 
 // Route to render the page for removing an award
-router.get('/:userId/remove-award', rateLimiter, async (req, res) => {
+router.get('/:userId/remove-award', rateLimiter, async (req, res, next) => {
     try {
         const { userId } = req.params;
         const errorMessage = req.query.errorMessage;
@@ -224,14 +225,14 @@ router.get('/:userId/remove-award', rateLimiter, async (req, res) => {
         res.render('admin/edit/remove_award', { csrfToken: req.csrfToken(), user: req.user, lid: user, userTrophies, errorMessage: errorMessage ?? null, alertType: alertType });
     } catch (error) {
         console.error("Fout bij het ophalen van gebruiker voor verwijderen award:", error);
-        res.status(500).send("Interne Server Fout");
+        next(new ApplicationError("Fout bij het ophalen van gebruiker voor verwijderen award", 500));
     }
 });
 
 
 
 // Route to handle the removal of an award
-router.post('/:userId/remove-award', async (req, res) => {
+router.post('/:userId/remove-award', async (req, res, next) => {
     try {
         const { userId } = req.params;
         const { awardId, reason } = req.body;
@@ -264,8 +265,6 @@ router.post('/:userId/remove-award', async (req, res) => {
         // Remove the trophy from the user
         await userTrophy.destroy();
 
-        // console.log(userTrophy.Trophy.name)
-
         // Logboeking voor de admin
         await logEvent({
             userId: req.user.id,
@@ -283,7 +282,7 @@ router.post('/:userId/remove-award', async (req, res) => {
         return res.redirect(`/admin?errorMessage=${encodeURIComponent(errorMessage)}&alertType=success`);
     } catch (error) {
         console.error("Fout bij het verwijderen van award van gebruiker:", error);
-        res.status(500).send("Interne Server Fout");
+        next(new ApplicationError("Fout bij het verwijderen van award van gebruiker", 500));
     }
 });
 
