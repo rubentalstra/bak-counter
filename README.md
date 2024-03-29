@@ -46,36 +46,7 @@ A step-by-step series of examples that tell you how to get a development environ
     LOCAL_DB=true|false
     ```
 
-3. ***Prepare the database connection for local development***
-    ##### !! Not required if `LOCAL_DB` in `.env` is set to `true` !!
-
-    Go to `models/index.js`:
-
-    - Uncomment the SQLite database connection for local development:
-
-        ```javascript
-        // Initialize the database connection
-        const sequelize = new Sequelize('sqlite:./db.sqlite');
-        ```
-
-    - Comment out the Azure SQL Server database connection:
-
-        ```javascript
-        // Initialize the database connection for Azure SQL Server using environment variables
-        // const sequelize = new Sequelize(...);
-     ```
-
-4. ***Modify the `app.js` for local development***
-    ##### !! Not required if `LOCAL_DB` in `.env` is set to `true` !!
-
-    In the root file `app.js`, comment out the following to disable secure cookies in a non-HTTPS environment:
-
-    ```javascript
-    // secure: true,
-    // domain: 'bak-counter.azurewebsites.net',
-    ```
-
-5. **Install dependencies**
+3. **Install dependencies**
 
     Run the following command in your terminal:
 
@@ -83,7 +54,7 @@ A step-by-step series of examples that tell you how to get a development environ
     npm i
     ```
 
-6. **Start the application**
+4. **Start the application**
 
     Once the installation is done, you can run the following command to start the application:
 
@@ -91,7 +62,7 @@ A step-by-step series of examples that tell you how to get a development environ
     npm start
     ```
 
-7. **Access the application**
+5. **Access the application**
 
     Open your web browser and go to [http://localhost:8080](http://localhost:8080).
 
