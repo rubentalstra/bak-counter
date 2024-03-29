@@ -22,179 +22,189 @@
     </style>
 </head>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
 
 
-    <%- include('partials/_navbar') %>
 
-    <div class="container mt-5">
-        <div class="header-content">
-            <h1>Dashboard</h1>
-            <div class="search-input">
-                <input type="text" class="form-control" id="searchUsers" placeholder="Gebruikers zoeken...">
+    <main class="flex-shrink-0">
+
+
+
+
+
+        <%- include('partials/_navbar') %>
+
+        <div class="container mt-5">
+            <div class="header-content">
+                <h1>Dashboard</h1>
+                <div class="search-input">
+                    <input type="text" class="form-control" id="searchUsers" placeholder="Gebruikers zoeken...">
+                </div>
             </div>
-        </div>
 
-        <div class="card shadow-sm mb-3">
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-striped table-custom" id="usersTable">
-                        <thead>
-                            <tr>
-                                <th scope="col">Naam</th>
-                                <th scope="col">Openstaande BAKKEN</th>
-                                <th scope="col">Getrokken BAKKEN</th>
-                            </tr>
-                        </thead>
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-custom" id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Naam</th>
+                                    <th scope="col">Openstaande BAKKEN</th>
+                                    <th scope="col">Getrokken BAKKEN</th>
+                                </tr>
+                            </thead>
 
-                        <tbody>
-                            <% users.sort((a, b) => b.bak - a.bak).forEach(user => { %>
-                            <tr>
-                                <td>
-                                    <a href="/profile/<%= user.id %>" class="user-link" style="margin-right: -4px;">
-                                        <img src="<%= user.profilePicture ? 'https://bak-counter-images.ams3.digitaloceanspaces.com/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
-                                            alt="Foto" class="rounded-circle me-2"
-                                            style="width: 30px; height: 30px; object-fit: cover;">
-                                    </a>
-                                    <a href="/profile/<%= user.id %>" class="user-link">
-                                        <%= user.name %>
-                                    </a>
-                                </td>
-                                <td>
-                                    <%= user.bak %>
-                                    <% if (user.BakRequests.length > 0) { %><span
-                                        style="color: red;">+<%= user.BakRequests.length %></span>
-                                    <% } %>
-                                </td>
-                                <td>
-                                    <%= user.xp %>
-                                    <% if (user.ReceivedProposals.length > 0) { %><span
-                                        style="color: green;">+<%= user.ReceivedProposals.length %></span>
-                                    <% } %>
-                                </td>
-                            </tr>
+                            <tbody>
+                                <% users.sort((a, b) => b.bak - a.bak).forEach(user => { %>
+                                <tr>
+                                    <td>
+                                        <a href="/profile/<%= user.id %>" class="user-link" style="margin-right: -4px;">
+                                            <img src="<%= user.profilePicture ? 'https://bak-counter-images.ams3.digitaloceanspaces.com/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
+                                                alt="Foto" class="rounded-circle me-2"
+                                                style="width: 30px; height: 30px; object-fit: cover;">
+                                        </a>
+                                        <a href="/profile/<%= user.id %>" class="user-link">
+                                            <%= user.name %>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <%= user.bak %>
+                                        <% if (user.BakRequests.length > 0) { %><span
+                                            style="color: red;">+<%= user.BakRequests.length %></span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <%= user.xp %>
+                                        <% if (user.ReceivedProposals.length > 0) { %><span
+                                            style="color: green;">+<%= user.ReceivedProposals.length %></span>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <div class="row">
+                <!-- Leaderboard for Top BAK Scores -->
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            Top Getrokken Bakken
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <% topUsersByXp.forEach(user => { %>
+                            <li class="list-group-item d-flex align-items-center">
+                                <a href="/profile/<%= user.id %>" class="user-link"
+                                    style="inline-size: 49px; overflow-wrap: break-word; margin-right: 7px;">
+                                    <img src="<%= user.profilePicture ? 'https://bak-counter-images.ams3.digitaloceanspaces.com/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
+                                        alt="Profielfoto" class="rounded-circle me-3"
+                                        style="width: 40px; height: 40px; object-fit: cover;">
+                                </a>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0">
+                                        <a href="/profile/<%= user.id %>" class="user-link">
+                                            <%= user.name %>
+                                        </a>
+                                    </h6>
+                                    <div style="height: 5px;">
+                                    </div>
+                                    <small class="text-muted">Getrokken Bakken: <%= user.xp %></small>
+                                </div>
+                            </li>
                             <% }) %>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-
-
-
-        <div class="row">
-            <!-- Leaderboard for Top BAK Scores -->
-            <div class="col-md-4">
-                <div class="card mb-3">
-                    <div class="card-header">
-                        Top Getrokken Bakken
+                        </ul>
                     </div>
-                    <ul class="list-group list-group-flush">
-                        <% topUsersByXp.forEach(user => { %>
-                        <li class="list-group-item d-flex align-items-center">
-                            <a href="/profile/<%= user.id %>" class="user-link"
-                                style="inline-size: 49px; overflow-wrap: break-word; margin-right: 7px;">
-                                <img src="<%= user.profilePicture ? 'https://bak-counter-images.ams3.digitaloceanspaces.com/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
-                                    alt="Profielfoto" class="rounded-circle me-3"
-                                    style="width: 40px; height: 40px; object-fit: cover;">
-                            </a>
-                            <div class="flex-grow-1">
-                                <h6 class="mb-0">
-                                    <a href="/profile/<%= user.id %>" class="user-link">
-                                        <%= user.name %>
-                                    </a>
-                                </h6>
-                                <div style="height: 5px;">
-                                </div>
-                                <small class="text-muted">Getrokken Bakken: <%= user.xp %></small>
-                            </div>
-                        </li>
-                        <% }) %>
-                    </ul>
                 </div>
-            </div>
 
 
 
 
-            <!-- Leaderboard for Highest Levels (XP) -->
-            <div class="col-md-4">
-                <div class="card mb-3">
-                    <div class="card-header">
-                        Highest Levels
+                <!-- Leaderboard for Highest Levels (XP) -->
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            Highest Levels
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <% topUsersByXp.forEach(user => { %>
+                            <li class="list-group-item d-flex align-items-center">
+                                <a href="/profile/<%= user.id %>" class="user-link"
+                                    style="inline-size: 49px; overflow-wrap: break-word; margin-right: 7px;">
+                                    <img src="<%= user.profilePicture ? 'https://bak-counter-images.ams3.digitaloceanspaces.com/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
+                                        alt="Profielfoto" class="rounded-circle me-3"
+                                        style="width: 40px; height: 40px; object-fit: cover;">
+                                </a>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0">
+                                        <a href="/profile/<%= user.id %>" class="user-link">
+                                            <%= user.name %>
+                                        </a>
+                                    </h6>
+                                    <!-- <small class="text-muted">XP: <%= user.xp %></small> -->
+                                    <div class="progress" style="height: 5px;">
+                                        <div class="progress-bar" role="progressbar"
+                                            style="width: <%= user.xpPercentage %>%;" aria-valuenow="<%= user.xp %>"
+                                            aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <small>Level: <strong><%= user.level %></strong></small>
+                                </div>
+                            </li>
+                            <% }) %>
+                        </ul>
                     </div>
-                    <ul class="list-group list-group-flush">
-                        <% topUsersByXp.forEach(user => { %>
-                        <li class="list-group-item d-flex align-items-center">
-                            <a href="/profile/<%= user.id %>" class="user-link"
-                                style="inline-size: 49px; overflow-wrap: break-word; margin-right: 7px;">
-                                <img src="<%= user.profilePicture ? 'https://bak-counter-images.ams3.digitaloceanspaces.com/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
-                                    alt="Profielfoto" class="rounded-circle me-3"
-                                    style="width: 40px; height: 40px; object-fit: cover;">
-                            </a>
-                            <div class="flex-grow-1">
-                                <h6 class="mb-0">
-                                    <a href="/profile/<%= user.id %>" class="user-link">
-                                        <%= user.name %>
-                                    </a>
-                                </h6>
-                                <!-- <small class="text-muted">XP: <%= user.xp %></small> -->
-                                <div class="progress" style="height: 5px;">
-                                    <div class="progress-bar" role="progressbar"
-                                        style="width: <%= user.xpPercentage %>%;" aria-valuenow="<%= user.xp %>"
-                                        aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <small>Level: <strong><%= user.level %></strong></small>
-                            </div>
-                        </li>
-                        <% }) %>
-                    </ul>
                 </div>
+
+                <!-- Leaderboard for Top Reputation (REP) -->
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            Top Reputation
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <% topUsersByRep.forEach(user => { %>
+                            <li class="list-group-item d-flex align-items-center">
+                                <a href="/profile/<%= user.id %>" class="user-link"
+                                    style="inline-size: 49px; overflow-wrap: break-word; margin-right: 7px;">
+                                    <img src="<%= user.profilePicture ? 'https://bak-counter-images.ams3.digitaloceanspaces.com/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
+                                        alt="Profielfoto" class="rounded-circle me-3"
+                                        style="width: 40px; height: 40px; object-fit: cover;">
+                                </a>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0">
+                                        <a href="/profile/<%= user.id %>" class="user-link">
+                                            <%= user.name %>
+                                        </a>
+                                    </h6>
+                                    <!-- <small class="text-muted">REP: <%= user.rep %></small> -->
+                                    <div class="progress" style="height: 5px;">
+                                        <div class="progress-bar bg-success" role="progressbar"
+                                            style="width: <%= user.repPercentage %>%;" aria-valuenow="<%= user.rep %>"
+                                            aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <small>Reputation: <strong><%= user.reputation %></strong></small>
+                                </div>
+                            </li>
+                            <% }) %>
+                        </ul>
+                    </div>
+                </div>
+
             </div>
 
-            <!-- Leaderboard for Top Reputation (REP) -->
-            <div class="col-md-4">
-                <div class="card mb-3">
-                    <div class="card-header">
-                        Top Reputation
-                    </div>
-                    <ul class="list-group list-group-flush">
-                        <% topUsersByRep.forEach(user => { %>
-                        <li class="list-group-item d-flex align-items-center">
-                            <a href="/profile/<%= user.id %>" class="user-link"
-                                style="inline-size: 49px; overflow-wrap: break-word; margin-right: 7px;">
-                                <img src="<%= user.profilePicture ? 'https://bak-counter-images.ams3.digitaloceanspaces.com/' + user.profilePicture : '/uploads/profile/blank_image.png' %>"
-                                    alt="Profielfoto" class="rounded-circle me-3"
-                                    style="width: 40px; height: 40px; object-fit: cover;">
-                            </a>
-                            <div class="flex-grow-1">
-                                <h6 class="mb-0">
-                                    <a href="/profile/<%= user.id %>" class="user-link">
-                                        <%= user.name %>
-                                    </a>
-                                </h6>
-                                <!-- <small class="text-muted">REP: <%= user.rep %></small> -->
-                                <div class="progress" style="height: 5px;">
-                                    <div class="progress-bar bg-success" role="progressbar"
-                                        style="width: <%= user.repPercentage %>%;" aria-valuenow="<%= user.rep %>"
-                                        aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <small>Reputation: <strong><%= user.reputation %></strong></small>
-                            </div>
-                        </li>
-                        <% }) %>
-                    </ul>
-                </div>
-            </div>
+
+
 
         </div>
+        <!-- Your main content here -->
+    </main>
 
-
-
-
-    </div>
-
+    <%- include('partials/_footer') %>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>

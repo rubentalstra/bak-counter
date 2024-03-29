@@ -10,40 +10,46 @@
     <link rel="stylesheet" href="/styles/main.css">
 </head>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
 
-    <%- include('../partials/_navbar') %>
+    <main class="flex-shrink-0">
 
-    <div class="container mt-5">
-        <h1>BAK Verzoek Indienen</h1>
+        <%- include('../partials/_navbar') %>
 
-        <% if (errorMessage) { %>
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <%= errorMessage %>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="container mt-5">
+            <h1>BAK Verzoek Indienen</h1>
+
+            <% if (errorMessage) { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <%= errorMessage %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <% } %>
+
+            <form action="/bak/submit" method="POST">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                <div class="mb-3">
+                    <label for="targetId" class="form-label">Ontvanger</label>
+                    <select id="targetId" name="targetId" class="form-select" required>
+                        <% users.forEach(user=> { %>
+                        <option value="<%= user.id %>">
+                            <%= user.name %>
+                        </option>
+                        <% }) %>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="reasonBak" class="form-label">Reden voor BAK</label>
+                    <textarea id="reasonBak" name="reasonBak" class="form-control" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">BAK Verzoek Indienen</button>
+            </form>
         </div>
-        <% } %>
 
-        <form action="/bak/submit" method="POST">
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    </main>
 
-            <div class="mb-3">
-                <label for="targetId" class="form-label">Ontvanger</label>
-                <select id="targetId" name="targetId" class="form-select" required>
-                    <% users.forEach(user=> { %>
-                    <option value="<%= user.id %>">
-                        <%= user.name %>
-                    </option>
-                    <% }) %>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="reasonBak" class="form-label">Reden voor BAK</label>
-                <textarea id="reasonBak" name="reasonBak" class="form-control" rows="3" required></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary">BAK Verzoek Indienen</button>
-        </form>
-    </div>
+    <%- include('../partials/_footer') %>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
