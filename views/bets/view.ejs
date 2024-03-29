@@ -42,20 +42,26 @@
                             <h5 class="card-title">
                                 <%= bet.Initiator.name %> vs. <%= bet.Opponent.name %>
                             </h5>
-                            <h6 class="card-subtitle mb-2 text-muted">Scheidsrechter: <%= bet.Judge.name %>
-                            </h6>
-                            <p class="card-text">Beschrijving: <%= bet.betDescription %>
+                            <h6 class="card-subtitle mb-2 text-muted">Scheidsrechter: <%= bet.Judge.name %></h6>
+                            <p class="card-text"><strong>Beschrijving:</strong> <%= bet.betDescription %></p>
+                            <p class="card-text"><strong>Inzet:</strong> <%= bet.stake %>
+                                <% if(bet.stake === 0 || bet.stake > 1) { %>
+                                Bakken
+                                <% } else if(bet.stake === 1) { %>
+                                BAK
+                                <% } %>
                             </p>
-                            <p class="card-text">Inzet: <%= bet.stake %> REP punten</p>
                             <p class="card-text">
-                                Status:
+                                <strong>Status:</strong>
                                 <% if (bet.opponentApproval) { %>
                                 Goedgekeurd
                                 <% } else { %>
                                 Wacht op goedkeuring van tegenstander
                                 <% } %>
                             </p>
-
+                            <p class="card-text">Aangemaakt op:
+                                <%= new Date(bet.createdAt).toLocaleString('nl-NL', { timeZone: 'Europe/Amsterdam' }); %>
+                            </p>
                             <% if (user.id === bet.judgeUserId && bet.status === 'pending' && bet.opponentApproval === true) { %>
                             <form action="/bets/judge/<%= bet.betId %>" method="POST" class="d-inline">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -93,19 +99,25 @@
                             <h5 class="card-title">
                                 <%= bet.Initiator.name %> vs. <%= bet.Opponent.name %>
                             </h5>
-                            <h6 class="card-subtitle mb-2 text-muted">Scheidsrechter: <%= bet.Judge.name %>
-                            </h6>
-                            <p class="card-text">Beschrijving: <%= bet.betDescription %>
+                            <h6 class="card-subtitle mb-2 text-muted">Scheidsrechter: <%= bet.Judge.name %></h6>
+                            <p class="card-text"><strong>Beschrijving:</strong> <%= bet.betDescription %></p>
+                            <p class="card-text"><strong>Inzet:</strong> <%= bet.stake %>
+                                <% if(bet.stake === 0 || bet.stake > 1) { %>
+                                Bakken
+                                <% } else if(bet.stake === 1) { %>
+                                BAK
+                                <% } %>
                             </p>
-                            <p class="card-text">Inzet: <%= bet.stake %> REP punten</p>
                             <% if (bet.status === 'declined') { %>
                             <p class="card-text"><strong>Status:</strong> Afgewezen - Geen winnaar</p>
-                            <% }  %>
+                            <% } %>
                             <% if (bet.status === 'completed') { %>
                             <p class="card-text"><strong>Winnaar:</strong>
-                                <%= bet.winnerUserId===bet.Initiator.id ? bet.Initiator.name : bet.Opponent.name %>
-                            </p>
+                                <%= bet.winnerUserId===bet.Initiator.id ? bet.Initiator.name : bet.Opponent.name %></p>
                             <% } %>
+                            <p class="card-text">Aangemaakt op:
+                                <%= new Date(bet.createdAt).toLocaleString('nl-NL', { timeZone: 'Europe/Amsterdam' }); %>
+                            </p>
                         </div>
                     </div>
                     <% }); %>

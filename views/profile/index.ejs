@@ -314,7 +314,8 @@
                             <% profile.eventLogs.forEach(event=> { %>
                             <tr>
                                 <td><%= event.description %></td>
-                                <td><%= new Date(event.createdAt).toLocaleString('nl-NL') %></td>
+                                <td><%= new Date(event.createdAt).toLocaleString('nl-NL', { timeZone: 'Europe/Amsterdam' }); %>
+                                </td>
                             </tr>
                             <% }); %>
                         </tbody>

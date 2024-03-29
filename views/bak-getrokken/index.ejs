@@ -135,7 +135,8 @@
                                 </ul>
                             </div>
                             <% } %>
-                            <p class="card-text">Created at: <%= new Date(request.createdAt).toLocaleString('nl-NL') %>
+                            <p class="card-text">Created at:
+                                <%= new Date(request.createdAt).toLocaleString('nl-NL', { timeZone: 'Europe/Amsterdam' }); %>
                             </p>
                         </div>
                     </div>

@@ -59,10 +59,10 @@ if (process.env.LOCAL_DB == 'true') {
         resave: false,
         saveUninitialized: false,
         cookie: {
-            secure: true,
+            // secure: true,
             httpOnly: true,
             sameSite: 'lax',
-            domain: 'bak-counter-app-grn3x.ondigitalocean.app',
+            // domain: 'bak-counter-app-grn3x.ondigitalocean.app',
             path: '/',
             maxAge: 24 * 60 * 60 * 1000 // 1 day
         }
