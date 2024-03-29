@@ -26,7 +26,7 @@
                         <%= log.User.name %>
                     </h5>
                     <small>
-                        <%= new Date(log.createdAt).toLocaleString('nl-NL') %>
+                        <%= new Date(log.createdAt).toLocaleString('nl-NL', { timeZone: 'Europe/Amsterdam' }); %>
                     </small>
                 </div>
                 <p class="mb-1">

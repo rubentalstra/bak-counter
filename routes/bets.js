@@ -9,7 +9,8 @@ const { logEvent } = require('../utils/eventLogger');
 // Route to view all bets
 router.get('/', async (req, res) => {
     const bets = await Bet.findAll({
-        include: ['Initiator', 'Opponent', 'Judge']
+        include: ['Initiator', 'Opponent', 'Judge'],
+        order: [['createdAt', 'DESC']],
     });
     res.render('bets/view', { csrfToken: req.csrfToken(), user: req.user, bets });
 });
