@@ -67,19 +67,25 @@ router.post('/decline/:betId', async (req, res) => {
 
 // Route to display form to create a new bet
 router.get('/create', async (req, res) => {
+    try {
+        const errorMessage = req.query.errorMessage;
 
-    //  Fetch all users to select as opponent and judge
-    const users = await User.findAll({
-        where: {
-            id: {
-                [Op.not]: req.user.id // Exclude current user's ID
+        //  Fetch all users to select as opponent and judge
+        const users = await User.findAll({
+            where: {
+                id: {
+                    [Op.not]: req.user.id
+                }
             }
-        }
-    });
+        });
 
-    // const users = await User.findAll();
+        // Render the create request page with the users data
+        res.render('bets/create', { csrfToken: req.csrfToken(), user: req.user, users, errorMessage: errorMessage ?? null });
+    } catch (error) {
+        console.error('Error fetching users for Create new Bet request:', error);
+        res.status(500).send('Error fetching data');
+    }
 
-    res.render('bets/create', { csrfToken: req.csrfToken(), user: req.user, users });
 });
 
 // Route to post a new bet
@@ -90,11 +96,20 @@ router.post('/create', async (req, res) => {
     const intOpponentUserId = parseInt(opponentUserId, 10); // Zet naar integer
     const intJudgeUserId = parseInt(judgeUserId, 10); // Zet naar integer
 
+    // Check if intOpponentUserId or intJudgeUserId are NaN or not provided
+    if (isNaN(intOpponentUserId) || isNaN(intJudgeUserId)) {
+        // Assuming you have a way to redirect back to the create page with an error message
+        const errorMessage = "Zowel de tegenstander als de scheidsrechter moeten worden opgegeven.";
+        return res.redirect(`/bets/create?errorMessage=${encodeURIComponent(errorMessage)}`);
+    }
+
     // Valideer dat de judgeUserId verschilt van initiatorUserId en opponentUserId
     if (loggedInUserId === intJudgeUserId || intJudgeUserId === intOpponentUserId) {
         // Stuur een foutbericht terug als de judge dezelfde is als de initiator of de tegenstander
-        return res.status(400).send("De judge moet een neutrale derde partij zijn en kan niet dezelfde zijn als de tegenstander van de weddenschap.");
+        const errorMessage = 'De scheidsrechter moet een neutrale derde partij zijn en kan niet dezelfde zijn als de tegenstander van de weddenschap.';
+        return res.redirect(`/bets/create?errorMessage=${encodeURIComponent(errorMessage)}`);
     }
+
 
     try {
         await Bet.create({

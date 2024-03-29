@@ -16,6 +16,15 @@
 
     <div class="container mt-5">
         <h2>Create a New Bet</h2>
+
+        <% if (errorMessage) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <%= errorMessage %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <% } %>
+
+
         <form action="/bets/create" method="POST">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
@@ -32,9 +41,9 @@
             </div>
 
             <div class="mb-3">
-                <label for="judgeUserId" class="form-label">Judge:</label>
+                <label for="judgeUserId" class="form-label">Scheidsrechter:</label>
                 <select id="judgeUserId" name="judgeUserId" class="form-select" required>
-                    <option value="" selected disabled>Select Judge</option>
+                    <option value="" selected disabled>Select Scheidsrechter</option>
                     <% users.forEach(user=> { %>
                     <option value="<%= user.id %>">
                         <%= user.name %>
