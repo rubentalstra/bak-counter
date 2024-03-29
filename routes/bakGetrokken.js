@@ -157,7 +157,11 @@ router.get('/validate/approve/:id', async (req, res) => {
                 await request.update({ secondApproverId: userId, status: 'approved' });
 
                 // Increment XP for the target user
-                await User.increment({ xp: 1 }, { where: { id: request.targetId } });
+                const target = await User.findByPk(request.targetId);
+                if (target) {
+                    target.xp += 1;
+                    await target.save();
+                }
 
                 // Check and decrement bak count if necessary
                 const targetUser = await User.findByPk(request.targetId);

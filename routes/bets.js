@@ -1,11 +1,11 @@
 const express = require('express');
 
-const router = express.Router();
 const { Op } = require('sequelize');
 const { Bet, User } = require('../models'); // Adjust the path as necessary
 const { logEvent } = require('../utils/eventLogger');
 const rateLimiter = require('../middleware/rateLimiter');
 
+const router = express.Router();
 
 
 // Route to view all bets
@@ -98,23 +98,19 @@ router.post('/create', async (req, res) => {
     const intOpponentUserId = parseInt(opponentUserId, 10); // Zet naar integer
     const intJudgeUserId = parseInt(judgeUserId, 10); // Zet naar integer
 
-    // Check if intOpponentUserId or intJudgeUserId are NaN or not provided
     if (isNaN(intOpponentUserId) || isNaN(intJudgeUserId)) {
-        // Assuming you have a way to redirect back to the create page with an error message
         const errorMessage = "Zowel de tegenstander als de scheidsrechter moeten worden opgegeven.";
         return res.redirect(`/bets/create?errorMessage=${encodeURIComponent(errorMessage)}`);
     }
 
-    // Valideer dat de judgeUserId verschilt van initiatorUserId en opponentUserId
     if (loggedInUserId === intJudgeUserId || intJudgeUserId === intOpponentUserId) {
-        // Stuur een foutbericht terug als de judge dezelfde is als de initiator of de tegenstander
         const errorMessage = 'De scheidsrechter moet een neutrale derde partij zijn en kan niet dezelfde zijn als de tegenstander van de weddenschap.';
         return res.redirect(`/bets/create?errorMessage=${encodeURIComponent(errorMessage)}`);
     }
 
 
     try {
-        await Bet.create({
+        const newBet = await Bet.create({
             initiatorUserId: loggedInUserId,
             opponentUserId: intOpponentUserId,
             judgeUserId: intJudgeUserId,
@@ -123,6 +119,32 @@ router.post('/create', async (req, res) => {
             stake,
             status: 'pending'
         });
+
+        const betWithUsers = await Bet.findByPk(newBet.betId, {
+            include: [
+                { model: User, as: 'Initiator', attributes: ['name'] },
+                { model: User, as: 'Opponent', attributes: ['name'] },
+                { model: User, as: 'Judge', attributes: ['name'] }
+            ]
+        });
+
+        // Logboeking voor de initiator
+        await logEvent({
+            userId: loggedInUserId,
+            description: `Heeft een nieuwe weddenschap aangemaakt: "${betTitle}" tegen ${betWithUsers.Opponent.name} met ${betWithUsers.Judge.name} als scheidsrechter. Inzet: ${stake}.`
+        });
+        // Logboeking voor de tegenstander
+        await logEvent({
+            userId: intOpponentUserId,
+            description: `Is uitgedaagd door ${betWithUsers.Initiator.name} voor de weddenschap "${betTitle}". ${betWithUsers.Judge.name} is de scheidsrechter. Inzet: ${stake}.`
+        });
+        // Logboeking voor de scheidsrechter
+        await logEvent({
+            userId: intJudgeUserId,
+            description: `Is aangewezen als scheidsrechter voor de weddenschap "${betTitle}" tussen ${betWithUsers.Initiator.name} en ${betWithUsers.Opponent.name}. Inzet: ${stake}.`
+        });
+
+
         res.redirect('/bets');
     } catch (error) {
         // Vang eventuele fouten op die optreden tijdens het aanmaken van de weddenschap en stuur een foutbericht terug
@@ -146,7 +168,7 @@ router.post('/judge/:betId', async (req, res) => {
             return res.status(404).send('Bet not found');
         }
 
-        if (req.user.id !== bet.judgeUserId) {
+        if (parseInt(req.user.id) !== parseInt(bet.judgeUserId)) {
             return res.status(403).send('You are not authorized to judge this bet');
         }
 
@@ -161,10 +183,16 @@ router.post('/judge/:betId', async (req, res) => {
         const loser = await User.findByPk(loserUserId);
 
         // Update the winner's REP points
-        await User.increment({ rep: bet.stake }, { where: { id: winnerUserId } });
+        if (winner) {
+            winner.rep += bet.stake;
+            await winner.save();
+        }
 
         // Assign the stake as BAK to the loser's profile
-        await User.increment({ bak: bet.stake }, { where: { id: loserUserId } });
+        if (loser) {
+            loser.bak += bet.stake;
+            await loser.save();
+        }
 
         // Mark the bet as completed with the winner declared
         await Bet.update({ winnerUserId, status: 'completed' }, { where: { betId } });
@@ -178,7 +206,7 @@ router.post('/judge/:betId', async (req, res) => {
         // Logboeking voor de verliezer
         await logEvent({
             userId: loserUserId,
-            description: `Heeft de weddenschap ${bet.betTitle} verloren. ${bet.stake} BAKs toegewezen. Verloren van ${winner.name}`
+            description: `Heeft de weddenschap ${bet.betTitle} verloren. ${bet.stake} ${bet.stake === 1 ? 'Bak' : 'Bakken'} toegewezen. Verloren van ${winner.name}`
         });
 
 
