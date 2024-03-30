@@ -75,8 +75,8 @@ router.get('/', rateLimiter, async (req, res, next) => {
             include: [
                 { model: User, as: 'Requester', attributes: ['id', 'name'] },
                 { model: User, as: 'Target', attributes: ['id', 'name'] },
-                { model: User, as: 'FirstApprover', attributes: ['id', 'name'] },
-                { model: User, as: 'SecondApprover', attributes: ['id', 'name'] },
+                { model: User, as: 'FirstApprover', attributes: ['id', 'name', 'email'] },
+                { model: User, as: 'SecondApprover', attributes: ['id', 'name', 'email'] },
                 { model: User, as: 'DeclinedBy', attributes: ['id', 'name'] }
             ],
             order: [['createdAt', 'DESC']],
@@ -85,6 +85,19 @@ router.get('/', rateLimiter, async (req, res, next) => {
         // Filter requests based on status
         const openRequests = allRequests.filter(req => req.status === 'pending');
         const closedRequests = allRequests.filter(req => ['declined', 'approved'].includes(req.status));
+
+        // Check if the current user is an admin
+        const userIsAdmin = adminEmails.includes(req.user.email);
+
+        // Adding isAdmin flag to approvers
+        allRequests.forEach(request => {
+            if (request.FirstApprover) {
+                request.FirstApprover.isAdmin = adminEmails.includes(request.FirstApprover.email);
+            }
+            if (request.SecondApprover) {
+                request.SecondApprover.isAdmin = adminEmails.includes(request.SecondApprover.email);
+            }
+        });
 
         // Calculate pagination for each
         const paginatedOpenRequests = openRequests.slice((activePage - 1) * pageSize, activePage * pageSize);

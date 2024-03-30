@@ -46,14 +46,14 @@
                                     voor
                                     <a href="/profile/<%= request.Target.id %>"><%= request.Target.name %></a>
                                 </h5>
-                                <p class="card-text">Bewijs: <a href="/uploads/prove/<%= request.evidenceUrl %>"
+                                <p class="card-text">Bewijs: <a
+                                        href="https://bak-counter-images.ams3.digitaloceanspaces.com/<%= request.evidenceUrl %>"
                                         target="_blank">Bekijken</a></p>
                                 <p class="card-text">Status: <%= request.status %></p>
                                 <p class="card-text">Goedkeurders:
                                     <% if (request.FirstApprover) { %>
                                     <span>Eerste Goedkeurder: <a href="/profile/<%= request.FirstApprover.id %>">
-                                            <%= request.FirstApprover.name %>
-                                        </a>,</span>
+                                            <%= request.FirstApprover.name %></a>,</span>
                                     <% } %>
                                     <% if (request.SecondApprover) { %>
                                     <span>Tweede Goedkeurder: <a href="/profile/<%= request.SecondApprover.id %>">
@@ -64,26 +64,30 @@
                                     <span>Nog geen goedkeurders.</span>
                                     <% } %>
                                 </p>
+
                                 <% if (user.id !== request.requesterId && user.id !== request.targetId) { %>
+                                <% var hasAlreadyApproved = (request.FirstApprover && request.FirstApprover.id === user.id) || (request.SecondApprover && request.SecondApprover.id === user.id); %>
+                                <% var isAdminApprovalRequired = !request.FirstApprover || (request.FirstApprover && !request.FirstApprover.isAdmin); %>
+                                <% if (!hasAlreadyApproved) { %>
                                 <% if (!request.FirstApprover) { %>
-                                <!-- Nog geen eerste goedkeurder, niet-admins kunnen goedkeuren als ze niet de aanvrager of het doelwit zijn -->
-                                <button onclick="location.href='/bak-getrokken/validate/approve/<%= request.id %>'"
-                                    class="btn btn-success">Goedkeuren</button>
-                                <% } else if (request.FirstApprover.isAdmin && !user.isAdmin) { %>
-                                <!-- Eerste goedkeurder is een admin, huidige niet-admin gebruiker kan goedkeuren als de tweede goedkeurder -->
-                                <button onclick="location.href='/bak-getrokken/validate/approve/<%= request.id %>'"
-                                    class="btn btn-success">Goedkeuren</button>
-                                <% } else if (!request.FirstApprover.isAdmin && user.isAdmin) { %>
-                                <!-- Eerste goedkeurder is geen admin, alleen admin kan goedkeuren als de tweede goedkeurder -->
-                                <button onclick="location.href='/bak-getrokken/validate/approve/<%= request.id %>'"
-                                    class="btn btn-success">Goedkeuren</button>
-                                <% } %>
+                                <!-- No first approver, anyone can approve if they are not the requester or the target -->
                                 <% if (user.isAdmin) { %>
-                                <!-- Als de gebruiker een admin is, kunnen ze altijd goedkeuren, zelfs als de eerste goedkeurder een admin was -->
+                                <button onclick="location.href='/bak-getrokken/validate/approve/<%= request.id %>'"
+                                    class="btn btn-success">Goedkeuren</button>
+                                <% } %>
+                                <% } else if (!request.FirstApprover.isAdmin && user.isAdmin) { %>
+                                <!-- If the first approver is not an admin, only an admin can approve as the second approver -->
+                                <button onclick="location.href='/bak-getrokken/validate/approve/<%= request.id %>'"
+                                    class="btn btn-success">Goedkeuren</button>
+                                <% } else if (request.FirstApprover.isAdmin || user.isAdmin) { %>
+                                <!-- If the first approver is an admin or the current user is an admin (and hasn't already approved) -->
                                 <button onclick="location.href='/bak-getrokken/validate/approve/<%= request.id %>'"
                                     class="btn btn-success">Goedkeuren</button>
                                 <% } %>
                                 <% } %>
+                                <% } %>
+
+
 
                                 <% if (user.isAdmin) { %>
                                 <!-- Afwijzen knop alleen zichtbaar voor admins -->
