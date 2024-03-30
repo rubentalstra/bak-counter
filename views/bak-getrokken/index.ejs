@@ -46,9 +46,9 @@
                                     voor
                                     <a href="/profile/<%= request.Target.id %>"><%= request.Target.name %></a>
                                 </h5>
-                                <p class="card-text">Bewijs: <a
-                                        href="https://bak-counter-images.ams3.digitaloceanspaces.com/<%= request.evidenceUrl %>"
-                                        target="_blank">Bekijken</a></p>
+                                <p class="card-text">Bewijs: <a href="#" data-bs-toggle="modal"
+                                        data-bs-target="#evidenceModal-<%= request.id %>">Bekijken</a></p>
+
                                 <p class="card-text">Status: <%= request.status %></p>
                                 <p class="card-text">Goedkeurders:
                                     <% if (request.FirstApprover) { %>
@@ -97,6 +97,41 @@
                             </div>
                         </div>
                     </div>
+
+
+                    <!-- Modal for viewing evidence -->
+                    <div class="modal fade" id="evidenceModal-<%= request.id %>" tabindex="-1"
+                        aria-labelledby="evidenceModalLabel-<%= request.id %>" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="evidenceModalLabel-<%= request.id %>">Bewijsstuk</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <% if (request.evidenceUrl.endsWith('.mp4') || request.evidenceUrl.endsWith('.mov') ) { %>
+                                    <!-- For Video Content -->
+                                    <video controls style="width: 100%; max-height: 500px;">
+                                        <source
+                                            src="https://bak-counter-images.ams3.digitaloceanspaces.com/<%= request.evidenceUrl %>"
+                                            type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    <% } else { %>
+                                    <!-- For Image Content -->
+                                    <img src="https://bak-counter-images.ams3.digitaloceanspaces.com/<%= request.evidenceUrl %>"
+                                        style="width: 100%; max-height: 500px;" alt="Evidence Image">
+                                    <% } %>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Sluiten</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <% }) %>
                     <!-- Pagination for Active Requests -->
                     <nav aria-label="Active Requests Page navigation" class="mt-4">
