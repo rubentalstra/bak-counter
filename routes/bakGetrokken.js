@@ -125,8 +125,8 @@ router.get('/', rateLimiter, async (req, res, next) => {
 
 
 router.get('/validate/approve/:id', async (req, res, next) => {
-    const requestId = req.params.id;
-    const userId = req.user.id;
+    const requestId = parseInt(req.params.id);
+    const userId = parseInt(req.user.id);
     const userIsAdmin = adminEmails.includes(req.user.email);
 
     try {
@@ -141,8 +141,11 @@ router.get('/validate/approve/:id', async (req, res, next) => {
             throw new ApplicationError('Request not found', 404);
         }
 
+        if (request.declinedId) {
+            throw new ApplicationError('This request has already been declined and cannot be approved.', 403);
+        }
+
         if (userId === request.requesterId || userId === request.targetId) {
-            // Prevent requester or target from approving
             throw new ApplicationError('Requester or target cannot approve the request.', 403);
         }
 

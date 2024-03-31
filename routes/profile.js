@@ -23,14 +23,16 @@ const rateLimiter = require('../middleware/rateLimiter');
 const multerUpload = multer({
     storage: multer.memoryStorage(),
     fileFilter: (req, file, cb) => {
-        const allowedTypes = /jpeg|jpg|png|gif/;
-        const isSupportedFile =
-            allowedTypes.test(path.extname(file.originalname).toLowerCase()) &&
-            allowedTypes.test(file.mimetype);
-        if (isSupportedFile) {
+        const allowedExtensions = /\.(jpeg|jpg|png|gif)$/i;
+        const allowedMimeTypes = /image\/(jpeg|png|gif)/;
+
+        const hasAllowedExtension = allowedExtensions.test(path.extname(file.originalname).toLowerCase());
+        const hasAllowedMimeType = allowedMimeTypes.test(file.mimetype);
+
+        if (hasAllowedExtension && hasAllowedMimeType) {
             cb(null, true);
         } else {
-            cb(new Error("Only image files (JPEG, JPG, PNG, GIF) are allowed!"), false); //! alart is not showing in the profile page
+            cb(new Error("Only image files (JPEG, JPG, PNG, GIF) are allowed!"), false);
         }
     },
     limits: { fileSize: config.uploadLimits.fileSize },

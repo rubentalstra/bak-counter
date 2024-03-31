@@ -69,7 +69,7 @@ if (process.env.LOCAL_DB == 'true') {
         cookie: {
             secure: true,
             httpOnly: true,
-            sameSite: 'lax',
+            sameSite: 'Strict',
             domain: 'bak.sv-realtime.nl',
             path: '/',
             maxAge: 24 * 60 * 60 * 1000 // 1 day
