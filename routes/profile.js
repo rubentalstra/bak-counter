@@ -3,6 +3,8 @@ const multer = require('multer');
 const crypto = require('crypto');
 const path = require('path');
 
+const sanitizeHtml = require('sanitize-html');
+
 const { DeleteObjectCommand, PutObjectCommand } = require("@aws-sdk/client-s3");
 
 const { User, EventLog, Trophy } = require('../models');
@@ -15,6 +17,7 @@ const { s3Client } = require('../config/s3Client');
 const router = express.Router();
 const sharp = require('sharp');
 const rateLimiter = require('../middleware/rateLimiter');
+const validAlertTypes = require('../config/alertType');
 
 
 
@@ -94,9 +97,18 @@ const deleteImage = async (filePath) => {
 
 router.get('/:userId', rateLimiter, async (req, res, next) => {
     try {
-        const errorMessage = req.query.errorMessage;
-        const alertType = req.query.alertType || 'danger';
+        const rawErrorMessage = req.query.errorMessage;
+        const errorMessage = sanitizeHtml(rawErrorMessage, {
+            allowedTags: [], // Geen HTML toegestaan; alleen tekst
+            allowedAttributes: {}, // Geen attributen toegestaan
+        });
+        let alertType = req.query.alertType || 'danger';
         const userId = req.params.userId;
+
+        // Controleer of de opgegeven alertType is toegestaan, zo niet, gebruik dan de standaardwaarde 'danger'
+        if (!validAlertTypes.includes(alertType)) {
+            alertType = 'danger';
+        }
 
         const profile = await User.findByPk(userId, {
             include: [{ model: EventLog, as: 'eventLogs', },

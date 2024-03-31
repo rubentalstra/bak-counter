@@ -4,6 +4,8 @@ const { User, Trophy, UserTrophies } = require('../models');
 const ApplicationError = require('../utils/ApplicationError');
 const { logEvent } = require('../utils/eventLogger');
 const rateLimiter = require('../middleware/rateLimiter');
+const validAlertTypes = require('../config/alertType');
+const sanitizeHtml = require('sanitize-html');
 
 const router = express.Router();
 
@@ -11,8 +13,18 @@ const router = express.Router();
 // Admin dashboard route
 router.get('/', rateLimiter, async (req, res, next) => {
     try {
-        const errorMessage = req.query.errorMessage;
-        const alertType = req.query.alertType || 'danger';
+        const rawErrorMessage = req.query.errorMessage;
+        const errorMessage = sanitizeHtml(rawErrorMessage, {
+            allowedTags: [], // Geen HTML toegestaan; alleen tekst
+            allowedAttributes: {}, // Geen attributen toegestaan
+        });
+
+        let alertType = req.query.alertType || 'danger';
+
+        // Controleer of de opgegeven alertType is toegestaan, zo niet, gebruik dan de standaardwaarde 'danger'
+        if (!validAlertTypes.includes(alertType)) {
+            alertType = 'danger';
+        }
 
         const leden = await User.findAll();
         res.render('admin/index', { csrfToken: req.csrfToken(), user: req.user, leden, errorMessage: errorMessage ?? null, alertType: alertType });
@@ -41,7 +53,11 @@ router.get('/:userId', rateLimiter, async (req, res, next) => {
 
 // Route to display the BAK update form for a specific user
 router.get('/:userId/edit-bak', rateLimiter, async (req, res, next) => {
-    const errorMessage = req.query.errorMessage;
+    const rawErrorMessage = req.query.errorMessage;
+    const errorMessage = sanitizeHtml(rawErrorMessage, {
+        allowedTags: [], // Geen HTML toegestaan; alleen tekst
+        allowedAttributes: {}, // Geen attributen toegestaan
+    });
 
     const { userId } = req.params;
 
@@ -106,8 +122,17 @@ router.post('/:userId/edit-bak', async (req, res, next) => {
 router.get('/:userId/assign-award', rateLimiter, async (req, res, next) => {
     try {
         const { userId } = req.params;
-        const errorMessage = req.query.errorMessage;
-        const alertType = req.query.alertType || 'danger';
+        const rawErrorMessage = req.query.errorMessage;
+        const errorMessage = sanitizeHtml(rawErrorMessage, {
+            allowedTags: [], // Geen HTML toegestaan; alleen tekst
+            allowedAttributes: {}, // Geen attributen toegestaan
+        });
+        let alertType = req.query.alertType || 'danger';
+
+        // Controleer of de opgegeven alertType is toegestaan, zo niet, gebruik dan de standaardwaarde 'danger'
+        if (!validAlertTypes.includes(alertType)) {
+            alertType = 'danger';
+        }
 
         const lid = await User.findByPk(userId);
 
@@ -119,16 +144,29 @@ router.get('/:userId/assign-award', rateLimiter, async (req, res, next) => {
         // Exclude trophy names that are already associated with the user or are in the excluded list
         const excludedTrophyNames = ['Junior', 'Senior', 'Master', 'Alcoholist', 'Leverfalen', 'Strooier', 'Mormel', 'Schoft', 'Klootzak'];
 
-        // Fetch only the trophies that are not yet assigned to the user and are not in the excluded list
+        // First, fetch the IDs of trophies already awarded to the user
+        const userTrophies = await UserTrophies.findAll({
+            where: { userId: userId },
+            attributes: ['trophyId'],
+            raw: true,
+        });
+
+        const awardedTrophyIds = userTrophies.map(ut => ut.trophyId);
+
+        // Then, query for trophies that have not been awarded to the user and are not in the excluded list
         const defaultTrophies = await Trophy.findAll({
             where: {
-                name: { [Op.notIn]: excludedTrophyNames } // Exclude trophies with these names
+                id: { [Op.notIn]: awardedTrophyIds }, // Exclude trophies by their IDs
+                name: { [Op.notIn]: excludedTrophyNames }, // Exclude trophies by name
             },
-            include: {
+            include: [{
                 model: User,
                 as: 'Winners',
-                through: { where: { userId: null }, attributes: [] } // Exclude trophies already associated with the user
-            }
+                attributes: [],
+                through: {
+                    attributes: [],
+                },
+            }],
         });
 
         res.render('admin/edit/assign_award', { csrfToken: req.csrfToken(), user: req.user, lid, defaultTrophies, errorMessage: errorMessage ?? null, alertType: alertType });
@@ -204,8 +242,17 @@ router.post('/:userId/assign-award', async (req, res, next) => {
 router.get('/:userId/remove-award', rateLimiter, async (req, res, next) => {
     try {
         const { userId } = req.params;
-        const errorMessage = req.query.errorMessage;
-        const alertType = req.query.alertType || 'danger';
+        const rawErrorMessage = req.query.errorMessage;
+        const errorMessage = sanitizeHtml(rawErrorMessage, {
+            allowedTags: [], // Geen HTML toegestaan; alleen tekst
+            allowedAttributes: {}, // Geen attributen toegestaan
+        });
+        let alertType = req.query.alertType || 'danger';
+
+        // Controleer of de opgegeven alertType is toegestaan, zo niet, gebruik dan de standaardwaarde 'danger'
+        if (!validAlertTypes.includes(alertType)) {
+            alertType = 'danger';
+        }
 
         // Find the user by ID
         const user = await User.findByPk(userId);

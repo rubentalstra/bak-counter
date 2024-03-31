@@ -15,6 +15,7 @@ const { adminEmails } = require('../config/isAdmin');
 const { s3Client } = require('../config/s3Client');
 const config = require('../config/config');
 const rateLimiter = require('../middleware/rateLimiter');
+const sanitizeHtml = require('sanitize-html');
 
 const router = express.Router();
 
@@ -85,9 +86,6 @@ router.get('/', rateLimiter, async (req, res, next) => {
         // Filter requests based on status
         const openRequests = allRequests.filter(req => req.status === 'pending');
         const closedRequests = allRequests.filter(req => ['declined', 'approved'].includes(req.status));
-
-        // Check if the current user is an admin
-        const userIsAdmin = adminEmails.includes(req.user.email);
 
         // Adding isAdmin flag to approvers
         allRequests.forEach(request => {
@@ -283,7 +281,11 @@ router.get('/validate/decline/:id', async (req, res, next) => {
 // Route to show the page for creating a new BAK validation request
 router.get('/create', rateLimiter, async (req, res, next) => {
     try {
-        const errorMessage = req.query.errorMessage;
+        const rawErrorMessage = req.query.errorMessage;
+        const errorMessage = sanitizeHtml(rawErrorMessage, {
+            allowedTags: [], // Geen HTML toegestaan; alleen tekst
+            allowedAttributes: {}, // Geen attributen toegestaan
+        });
         // Fetch all users from the database to populate the select dropdown
         const users = await User.findAll({
             attributes: ['id', 'name'],

@@ -5,6 +5,7 @@ const { Bet, User } = require('../models'); // Adjust the path as necessary
 const { logEvent } = require('../utils/eventLogger');
 const rateLimiter = require('../middleware/rateLimiter');
 const ApplicationError = require('../utils/ApplicationError');
+const sanitizeHtml = require('sanitize-html');
 
 
 const router = express.Router();
@@ -79,7 +80,11 @@ router.post('/decline/:betId', async (req, res, next) => {
 // Route to display form to create a new bet
 router.get('/create', rateLimiter, async (req, res, next) => {
     try {
-        const errorMessage = req.query.errorMessage;
+        const rawErrorMessage = req.query.errorMessage;
+        const errorMessage = sanitizeHtml(rawErrorMessage, {
+            allowedTags: [], // Geen HTML toegestaan; alleen tekst
+            allowedAttributes: {}, // Geen attributen toegestaan
+        });
 
         //  Fetch all users to select as opponent and judge
         const users = await User.findAll({

@@ -5,12 +5,17 @@ const { Op } = require('sequelize');
 const { logEvent } = require('../utils/eventLogger');
 const ApplicationError = require('../utils/ApplicationError');
 const rateLimiter = require('../middleware/rateLimiter');
+const sanitizeHtml = require('sanitize-html');
 const router = express.Router();
 
 
 router.get('/submit', rateLimiter, async (req, res, next) => {
     try {
-        const errorMessage = req.query.errorMessage;
+        const rawErrorMessage = req.query.errorMessage;
+        const errorMessage = sanitizeHtml(rawErrorMessage, {
+            allowedTags: [], // Geen HTML toegestaan; alleen tekst
+            allowedAttributes: {}, // Geen attributen toegestaan
+        });
 
         // Fetch all users except the current user
         const users = await User.findAll({
