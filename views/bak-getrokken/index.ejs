@@ -50,20 +50,27 @@
                                         data-bs-target="#evidenceModal-<%= request.id %>">Bekijken</a></p>
 
                                 <p class="card-text">Status: <%= request.status %></p>
-                                <p class="card-text">Goedkeurders:
-                                    <% if (request.FirstApprover) { %>
-                                    <span>Eerste Goedkeurder: <a href="/profile/<%= request.FirstApprover.id %>">
-                                            <%= request.FirstApprover.name %></a>,</span>
-                                    <% } %>
-                                    <% if (request.SecondApprover) { %>
-                                    <span>Tweede Goedkeurder: <a href="/profile/<%= request.SecondApprover.id %>">
-                                            <%= request.SecondApprover.name %>
-                                        </a></span>
-                                    <% } %>
-                                    <% if (!request.FirstApprover && !request.SecondApprover) { %>
-                                    <span>Nog geen goedkeurders.</span>
-                                    <% } %>
-                                </p>
+                                <div class="card-text">
+                                    <h6 class="fw-bold">Goedkeurders:</h6>
+                                    <ul class="list-unstyled">
+                                        <% if (request.FirstApprover) { %>
+                                        <li><span>Eerste Goedkeurder: <a
+                                                    href="/profile/<%= request.FirstApprover.id %>"><%= request.FirstApprover.name %></a></span>
+                                        </li>
+                                        <% } %>
+                                        <% if (request.SecondApprover) { %>
+                                        <li>
+                                            <span>Tweede Goedkeurder: <a
+                                                    href="/profile/<%= request.SecondApprover.id %>"><%= request.SecondApprover.name %></a></span>
+                                        </li>
+                                        <% } %>
+                                        <% if (!request.FirstApprover && !request.SecondApprover) { %>
+                                        <li>
+                                            <span>Nog geen goedkeurders.</span>
+                                        </li>
+                                        <% } %>
+                                    </ul>
+                                </div>
 
                                 <% if (user.id !== request.requesterId && user.id !== request.targetId) { %>
                                 <% var hasAlreadyApproved = (request.FirstApprover && request.FirstApprover.id === user.id) || (request.SecondApprover && request.SecondApprover.id === user.id); %>
