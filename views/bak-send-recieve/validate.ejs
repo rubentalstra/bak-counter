@@ -57,7 +57,6 @@
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-Token': '<%= csrfToken %>'
-                    // Voeg CSRF-token toe indien nodig
                 },
                 body: JSON.stringify({ status: status })
             }).then(response => {
@@ -66,7 +65,9 @@
                 } else {
                     alert('Het updaten van het BAK-verzoek is mislukt.');
                 }
-            });
+            }).catch(error => {
+                console.error('Error:', error);
+            })
         }
     </script>
 
