@@ -322,8 +322,15 @@
                                 <% }); %>
                             </tbody>
                         </table>
+                        <nav aria-label="Table pagination">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item" id="previousPage"><a class="page-link" href="#">Previous</a></li>
+                                <!-- Pagination Numbers injected by JavaScript -->
+                                <li class="page-item" id="nextPage"><a class="page-link" href="#">Next</a></li>
+                            </ul>
+                        </nav>
+
                     </div>
-                    <!-- Implement pagination or a mechanism to load more logs as per your backend capability -->
                 </div>
             </div>
 
@@ -465,8 +472,112 @@
                 popup.classList.toggle("show");
             }
         }
-    </script>
-    <script>
+
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const rowsPerPage = 15;
+            const table = document.getElementById('eventLogTable');
+            const tbody = table.getElementsByTagName('tbody')[0];
+            const rows = tbody.getElementsByTagName('tr');
+            const pageCount = Math.ceil(rows.length / rowsPerPage);
+            let currentPage = 1;
+
+            function updateTable() {
+                for (let i = 0; i < rows.length; i++) {
+                    rows[i].style.display = 'none';
+                }
+                const start = (currentPage - 1) * rowsPerPage;
+                const end = Math.min(start + rowsPerPage, rows.length);
+                for (let i = start; i < end; i++) {
+                    rows[i].style.display = '';
+                }
+            }
+
+            function setupPagination() {
+                const pagination = document.querySelector('.pagination');
+                pagination.innerHTML = ''; // Clear existing
+
+                // Add Previous Page button
+                const prevLi = document.createElement('li');
+                prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+                prevLi.innerHTML = `<a class="page-link" href="#">Previous</a>`;
+                prevLi.querySelector('a').addEventListener('click', function (e) {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        updateTable();
+                        setupPagination();
+                    }
+                    e.preventDefault();
+                });
+                pagination.appendChild(prevLi);
+
+                // Dynamically add page numbers, handle ellipses and last page
+                let startPage = Math.max(currentPage - 2, 1);
+                let endPage = Math.min(currentPage + 2, pageCount);
+
+                if (startPage > 1) {
+                    pagination.appendChild(createPageItem(1, currentPage === 1));
+                    if (startPage > 2) {
+                        pagination.appendChild(createEllipsisItem());
+                    }
+                }
+
+                for (let i = startPage; i <= endPage; i++) {
+                    pagination.appendChild(createPageItem(i, i === currentPage));
+                }
+
+                if (endPage < pageCount) {
+                    if (endPage < pageCount - 1) {
+                        pagination.appendChild(createEllipsisItem());
+                    }
+                    pagination.appendChild(createPageItem(pageCount, currentPage === pageCount));
+                }
+
+                // Add Next Page button
+                const nextLi = document.createElement('li');
+                nextLi.className = `page-item ${currentPage === pageCount ? 'disabled' : ''}`;
+                nextLi.innerHTML = `<a class="page-link" href="#">Next</a>`;
+                nextLi.querySelector('a').addEventListener('click', function (e) {
+                    if (currentPage < pageCount) {
+                        currentPage++;
+                        updateTable();
+                        setupPagination();
+                    }
+                    e.preventDefault();
+                });
+                pagination.appendChild(nextLi);
+
+                updateTable();
+            }
+
+            function createPageItem(page, isCurrent) {
+                const li = document.createElement('li');
+                li.className = `page-item ${isCurrent ? 'active' : ''}`;
+                li.innerHTML = `<a class="page-link" href="#">${page}</a>`;
+                if (!isCurrent) {
+                    li.addEventListener('click', function (e) {
+                        currentPage = page;
+                        updateTable();
+                        setupPagination();
+                        e.preventDefault();
+                    });
+                }
+                return li;
+            }
+
+            function createEllipsisItem() {
+                const li = document.createElement('li');
+                li.className = 'page-item disabled';
+                li.innerHTML = `<span class="page-link">...</span>`;
+                return li;
+            }
+
+            setupPagination();
+        });
+
+
+
 
     </script>
 
