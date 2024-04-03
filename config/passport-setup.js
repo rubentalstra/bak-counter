@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const { User } = require('../models');
+const ApplicationError = require('../utils/ApplicationError');
 
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
@@ -16,19 +17,21 @@ passport.use(new GoogleStrategy({
             const email = profile.emails[0].value;
             // Ensure the email domain is @sv-realtime.nl
             if (!email.endsWith('@sv-realtime.nl')) {
-                throw new Error("Invalid email domain");
+                throw new ApplicationError("Invalid email domain", 403);
             }
 
+            const emailSurnamePart = email.substring(email.indexOf('.') + 1, email.lastIndexOf('@')).toLowerCase();
+            const displayNameSurname = profile.displayName.toLowerCase().replace(/\s+/g, '');
 
-            // Implement findOrCreateUser function based on your user model and database
+            if (!displayNameSurname.includes(emailSurnamePart)) {
+                throw new ApplicationError("Graag inloggen met je persoonlijke account.", 403);
+            }
+
             let user = await findOrCreateUser({
                 googleId: profile.id,
                 email: email,
                 name: profile.displayName,
-                // You might want to add more fields here
             });
-
-            // Optionally, check if the user is an admin and set isAdmin flag accordingly
 
             return cb(null, user);
         } catch (error) {
