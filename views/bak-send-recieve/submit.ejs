@@ -32,6 +32,7 @@
                 <div class="mb-3">
                     <label for="targetId" class="form-label">Ontvanger</label>
                     <select id="targetId" name="targetId" class="form-select" required>
+                        <option value="" selected disabled>Kies een Ontvanger</option>
                         <% users.forEach(user=> { %>
                         <option value="<%= user.id %>">
                             <%= user.name %>
