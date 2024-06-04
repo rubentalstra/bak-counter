@@ -3,6 +3,7 @@ const { BakRequest, User, BakHasTakenRequest, EventLog } = require('../models');
 const { getUserReputationDetails, getUserLevelDetails } = require('../utils/levelUtils');
 const ApplicationError = require('../utils/ApplicationError');
 const rateLimiter = require('../middleware/rateLimiter');
+const { Op } = require('sequelize');
 const router = express.Router();
 
 
@@ -25,7 +26,10 @@ router.get('/dashboard', rateLimiter, async (req, res, next) => {
                         where: { status: 'pending' },
                         required: false
                     }
-                ]
+                ],
+                where: {
+                    bestuursjaar: { [Op.like]: '%' + new Date().getFullYear() + '%' },
+                },
             }),
             fetchTopUsers('xp'),
             fetchTopUsers('rep'),
@@ -62,6 +66,7 @@ router.get('/eventLogs', async (req, res, next) => {
 async function fetchTopUsers(attribute) {
     const users = await User.findAll({
         attributes: ['id', 'name', 'profilePicture', attribute],
+        where: { bestuursjaar: { [Op.like]: '%' + new Date().getFullYear() + '%' } },
         order: [[attribute, 'DESC']],
         limit: 5
     });

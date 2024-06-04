@@ -102,6 +102,7 @@ app.use(isAuthenticated, require('./routes/dashboard'));
 app.use('/bets', isAuthenticated, require('./routes/bets'));
 app.use('/profile', isAuthenticated, require('./routes/profile'));
 app.use('/bak', isAuthenticated, require('./routes/bak'));
+app.use('/hall-of-fame', isAuthenticated, require('./routes/hallOfFame'));
 app.use('/bak-getrokken', isAuthenticated, require('./routes/bakGetrokken'));
 app.use('/admin', isAuthenticated, isAdmin, require('./routes/admin'));
 

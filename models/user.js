@@ -17,6 +17,10 @@ module.exports = (sequelize) => {
             type: DataTypes.STRING,
             allowNull: false
         },
+        bestuursjaar: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
         bak: {
             type: DataTypes.INTEGER,
             defaultValue: 0

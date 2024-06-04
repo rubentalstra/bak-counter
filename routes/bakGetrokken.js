@@ -288,8 +288,7 @@ router.get('/create', rateLimiter, async (req, res, next) => {
         });
         // Fetch all users from the database to populate the select dropdown
         const users = await User.findAll({
-            attributes: ['id', 'name'],
-            where: { id: { [Op.not]: req.user.id } }
+            attributes: ['id', 'name']
         });
 
         // Render the create request page with the users data
