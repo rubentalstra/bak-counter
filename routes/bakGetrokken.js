@@ -312,9 +312,12 @@ router.post('/create', multerUpload.single('evidence'), async (req, res) => {
         const requesterId = req.user.id;
 
         // Ensure that the requester and target are different users
-        if (parseInt(requesterId) === parseInt(targetUserId)) {
-            return res.status(400).json({ success: false, message: 'Aanvrager en Ontvanger kunnen niet dezelfde gebruiker zijn.' });
-        }
+
+        // Allow to upload your own BAK evidence
+
+        // if (parseInt(requesterId) === parseInt(targetUserId)) {
+        //     return res.status(400).json({ success: false, message: 'Aanvrager en Ontvanger kunnen niet dezelfde gebruiker zijn.' });
+        // }
 
         if (!req.file) {
             // Handle the case where the file is not uploaded
