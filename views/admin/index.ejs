@@ -32,6 +32,7 @@
                     <thead>
                         <tr>
                             <th>Naam</th>
+                            <th>Bestuursjaar</th>
                             <th>BAK Aantal</th>
                             <th>Acties</th>
                         </tr>
@@ -44,6 +45,7 @@
                                     style="width: 30px; height: 30px; object-fit: cover;">
                                 <%= lid.name %>
                             </td>
+                            <td><%= lid.bestuursjaar %></td>
                             <td><%= lid.bak %></td>
                             <td>
                                 <a href="/admin/<%= lid.id %>" class="btn btn-theme btn-sm">Bijwerken</a>
