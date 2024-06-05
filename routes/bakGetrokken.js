@@ -288,8 +288,7 @@ router.get('/create', rateLimiter, async (req, res, next) => {
         });
         // Fetch all users from the database to populate the select dropdown
         const users = await User.findAll({
-            attributes: ['id', 'name'],
-            where: { id: { [Op.not]: req.user.id } }
+            attributes: ['id', 'name']
         });
 
         // Render the create request page with the users data
@@ -312,9 +311,12 @@ router.post('/create', multerUpload.single('evidence'), async (req, res) => {
         const requesterId = req.user.id;
 
         // Ensure that the requester and target are different users
-        if (parseInt(requesterId) === parseInt(targetUserId)) {
-            return res.status(400).json({ success: false, message: 'Aanvrager en Ontvanger kunnen niet dezelfde gebruiker zijn.' });
-        }
+
+        // Allow to upload your own BAK evidence
+
+        // if (parseInt(requesterId) === parseInt(targetUserId)) {
+        //     return res.status(400).json({ success: false, message: 'Aanvrager en Ontvanger kunnen niet dezelfde gebruiker zijn.' });
+        // }
 
         if (!req.file) {
             // Handle the case where the file is not uploaded

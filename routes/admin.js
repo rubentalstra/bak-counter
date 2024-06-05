@@ -51,6 +51,56 @@ router.get('/:userId', rateLimiter, async (req, res, next) => {
     }
 });
 
+
+
+// Route to display the BAK update form for a specific user
+router.get('/:userId/edit-bestuursjaar', rateLimiter, async (req, res, next) => {
+    const rawErrorMessage = req.query.errorMessage;
+    const errorMessage = sanitizeHtml(rawErrorMessage, {
+        allowedTags: [], // Geen HTML toegestaan; alleen tekst
+        allowedAttributes: {}, // Geen attributen toegestaan
+    });
+
+    const { userId } = req.params;
+
+    try {
+        const lid = await User.findByPk(userId);
+        if (!lid) {
+            throw new ApplicationError('Gebruiker niet gevonden', 404);
+        }
+        res.render('admin/edit/edit_bestuursjaar', { csrfToken: req.csrfToken(), user: req.user, lid, errorMessage: errorMessage ?? null });
+    } catch (error) {
+        console.error("Fout bij het ophalen van de gebruiker:", error);
+        next(error);
+    }
+});
+
+// Route to update BAK and log the event
+router.post('/:userId/edit-bestuursjaar', async (req, res, next) => {
+    const { userId } = req.params;
+    const { bestuursjaar } = req.body;
+
+    try {
+        const user = await User.findByPk(userId);
+        if (!user) {
+            throw new ApplicationError('Gebruiker niet gevonden', 404);
+        }
+
+        user.bestuursjaar = bestuursjaar;
+        await user.save();
+
+        res.redirect('/admin');
+    } catch (error) {
+        console.error("Fout bij het bijwerken van bestuursjaar:", error);
+        next(error);
+    }
+});
+
+
+
+
+
+
 // Route to display the BAK update form for a specific user
 router.get('/:userId/edit-bak', rateLimiter, async (req, res, next) => {
     const rawErrorMessage = req.query.errorMessage;

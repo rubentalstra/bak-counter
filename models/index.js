@@ -8,6 +8,7 @@ const EventLog = require('./eventLog')(sequelize); // Import the EventLog model
 const Bet = require('./bet')(sequelize); // Import the new Bet model
 const Trophy = require('./trophy')(sequelize); // Import the new trophy model
 const UserTrophies = require('./UserTrophies')(sequelize); // Import the new trophy model
+const HallOfFame = require('./hallOfFame')(sequelize); // Import the new HallOfFame model
 
 
 // Setup associations for User and BakRequest
@@ -81,6 +82,16 @@ EventLog.belongsTo(User, {
     as: 'User'
 });
 
+// Setup associations for User and HallOfFame
+User.hasMany(HallOfFame, {
+    foreignKey: 'userId',
+    as: 'hallOfFame'
+});
+HallOfFame.belongsTo(User, {
+    foreignKey: 'userId',
+    as: 'User'
+});
+
 
 // Setup associations for User and Bet
 User.hasMany(Bet, {
@@ -130,5 +141,6 @@ module.exports = {
     EventLog,
     Bet,
     Trophy,
-    UserTrophies
+    UserTrophies,
+    HallOfFame
 };

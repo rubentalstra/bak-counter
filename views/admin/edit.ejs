@@ -22,6 +22,17 @@
                 <div class="col-md-6">
                     <div class="card mb-3">
                         <div class="card-body">
+                            <h5 class="card-title">Bewerk Bestuursjaar</h5>
+                            <p class="card-text">Pas het bestuursjaar aan van deze persoon zodat dit alleen actief is
+                                voor het dashboard.</p>
+                            <a href="/admin/<%= lid.id %>/edit-bestuursjaar" class="btn btn-primary">Doorgaan</a>
+                        </div>
+                    </div>
+                </div>
+                <% if (lid.id !== user.id) { %>
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-body">
                             <h5 class="card-title">Bewerk BAK-telling</h5>
                             <p class="card-text">Pas de BAK-telling van een gebruiker aan om wijzigingen in hun score te
                                 reflecteren. Dit kan zijn voor correcties of updates.</p>
@@ -50,6 +61,7 @@
                         </div>
                     </div>
                 </div>
+                <% } %>
             </div>
         </div>
 
