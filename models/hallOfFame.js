@@ -4,8 +4,7 @@ module.exports = (sequelize) => {
     return sequelize.define('HallOfFame', {
         order: {
             type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 1,
+            allowNull: true,  // Temporarily allow NULL during creation
             comment: 'The order of the event in the hall of fame'
         },
         userId: {
@@ -16,7 +15,7 @@ module.exports = (sequelize) => {
                 key: 'id',
             },
         },
-        gebeurtenis: {
+        prestatie: {
             type: DataTypes.STRING,
             allowNull: false,
         },
