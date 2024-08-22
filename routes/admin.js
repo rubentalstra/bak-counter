@@ -173,7 +173,7 @@ router.get('/:userId/assign-award', rateLimiter, async (req, res, next) => {
     try {
         const { userId } = req.params;
         const rawErrorMessage = req.query.errorMessage;
-        const errorMessage = sanitizeHtml(rawErrorMessage, {
+        let errorMessage = sanitizeHtml(rawErrorMessage, {
             allowedTags: [], // Geen HTML toegestaan; alleen tekst
             allowedAttributes: {}, // Geen attributen toegestaan
         });
@@ -293,7 +293,7 @@ router.get('/:userId/remove-award', rateLimiter, async (req, res, next) => {
     try {
         const { userId } = req.params;
         const rawErrorMessage = req.query.errorMessage;
-        const errorMessage = sanitizeHtml(rawErrorMessage, {
+        let errorMessage = sanitizeHtml(rawErrorMessage, {
             allowedTags: [], // Geen HTML toegestaan; alleen tekst
             allowedAttributes: {}, // Geen attributen toegestaan
         });

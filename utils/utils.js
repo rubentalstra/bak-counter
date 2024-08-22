@@ -3,17 +3,16 @@ const { Op } = require('sequelize');
 const { Bet, BakRequest } = require('../models');
 
 async function getPendingRequestCount(userId) {
-    const count = await BakRequest.count({
+    return await BakRequest.count({
         where: {
             targetId: userId,
             status: 'pending'
         }
     });
-    return count;
 }
 
 async function getPendingBetCount(userId) {
-    const count = await Bet.count({
+    return await Bet.count({
         where: {
             [Op.or]: [
                 {
@@ -29,7 +28,6 @@ async function getPendingBetCount(userId) {
             ]
         }
     });
-    return count;
 }
 
 module.exports = {
