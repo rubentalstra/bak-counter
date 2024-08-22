@@ -4,11 +4,10 @@ const fs = require('fs');
 const { Sequelize, Op } = require('sequelize');
 
 function isLocal() {
-    if (process.env.LOCAL_DB == 'true') {
+    if (process.env.LOCAL_DB === 'true') {
         // Initialize the database connection
         console.log('Using local db')
-        const sequelize = new Sequelize('sqlite:./db.sqlite');
-        return sequelize
+        return new Sequelize('sqlite:./db.sqlite')
     } else {
         // Initialize the database connection for MYSQL using environment variables
         console.log('Using MYSQL db')
@@ -21,7 +20,7 @@ function isLocal() {
             }
         };
 
-        const sequelize = new Sequelize(process.env.AZURE_SQL_DATABASE, process.env.AZURE_SQL_USER, process.env.AZURE_SQL_PASSWORD, {
+        return new Sequelize(process.env.AZURE_SQL_DATABASE, process.env.AZURE_SQL_USER, process.env.AZURE_SQL_PASSWORD, {
             port: process.env.AZURE_SQL_PORT,
             host: process.env.AZURE_SQL_SERVER,
             dialect: 'mysql', // Specify using mysql
@@ -35,8 +34,7 @@ function isLocal() {
                 idle: 10000
             },
             logging: false, //  console.log
-        });
-        return sequelize
+        })
     }
 }
 

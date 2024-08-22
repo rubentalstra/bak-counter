@@ -44,7 +44,7 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-if (process.env.LOCAL_DB == 'true') {
+if (process.env.LOCAL_DB === 'true') {
     app.use(session({
         name: 'mijnBakCookie',
         secret: process.env.SESSION_SECRET,

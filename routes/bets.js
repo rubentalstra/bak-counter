@@ -190,7 +190,7 @@ router.post('/judge/:betId', async (req, res, next) => {
         }
 
 
-        const loserUserId = (winnerUserId == bet.initiatorUserId) ? bet.opponentUserId : bet.initiatorUserId;
+        const loserUserId = (winnerUserId === bet.initiatorUserId) ? bet.opponentUserId : bet.initiatorUserId;
         const winner = await User.findByPk(winnerUserId);
         const loser = await User.findByPk(loserUserId);
 
