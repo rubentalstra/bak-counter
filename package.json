@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.635.0",
+    "@aws-sdk/client-s3": "^3.637.0",
     "aws-sdk": "^2.1680.0",
     "connect-session-sequelize": "^7.1.7",
     "cookie-parser": "^1.4.6",
